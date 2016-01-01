@@ -68,19 +68,25 @@ UIBarButtonItem *leftItem;
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+    if (self.embedded)
+        return 2;
+    
 	return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-	return [[Bookmark list] count];
+    if (section == 1 || !self.embedded)
+        return [[Bookmark list] count];
+
+	return 1;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-	if (self.embedded)
+    if (self.embedded && section == 1)
 		return @"Bookmarks";
-	else
+    else
 		return nil;
 }
 
@@ -110,12 +116,19 @@ UIBarButtonItem *leftItem;
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"bookmark"];
 	if (cell == nil)
 		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"boomark"];
+    
+    if (indexPath.row < [[Bookmark list] count] && (indexPath.section == 1 || !self.embedded)) {
+        Bookmark *b = [[Bookmark list] objectAtIndex:indexPath.row];
+        if (b != nil) {
+            cell.textLabel.text = b.name;
+            cell.detailTextLabel.text = b.urlString;
+        }
+    } else {
+        cell.textLabel.text = @"Homepage";
+        appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+        cell.detailTextLabel.text = [appDelegate homepage];
+    }
 
-	Bookmark *b = [[Bookmark list] objectAtIndex:indexPath.row];
-	if (b != nil) {
-		cell.textLabel.text = b.name;
-		cell.detailTextLabel.text = b.urlString;
-	}
 	
 	[cell setShowsReorderControl:YES];
 	
@@ -124,11 +137,16 @@ UIBarButtonItem *leftItem;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	Bookmark *bookmark = [Bookmark list][[indexPath row]];
-	
-	if (self.embedded)
-		[[appDelegate appWebView] prepareForNewURLFromString:[bookmark urlString]];
-	else {
+    if (self.embedded) {
+        if (indexPath.section == 1) {
+            Bookmark *bookmark = [Bookmark list][[indexPath row]];
+            [[appDelegate appWebView] prepareForNewURLFromString:[bookmark urlString]];
+        } else {
+            [[appDelegate appWebView] prepareForNewURLFromString:[appDelegate homepage]];
+        }
+    } else {
+        Bookmark *bookmark = [Bookmark list][[indexPath row]];
+
 		[tableView deselectRowAtIndexPath:indexPath animated:YES];
 		
 		UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Edit Bookmark" message:@"Enter the details of the URL to bookmark:" preferredStyle:UIAlertControllerStyleAlert];

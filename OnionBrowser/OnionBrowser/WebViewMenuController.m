@@ -56,6 +56,7 @@ NSString * const LABEL = @"L";
 	
 	[buttons addObject:@{ FUNC : @"menuRefresh", LABEL : @"Refresh" }];
 	[buttons addObject:@{ FUNC : @"menuAddBookmark", LABEL : @"Add Bookmark" }];
+    [buttons addObject:@{ FUNC : @"menuSetHomepage", LABEL : @"Set Homepage" }];
 	[buttons addObject:@{ FUNC : @"menuOpenInSafari", LABEL : @"Open in Safari" }];
 	[buttons addObject:@{ FUNC : @"menuManageBookmarks", LABEL : @"Manage Bookmarks" }];
 	[buttons addObject:@{ FUNC : @"menuSettings", LABEL : @"Settings" }];
@@ -122,7 +123,7 @@ NSString * const LABEL = @"L";
 	}
 	else if ([func isEqualToString:@"menuRefresh"]) {
 		cell.userInteractionEnabled = haveURL;
-		cell.textLabel.enabled = haveURL;
+        cell.textLabel.enabled = haveURL;
         cellImage = [UIImage imageNamed:@"refreshImage"];
     } else if ([func isEqualToString:@"menuOpenInSafari"]) {
         cell.userInteractionEnabled = haveURL;
@@ -131,6 +132,17 @@ NSString * const LABEL = @"L";
     }
     else if ([func isEqualToString:@"menuManageBookmarks"])
         cellImage = [UIImage imageNamed:@"bookmarks"];
+    else if ([func isEqualToString:@"menuSetHomepage"]) {
+        cellImage = [UIImage imageNamed:@"homepage"];
+        if (haveURL) { //[appDelegate homepage]
+            if ([[appDelegate homepage] isEqualToString:[NSString stringWithFormat:@"%@", [[[appDelegate appWebView] curWebViewTab] url]]]) {
+                cell.userInteractionEnabled = cell.textLabel.enabled = NO;
+            }
+            cell.userInteractionEnabled = cell.textLabel.enabled = NO;
+        }
+        else
+            cell.userInteractionEnabled = cell.textLabel.enabled = NO;
+    }
     else if ([func isEqualToString:@"menuSettings"])
         cellImage = [UIImage imageNamed:@"settingsImage"];
     else if ([func isEqualToString:@"menuOpenBridge"])
@@ -224,6 +236,10 @@ NSString * const LABEL = @"L";
 	[[appDelegate appWebView] presentViewController:[Bookmark addBookmarkDialogWithOkCallback:nil] animated:YES completion:nil];
 }
 
+- (void)menuSetHomepage
+{
+    [self updateHomepage:[NSString stringWithFormat:@"%@", [[[appDelegate appWebView] curWebViewTab] url]]];
+}
 /*
 - (void)menuOnePassword
 {
@@ -276,6 +292,37 @@ NSString * const LABEL = @"L";
                                           otherButtonTitles:nil];
     [alert show];
     [self goHome];
+}
+
+- (NSString *)settingsFile {
+    return [[[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject] path] stringByAppendingPathComponent:@"Settings.plist"];
+}
+
+- (void)updateHomepage:(NSString *)homepage {
+    NSPropertyListFormat format;
+    NSMutableDictionary *d;
+    
+    NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:self.settingsFile];
+    d = (NSMutableDictionary *)[NSPropertyListSerialization propertyListWithData:plistXML options:NSPropertyListMutableContainersAndLeaves format:&format error:nil];
+    
+    [d setObject:homepage forKey:@"homepage"];
+    [self saveSettings:d];
+}
+
+- (void)saveSettings:(NSMutableDictionary *)settings {
+    NSError *error;
+    NSData *data =
+    [NSPropertyListSerialization dataWithPropertyList:settings
+                                               format:NSPropertyListXMLFormat_v1_0
+                                              options:0
+                                                error:&error];
+    if (data == nil) {
+        NSLog (@"error serializing to xml: %@", error);
+        return;
+    } else {
+        NSUInteger fileOption = NSDataWritingAtomic | NSDataWritingFileProtectionComplete;
+        [data writeToFile:self.settingsFile options:fileOption error:nil];
+    }
 }
 
 - (void) goHome {

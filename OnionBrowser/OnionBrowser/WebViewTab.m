@@ -261,28 +261,6 @@ AppDelegate *appDelegate;
     if (summary_loc2.location != NSNotFound)
         summary_str = [summary_str substringToIndex:summary_loc2.location];
     
-    /*
-    unsigned int fontsize = 12;
-    NSString *margintop = @"1.5em";
-    if (IS_IPHONE && ((unsigned long)[[UIScreen mainScreen] bounds].size.height < 568)) {
-        //NSLog(@"iPhone 4");
-        fontsize = 11;
-    } else if (IS_IPHONE && ((unsigned long)[[UIScreen mainScreen] bounds].size.height >= 667) && ((unsigned long)[[UIScreen mainScreen] bounds].size.height < 736)) {
-        //NSLog(@"iPhone 6");
-        fontsize = 13;
-        margintop = @"50px";
-    } else if (IS_IPHONE && ((unsigned long)[[UIScreen mainScreen] bounds].size.height >= 736)) {
-        //NSLog(@"iPhone 6+");
-        fontsize = 15;
-        margintop = @"50px";
-    } else if (IS_IPAD) {
-        //NSLog(@"iPad");
-        fontsize = 20;
-        margintop = @"80px";
-    }
-     */
-    //NSLog(@"%lu", (unsigned long)[[UIScreen mainScreen] bounds].size.height);
-    
     progress_str = [progress_str stringByReplacingOccurrencesOfString:@" " withString:@""];
     previous_progress_str = [previous_progress_str stringByReplacingOccurrencesOfString:@" " withString:@""];
     
@@ -341,7 +319,7 @@ AppDelegate *appDelegate;
                         "    <i>%@%%</i> %@"
                         "</p>"
                         "<div>"
-                        "    After a minute, re-launch the app.<br/>"
+                        "    After a few minutes, re-launch the app.<br/>"
                         "    If your ISP blocks Tor connections, you can configure bridges by pressing the settings button.<br/>"
                         "    If you continue to have issues, go to <a target='_blank' href='theonionbrowser:help'>the help page</a>."
                         "</div>"
@@ -553,6 +531,7 @@ AppDelegate *appDelegate;
     self.url = [NSURL URLWithString:[_webView stringByEvaluatingJavaScriptFromString:@"window.location.href"]];
 }
 
+/*
 - (void)webView:(UIWebView *)__webView didFailLoadWithError:(NSError *)error
 {
     self.url = self.webView.request.URL;
@@ -561,22 +540,22 @@ AppDelegate *appDelegate;
     if ([[error domain] isEqualToString:NSURLErrorDomain] && error.code == NSURLErrorCancelled)
         return;
     
-    /* "The operation couldn't be completed. (Cocoa error 3072.)" - useless */
+    // "The operation couldn't be completed. (Cocoa error 3072.)" - useless
     if ([[error domain] isEqualToString:NSCocoaErrorDomain] && error.code == NSUserCancelledError)
         return;
     
     NSString *msg = [error localizedDescription];
     
-    /* https://opensource.apple.com/source/libsecurity_ssl/libsecurity_ssl-36800/lib/SecureTransport.h */
+    // https://opensource.apple.com/source/libsecurity_ssl/libsecurity_ssl-36800/lib/SecureTransport.h
     if ([[error domain] isEqualToString:NSOSStatusErrorDomain]) {
         switch (error.code) {
-            case errSSLProtocol: /* -9800 */
+            case errSSLProtocol: // -9800
                 msg = @"SSL protocol error";
                 break;
-            case errSSLNegotiation: /* -9801 */
+            case errSSLNegotiation: // -9801
                 msg = @"SSL handshake failed";
                 break;
-            case errSSLXCertChainInvalid: /* -9807 */
+            case errSSLXCertChainInvalid: // -9807
                 msg = @"SSL certificate chain verification error (self-signed certificate?)";
                 break;
         }
@@ -596,6 +575,7 @@ AppDelegate *appDelegate;
     [self webViewDidFinishLoad:__webView];
     [self informError:error];
 }
+*/
 
 - (void)webView:(UIWebView *)__webView callbackWith:(NSString *)callback
 {
@@ -709,7 +689,7 @@ AppDelegate *appDelegate;
             errorTitle = @"Cannot Open Page";
         }
         if (errorDescription == nil) {
-            errorDescription = [NSString stringWithFormat:@"An error occurred: %@\n(Error \"%@: %li)\"",
+            errorDescription = [NSString stringWithFormat:@"An error occurred: %@\n(Error \"%@: %li)\"\nYou can try refreshing the page.",
                                 error.localizedDescription, error.domain, (long)error.code];
         }
         
@@ -904,11 +884,10 @@ AppDelegate *appDelegate;
 }
 
 - (void)longPressMenu:(UILongPressGestureRecognizer *)sender {
+    #warning longPress not called
 	UIAlertController *alertController;
 	NSString *href, *img, *alt;
     
-    NSLog(@"Long press menu");
-	
 	if (sender.state != UIGestureRecognizerStateBegan)
 		return;
 	

@@ -90,7 +90,54 @@ AppDelegate *appDelegate;
     return request;
 }
 
+- (NSString *)settingsFile {
+    return [[[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject] path] stringByAppendingPathComponent:@"Settings.plist"];
+}
 
+- (void)updateHomepage:(NSString *)homepage {
+    NSPropertyListFormat format;
+    NSMutableDictionary *d;
+    
+    NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:self.settingsFile];
+    d = (NSMutableDictionary *)[NSPropertyListSerialization propertyListWithData:plistXML options:NSPropertyListMutableContainersAndLeaves format:&format error:nil];
+    
+    if ([d objectForKey:@"homepage"] == nil) {
+        [d setObject:homepage forKey:@"homepage"];
+        [self saveSettings:d];
+    }
+}
+
+- (NSString *)getHomepage {
+    if ([appDelegate homepage] == nil) {
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+        NSDictionary *se = [[appDelegate searchEngines] objectForKey:[userDefaults stringForKey:@"search_engine"]];
+        if (se == nil)
+            se = [[appDelegate searchEngines] objectForKey:[[[appDelegate searchEngines] allKeys] firstObject]];
+        
+        [self updateHomepage:[se objectForKey:@"homepage_url"]];
+        
+        return [se objectForKey:@"homepage_url"];
+    }
+
+    return [appDelegate homepage];
+}
+
+- (void)saveSettings:(NSMutableDictionary *)settings {
+    NSError *error;
+    NSData *data =
+    [NSPropertyListSerialization dataWithPropertyList:settings
+                                               format:NSPropertyListXMLFormat_v1_0
+                                              options:0
+                                                error:&error];
+    if (data == nil) {
+        NSLog (@"error serializing to xml: %@", error);
+        return;
+    } else {
+        NSUInteger fileOption = NSDataWritingAtomic | NSDataWritingFileProtectionComplete;
+        [data writeToFile:self.settingsFile options:fileOption error:nil];
+    }
+}
 
 - (void)startLoading {
     if ([[[[[self request] URL] scheme] lowercaseString] isEqualToString:@"theonionbrowser"]) {
@@ -109,16 +156,13 @@ AppDelegate *appDelegate;
             url = [NSURL URLWithString: [NSString stringWithFormat:@"file:/%@/starting.html",resourcePath]];
         } else {
             /* theonionbrowser:home */
-            /*
-            NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-            appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-            NSDictionary *se = [[appDelegate searchEngines] objectForKey:[userDefaults stringForKey:@"search_engine"]];
-            if (se == nil)
-                se = [[appDelegate searchEngines] objectForKey:[[[appDelegate searchEngines] allKeys] firstObject]];
+            url = [NSURL URLWithString:[self getHomepage]];
             
-            url = [NSURL URLWithString:[se objectForKey:@"homepage_url"]];
-             */
-            url = [NSURL URLWithString: [NSString stringWithFormat:@"file:/%@/startup.html",resourcePath]];
+            //[[appDelegate appWebView] goHome:url];
+            
+            [[appDelegate appWebView] performSelectorOnMainThread:@selector(goHome:) withObject:url waitUntilDone:NO];
+            
+            return;
         }
         NSMutableURLRequest *newRequest = [NSMutableURLRequest requestWithURL:url];
         [newRequest setAllHTTPHeaderFields:[[self request] allHTTPHeaderFields]];

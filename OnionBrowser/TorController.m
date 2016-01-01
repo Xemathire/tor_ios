@@ -282,7 +282,7 @@
                 } else {
                     // Didn't launch with a "theonionbrowser://" or "theonionbrowsers://" URL
                     // so just launch regular start page.
-                    [wvc loadURL:[NSURL URLWithString:appDelegate.homepage]];
+                    [wvc loadURL:[NSURL URLWithString:@"theonionbrowser:home"]];
                 }
                 didFirstConnect = YES;
                 

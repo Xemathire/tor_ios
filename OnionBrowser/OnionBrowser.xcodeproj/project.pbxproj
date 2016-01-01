@@ -403,7 +403,7 @@
 		695BF04618944B5500C27BC1 /* startup2.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; lineEnding = 0; path = startup2.html; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.html; };
 		6962EAAC19D534DF00FDD0A7 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = OnionBrowser/Images.xcassets; sourceTree = "<group>"; };
 		696C33AD1530D0D400990E69 /* startup.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = startup.html; sourceTree = "<group>"; };
-		696EBD7314F7877900B81BC9 /* TheOnionBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheOnionBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		696EBD7314F7877900B81BC9 /* The Onion Browser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "The Onion Browser.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		696EBD7714F7877900B81BC9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		696EBD7914F7877900B81BC9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		696EBD7B14F7877900B81BC9 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -940,7 +940,7 @@
 		696EBD7414F7877900B81BC9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				696EBD7314F7877900B81BC9 /* TheOnionBrowser.app */,
+				696EBD7314F7877900B81BC9 /* The Onion Browser.app */,
 				697AB1081866567400A6F3EE /* OnionBrowserTests.xctest */,
 			);
 			name = Products;
@@ -1157,7 +1157,7 @@
 			);
 			name = OnionBrowser;
 			productName = OnionBrowser;
-			productReference = 696EBD7314F7877900B81BC9 /* TheOnionBrowser.app */;
+			productReference = 696EBD7314F7877900B81BC9 /* The Onion Browser.app */;
 			productType = "com.apple.product-type.application";
 		};
 		697AB1071866567400A6F3EE /* OnionBrowserTests */ = {
@@ -1500,7 +1500,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.JustKodding.TheOnionBrowser;
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME)";
-				PRODUCT_NAME = TheOnionBrowser;
+				PRODUCT_NAME = "The Onion Browser";
 				WRAPPER_EXTENSION = app;
 			};
 			name = TestBuilds;
@@ -1610,7 +1610,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.JustKodding.TheOnionBrowser;
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME)";
-				PRODUCT_NAME = TheOnionBrowser;
+				PRODUCT_NAME = "The Onion Browser";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1631,7 +1631,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.JustKodding.TheOnionBrowser;
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME)";
-				PRODUCT_NAME = TheOnionBrowser;
+				PRODUCT_NAME = "The Onion Browser";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

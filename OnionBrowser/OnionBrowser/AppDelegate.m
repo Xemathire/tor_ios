@@ -559,8 +559,14 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     // added new keys to settings. (or if they have no settings file and we're initializing
     // from a blank slate.)
     Boolean update = NO;
-    if ([d objectForKey:@"homepage"] == nil) {
-        [d setObject:@"theonionbrowser:home" forKey:@"homepage"]; // DEFAULT HOMEPAGE
+    if ([d objectForKey:@"homepage"] == nil || [[d objectForKey:@"homepage"] isEqualToString:@"theonionbrowser:home"]) {        
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *se = [[self searchEngines] objectForKey:[userDefaults stringForKey:@"search_engine"]];
+        if (se == nil)
+            se = [[self searchEngines] objectForKey:[[[self searchEngines] allKeys] firstObject]];
+        
+        [d setObject:[se objectForKey:@"homepage_url"] forKey:@"homepage"];
+
         update = YES;
     }
     if ([d objectForKey:@"cookies"] == nil) {

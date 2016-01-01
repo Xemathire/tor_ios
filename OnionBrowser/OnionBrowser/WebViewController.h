@@ -55,4 +55,6 @@
 - (void)dismissPopover;
 - (void)prepareForNewURLFromString:(NSString *)url;
 
+- (void)goHome:(NSURL *)url;
+
 @end

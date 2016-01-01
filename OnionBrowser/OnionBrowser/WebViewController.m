@@ -995,4 +995,9 @@
 	[self slideToCurrentTabWithCompletionBlock:nil];
 }
 
+- (void)goHome:(NSURL *)url {
+    [self removeAllTabs];
+    [self addNewTabForURL:url];
+}
+
 @end

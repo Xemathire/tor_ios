@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "696EBD7214F7877900B81BC9"
-               BuildableName = "TheOnionBrowser.app"
+               BuildableName = "The Onion Browser.app"
                BlueprintName = "OnionBrowser"
                ReferencedContainer = "container:OnionBrowser.xcodeproj">
             </BuildableReference>
@@ -43,7 +43,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "696EBD7214F7877900B81BC9"
-            BuildableName = "TheOnionBrowser.app"
+            BuildableName = "The Onion Browser.app"
             BlueprintName = "OnionBrowser"
             ReferencedContainer = "container:OnionBrowser.xcodeproj">
          </BuildableReference>
@@ -66,7 +66,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "696EBD7214F7877900B81BC9"
-            BuildableName = "TheOnionBrowser.app"
+            BuildableName = "The Onion Browser.app"
             BlueprintName = "OnionBrowser"
             ReferencedContainer = "container:OnionBrowser.xcodeproj">
          </BuildableReference>
@@ -85,7 +85,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "696EBD7214F7877900B81BC9"
-            BuildableName = "TheOnionBrowser.app"
+            BuildableName = "The Onion Browser.app"
             BlueprintName = "OnionBrowser"
             ReferencedContainer = "container:OnionBrowser.xcodeproj">
          </BuildableReference>
