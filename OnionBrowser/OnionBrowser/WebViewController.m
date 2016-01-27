@@ -497,6 +497,10 @@
 	}];
 }
 
+- (void)removeWithoutFocusingTab:(NSNumber *)tabNumber {
+    [self removeTab:tabNumber andFocusTab:[NSNumber numberWithInt:-2]];
+}
+
 - (void)removeTab:(NSNumber *)tabNumber
 {
 	[self removeTab:tabNumber andFocusTab:[NSNumber numberWithInt:-1]];
@@ -533,7 +537,7 @@
 	[tabChooser setNumberOfPages:webViewTabs.count];
 	[tabCount setText:[NSString stringWithFormat:@"%lu", (long)tabChooser.numberOfPages]];
 
-	if (futureFocusNumber == -1) {
+	if (futureFocusNumber == -1 || futureFocusNumber == -2) {
 		if (curTabIndex == tabNumber.intValue) {
 			if (webViewTabs.count > tabNumber.intValue && webViewTabs[tabNumber.intValue]) {
 				/* keep currentPage pointing at the page that shifted down to here */
@@ -551,7 +555,7 @@
 				return;
 			}
 		}
-	}
+    }
 	else {
 		[self setCurTabIndex:futureFocusNumber];
 	}
@@ -567,12 +571,14 @@
 			wvt.viewHolder.transform = CGAffineTransformMakeScale(ZOOM_OUT_SCALE, ZOOM_OUT_SCALE);
 		}
 	} completion:^(BOOL finished) {
-		[self setCurTabIndex:curTabIndex];
-
-		[self slideToCurrentTabWithCompletionBlock:^(BOOL finished) {
-			showingTabs = true;
-			[self showTabs:nil];
-		}];
+        if (futureFocusNumber != -2) {
+            [self setCurTabIndex:curTabIndex];
+            
+            [self slideToCurrentTabWithCompletionBlock:^(BOOL finished) {
+                showingTabs = true;
+                [self showTabs:nil];
+            }];
+        }
 	}];
 }
 
@@ -974,7 +980,7 @@
 	int fuzz = 8;
 	CGRect closerFrame = CGRectMake(self.curWebViewTab.closer.frame.origin.x - fuzz, self.curWebViewTab.closer.frame.origin.y - fuzz, self.curWebViewTab.closer.frame.size.width + (fuzz * 2), self.curWebViewTab.closer.frame.size.width + (fuzz * 2));
 	if (CGRectContainsPoint(closerFrame, point)) {
-		[self removeTab:[NSNumber numberWithLong:curTabIndex]];
+		[self removeWithoutFocusingTab:[NSNumber numberWithLong:curTabIndex]];
 	}
 	else {
 		[self showTabs:nil];

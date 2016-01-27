@@ -135,10 +135,10 @@ NSString * const LABEL = @"L";
     else if ([func isEqualToString:@"menuSetHomepage"]) {
         cellImage = [UIImage imageNamed:@"homepage"];
         if (haveURL) { //[appDelegate homepage]
+            // cell.userInteractionEnabled = cell.textLabel.enabled = YES;
             if ([[appDelegate homepage] isEqualToString:[NSString stringWithFormat:@"%@", [[[appDelegate appWebView] curWebViewTab] url]]]) {
                 cell.userInteractionEnabled = cell.textLabel.enabled = NO;
             }
-            cell.userInteractionEnabled = cell.textLabel.enabled = NO;
         }
         else
             cell.userInteractionEnabled = cell.textLabel.enabled = NO;

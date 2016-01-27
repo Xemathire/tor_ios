@@ -50,9 +50,9 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     
     if (![fileManager fileExistsAtPath:[path stringByAppendingPathComponent:@"bookmarks.plist"]]) {
-        [Bookmark addBookmarkForURLString:@"https://www.torproject.org/" withName:@"Learn more about Tor"];
-        [Bookmark addBookmarkForURLString:@"https://blog.torproject.org/" withName:@"The Tor Blog"];
-        [Bookmark addBookmarkForURLString:@"https://bridges.torproject.org/" withName:@"Tor Bridges"];
+        [Bookmark addBookmarkForURLString:@"https://duckduckgo.com" withName:@"DuckDuckGo"];
+        [Bookmark addBookmarkForURLString:@"https://bing.com" withName:@"Bing"];
+        [Bookmark addBookmarkForURLString:@"https://search.yahoo.com" withName:@"Yahoo search"];
     }
     
     return YES;
