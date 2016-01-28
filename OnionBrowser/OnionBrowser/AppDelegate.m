@@ -359,9 +359,11 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     _window.hidden = NO;
     appWebView.view.hidden = NO;
+    /*
     if (windowOverlay != nil) {
         [windowOverlay removeFromSuperview];
     }
+     */
 
     // Don't want to call "activateTorCheckLoop" directly since we
     // want to HUP tor first.
@@ -807,14 +809,19 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     return str;
 }
 - (NSString *)customUserAgent {
-    Byte uaspoof = [[self.getSettings valueForKey:@"uaspoof"] integerValue];
-    if (uaspoof == UA_SPOOF_SAFARI_MAC) {
+    // Byte uaspoof = [[self.getSettings valueForKey:@"uaspoof"] integerValue];
+
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *ua_agent = [userDefaults stringForKey:@"ua_agent"];
+    
+    if ([ua_agent  isEqual: @"UA_SPOOF_SAFARI_MAC"]) {
         return @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/600.1.17 (KHTML, like Gecko) Version/7.1 Safari/537.85.10";
-    } else if (uaspoof == UA_SPOOF_WIN7_TORBROWSER) {
+    } else if ([ua_agent  isEqual: @"UA_SPOOF_WIN7_TORBROWSER"]) {
         return @"Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0";
-    } else if (uaspoof == UA_SPOOF_IPHONE) {
+    } else if ([ua_agent  isEqual: @"UA_SPOOF_IPHONE"]) {
         return @"Mozilla/5.0 (iPhone; CPU iPhone OS 8_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12A405 Safari/600.1.4";
-    } else if (uaspoof == UA_SPOOF_IPAD) {
+    } else if ([ua_agent  isEqual: @"UA_SPOOF_IPAD"]) {
         return @"Mozilla/5.0 (iPad; CPU OS 8_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12A405 Safari/600.1.4";
     }
     return nil;

@@ -142,11 +142,14 @@
 
       // Enforce TLS version
       // https://developer.apple.com/library/ios/technotes/tn2287/_index.html#//apple_ref/doc/uid/DTS40011309
-      Byte tlsVersionOption = [[settings valueForKey:@"tlsver"] integerValue];
-      if (tlsVersionOption == X_TLSVER_TLS1) {
+      // Byte tlsVersionOption = [[settings valueForKey:@"tlsver"] integerValue];
+      NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+      NSString *min_tls_version = [userDefaults stringForKey:@"min_tls_version"];
+    
+      if ([min_tls_version isEqualToString:@"1.1"] || [min_tls_version isEqualToString:@"1.0"]) {
         CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, kCFStreamSocketSecurityLevelTLSv1);
         setSSLOption = YES;
-      } else if (tlsVersionOption == X_TLSVER_TLS1_2_ONLY) {
+      } else if ([min_tls_version isEqualToString:@"1.2"] || [min_tls_version isEqualToString:@"auto"]) {
         CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, CFSTR("kCFStreamSocketSecurityLevelTLSv1_2"));
         setSSLOption = YES;
       } else {
@@ -385,19 +388,17 @@
     }
     /* Do not track (DNT) header */
     
-    Byte dntHeader = [[settings valueForKey:@"dnt"] integerValue];
-    if (dntHeader != DNT_HEADER_UNSET) {
+    // Byte dntHeader = [[settings valueForKey:@"dnt"] integerValue];
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    BOOL send_dnt = [userDefaults boolForKey:@"send_dnt"];
+    
+    if (send_dnt) {
         // DNT_HEADER_CANTRACK is 0 and DNT_HEADER_NOTRACK is 1,
         // so we can pass that value in as the "DNT: X" value
-        unsigned int dntValue = 1;
-        if (dntHeader == DNT_HEADER_CANTRACK) {
-            dntValue = 0;
-        }
-
         CFHTTPMessageSetHeaderFieldValue(result,
                                          (__bridge CFStringRef)@"DNT",
                                          (__bridge CFStringRef)[NSString stringWithFormat:@"%d",
-                                                                dntValue]);
+                                                                1]);
         #if DEBUG
         NSLog(@"Sending 'DNT: %d' header", dntValue);
         #endif

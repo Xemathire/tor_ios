@@ -130,6 +130,45 @@
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>FooterText</key>
+			<string>String used to identificate the user&apos;s browser</string>
+		</dict>
+		<dict>
+			<key>Key</key>
+			<string>ua_agent</string>
+			<key>Title</key>
+			<string>User-agent spoofing</string>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>DefaultValue</key>
+			<string>UA_SPOOF_IPHONE</string>
+			<key>Values</key>
+			<array>
+				<string>UA_SPOOF_SAFARI_MAC</string>
+				<string>UA_SPOOF_IPHONE</string>
+				<string>UA_SPOOF_IPAD</string>
+				<string>UA_SPOOF_WIN7_TORBROWSER</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Mac OS X Safari</string>
+				<string>iPhone Safari</string>
+				<string>iPad Safari</string>
+				<string>Windows 7 Tor Browser</string>
+			</array>
+			<key>ShortTitles</key>
+			<array>
+				<string>Mac OS X</string>
+				<string>iPhone</string>
+				<string>iPad</string>
+				<string>Windows 7</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string></string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>FooterText</key>
 			<string>Minimum version of SSL/TLS required for HTTPS connections; may require force closing the app to take effect</string>
 		</dict>
 		<dict>
@@ -177,7 +216,7 @@
 			<key>Title</key>
 			<string>Rate on App Store</string>
 			<key>File</key>
-			<string>itms-apps://itunes.apple.com/us/developer/justkodding.com/id725222567</string>
+			<string>https://itunes.apple.com/app/id1063151782</string>
 		</dict>
 		<dict>
 			<key>File</key>
