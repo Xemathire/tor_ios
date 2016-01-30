@@ -150,7 +150,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     _searchEngines = [NSMutableDictionary dictionaryWithContentsOfFile:[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"SearchEngines.plist"]];
 
 
-    // Wipe all cookies & caches from previous invocations of app (in case we didn't wipe
+    // Wipe all non-whitelisted cookies & caches from previous invocations of app (in case we didn't wipe
     // cleanly upon exit last time)
     [self wipeAppData];
 
@@ -207,13 +207,8 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 
     /*******************/
-    // Clear any previous caches/cookies
-    [[NSURLCache sharedURLCache] removeAllCachedResponses];
-    NSHTTPCookie *cookie;
-    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    for (cookie in [storage cookies]) {
-        [storage deleteCookie:cookie];
-    }
+    // Clear non-whitelisted cookies
+    [[self cookieJar] clearAllOldNonWhitelistedData];
 }
 
 -(void) afterFirstRun {
@@ -498,27 +493,29 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 - (void)wipeAppData {
     [[self appWebView] removeAllTabs];
     
-    /* This is probably incredibly redundant since we just delete all the files, below */
+    /*
+    // This is probably incredibly redundant since we just delete all the files, below
     NSHTTPCookie *cookie;
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     for (cookie in [storage cookies]) {
         [storage deleteCookie:cookie];
     }
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
-    
+    */
 
-    /* Delete all Caches, Cookies, Preferences in app's "Library" data dir. (Connection settings
-     * & etc end up in "Documents", not "Library".) */
+    // Delete all Caches, Cookies, Preferences in app's "Library" data dir. (Connection settings & etc end up in "Documents", not "Library".)
     NSArray *dataPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
     if ((dataPaths != nil) && ([dataPaths count] > 0)) {
         NSString *dataDir = [dataPaths objectAtIndex:0];
         NSFileManager *fm = [NSFileManager defaultManager];
 
         if ((dataDir != nil) && [fm fileExistsAtPath:dataDir isDirectory:nil]){
+            /*
             NSString *cookiesDir = [NSString stringWithFormat:@"%@/Cookies", dataDir];
             if ([fm fileExistsAtPath:cookiesDir isDirectory:nil]){
                 [fm removeItemAtPath:cookiesDir error:nil];
             }
+             */
 
             NSString *cachesDir = [NSString stringWithFormat:@"%@/Caches", dataDir];
             if ([fm fileExistsAtPath:cachesDir isDirectory:nil]){
@@ -531,6 +528,8 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
             }
         }
     } // TODO: otherwise, WTF
+    
+    [[self cookieJar] clearAllOldNonWhitelistedData];
 }
 
 - (Boolean)isRunningTests {
