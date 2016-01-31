@@ -18,9 +18,9 @@ Web browsing is slower than through a normal web browser due to relaying through
 
 
 <p align="center">
-	<img src="resources/500x500bb.jpg?raw=true">
-	<img src="resources/500x500bb-2.jpg?raw=true">
+	<img src="resources/1.png?raw=true">
+	<img src="resources/2.png?raw=true">
 	<br>
-	<img src="resources/500x500bb-3.jpg?raw=true">
-	<img src="resources/500x500bb-4.jpg?raw=true">
+	<img src="resources/3.png?raw=true">
+	<img src="resources/4.png?raw=true">
 </p>

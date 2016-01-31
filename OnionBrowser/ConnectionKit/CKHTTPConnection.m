@@ -132,7 +132,6 @@
     CFReadStreamSetProperty((__bridge CFReadStreamRef)(_HTTPStream), kCFStreamPropertyHTTPAttemptPersistentConnection, kCFBooleanTrue);
 
     AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-    NSMutableDictionary *settings = appDelegate.getSettings;
 
     // SSL/TLS hardening -- this is a TLS request
     NSURL *url = (__bridge NSURL *)(CFHTTPMessageCopyRequestURL([self HTTPRequest]));

@@ -100,9 +100,9 @@ UIBarButtonItem *leftItem;
         //[b setFrame:CGRectMake(tableViewHeaderFooterView.frame.size.width - buttonSize - 6, 3, buttonSize, buttonSize)];
         [b setFrame:CGRectMake(tableViewHeaderFooterView.frame.size.width - buttonSize * 2 - 6, 3, buttonSize * 2, buttonSize)];
         [b setBackgroundColor:[UIColor lightGrayColor]];
-        [b setTitle:@"Close" forState:UIControlStateNormal];
+        [b setTitle:@"✕" forState:UIControlStateNormal];
         [[b titleLabel] setFont:[UIFont boldSystemFontOfSize:12]];
-        [[b layer] setCornerRadius:buttonSize / 3];
+        [[b layer] setCornerRadius:buttonSize/3];
         [b setClipsToBounds:YES];
         
         [b addTarget:self action:@selector(close) forControlEvents:UIControlEventTouchUpInside];

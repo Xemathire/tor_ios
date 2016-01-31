@@ -178,19 +178,20 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
         width = self.window.frame.size.height;
     }
     
+    /*
+     [FakeNavBar setBackgroundColor:[UIColor colorWithRed:259 green:259 blue:263 alpha:0.9f]];
+     UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+     UIVisualEffectView *viewInducingBlur = [[UIVisualEffectView alloc] initWithEffect:effect];
+     [viewInducingBlur setFrame:FakeNavBar.bounds];
+     [FakeNavBar addSubview:viewInducingBlur];
+     */
+    
+    /*
     UIView *FakeNavBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, 20)];
     FakeNavBar.backgroundColor = [UIColor groupTableViewBackgroundColor];
     
-    /*
-    [FakeNavBar setBackgroundColor:[UIColor colorWithRed:259 green:259 blue:263 alpha:0.9f]];
-    UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
-    UIVisualEffectView *viewInducingBlur = [[UIVisualEffectView alloc] initWithEffect:effect];
-    [viewInducingBlur setFrame:FakeNavBar.bounds];
-    [FakeNavBar addSubview:viewInducingBlur];
-    */
-    
     [self.window addSubview:FakeNavBar];
-
+    */
     return YES;
 }
 

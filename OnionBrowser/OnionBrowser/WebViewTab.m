@@ -515,6 +515,7 @@ AppDelegate *appDelegate;
     [self setProgress:@0.0];
     [self setProgress:@0.1];
     
+    #warning Removed comments arround test
     if (self.url == nil)
         self.url = [[__webView request] URL];
 }
