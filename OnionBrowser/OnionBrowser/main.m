@@ -14,6 +14,8 @@
 int main(int argc, char *argv[]) {
     @autoreleasepool {
         [NSURLProtocol registerClass:[ProxyURLProtocol class]];
+        // signal(SIGPIPE, SIG_IGN);
+        
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
     }
 }

@@ -121,12 +121,15 @@
         #ifdef DEBUG
         NSLog(@"[tor] Came back from background, sending HUP" );
         #endif
+        /*
         [_mSocket writeString:@"SIGNAL HUP\n" encoding:NSUTF8StringEncoding];
         _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:0.25f
                                                               target:self
                                                             selector:@selector(activateTorCheckLoop)
                                                             userInfo:nil
                                                              repeats:NO];
+         */
+        [self hupTor];
     }
 }
 
@@ -188,7 +191,7 @@
     //
     // Fail: Restart Tor? (Maybe HUP?)
     NSLog(@"[tor] checkTor timed out, attempting to restart tor");
-    //[self startTor];
+    // [self startTor];
     [self hupTor];
 }
 

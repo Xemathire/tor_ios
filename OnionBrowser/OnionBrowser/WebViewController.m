@@ -65,7 +65,7 @@
 	
 	UIBarButtonItem *tabAddButton;
 	UIBarButtonItem *tabDoneButton;
-	
+    
 	float lastWebViewScrollOffset;
 	CGRect origTabScrollerFrame;
 	BOOL showingTabs;
@@ -75,6 +75,9 @@
 	WYPopoverController *popover;
 	
 	BookmarkController *bookmarks;
+    
+    CGPoint originalPoint;
+    int panGestureRecognizerType; // 0: None, 1: Remove tab, 2: change page
 }
 
 - (void)loadView
@@ -125,7 +128,7 @@
 	
 	urlField = [[UITextField alloc] init];
 	[urlField setBorderStyle:UITextBorderStyleRoundedRect];
-	[urlField setKeyboardType:UIKeyboardTypeURL];
+	[urlField setKeyboardType:UIKeyboardTypeWebSearch];
 	[urlField setFont:[UIFont systemFontOfSize:15]];
 	[urlField setReturnKeyType:UIReturnKeyGo];
 	[urlField setClearButtonMode:UITextFieldViewModeWhileEditing];
@@ -186,9 +189,10 @@
 	[tabChooser setNumberOfPages:0];
 	[self.view insertSubview:tabChooser aboveSubview:toolbar];
 	[tabChooser setHidden:true];
+    [tabChooser addTarget:self action:@selector(touchedPageControlDot:) forControlEvents:UIControlEventTouchUpInside];
 	
 	tabToolbar = [[UIToolbar alloc] init];
-	[tabToolbar setClipsToBounds:YES];
+    [tabToolbar setClipsToBounds:YES];
 	[tabToolbar setBarTintColor:[UIColor groupTableViewBackgroundColor]];
 	[tabToolbar setHidden:true];
 	[self.view insertSubview:tabToolbar aboveSubview:toolbar];
@@ -211,6 +215,8 @@
 	[self adjustLayoutToSize:CGSizeMake(self.view.bounds.size.width, self.view.bounds.size.height + STATUSBAR_HEIGHT)];
 	[self updateSearchBarDetails];
 	
+    panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_NONE;
+
 	[self.view.window makeKeyAndVisible];
 }
 
@@ -896,7 +902,7 @@
 {
 	if (showingTabs == false) {
 		/* zoom out */
-		
+        
 		/* make sure no text is selected */
 		[urlField resignFirstResponder];
 		
@@ -924,6 +930,9 @@
 		singleTapGestureRecognizer.enabled = YES;
 		singleTapGestureRecognizer.cancelsTouchesInView = NO;
 		[tabScroller addGestureRecognizer:singleTapGestureRecognizer];
+        
+        UIPanGestureRecognizer *closeGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleDrag:)];
+        [tabScroller addGestureRecognizer:closeGestureRecognizer];
 	}
 	else {
 		[UIView animateWithDuration:0.25 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^(void) {
@@ -977,7 +986,7 @@
 	CGPoint point = [gesture locationInView:self.curWebViewTab.viewHolder];
 	
 	/* fuzz a bit to make it easier to tap */
-	int fuzz = 8;
+	int fuzz = 15;
 	CGRect closerFrame = CGRectMake(self.curWebViewTab.closer.frame.origin.x - fuzz, self.curWebViewTab.closer.frame.origin.y - fuzz, self.curWebViewTab.closer.frame.size.width + (fuzz * 2), self.curWebViewTab.closer.frame.size.width + (fuzz * 2));
 	if (CGRectContainsPoint(closerFrame, point)) {
 		[self removeWithoutFocusingTab:[NSNumber numberWithLong:curTabIndex]];
@@ -985,6 +994,117 @@
 	else {
 		[self showTabs:nil];
 	}
+}
+
+- (void)handleDrag:(UIPanGestureRecognizer *)gesture {
+    if (showingTabs) {
+        CGPoint vel = [gesture velocityInView:tabScroller];
+        
+        if (panGestureRecognizerType == PAN_GESTURE_RECOGNIZER_NONE) {
+            if (fabs(vel.x) > fabs(vel.y) && fabs(vel.x) > 50) {
+                /* User is trying to change page */
+                panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_SIDE;
+            } else if (fabs(vel.y) > fabs(vel.x) && vel.y < -50) {
+                // We only care about speed < 0 because the user needs to swipe up to close the tab
+                /* User is trying to remove a tab */
+                panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_UP;
+            }
+        }
+        
+        if (panGestureRecognizerType == PAN_GESTURE_RECOGNIZER_SIDE) {
+            CGFloat xDistance = [gesture translationInView:tabScroller].x;
+            
+            switch (gesture.state) {
+                case UIGestureRecognizerStateChanged: {
+                    CGRect frame = tabScroller.frame;
+                    frame.origin.x = frame.size.width * curTabIndex;
+                    frame.origin.y = 0;
+
+                    [tabScroller setContentOffset:CGPointMake(frame.origin.x - xDistance, frame.origin.y) animated:NO];
+                    break;
+                };
+                
+                case UIGestureRecognizerStateEnded: {
+                    if ((xDistance <= -100 || vel.x <= -300) && curTabIndex < tabChooser.numberOfPages - 1) {
+                        // Moved enough to change page (go right), and there is at least 1 page on the right
+                        [tabChooser setCurrentPage:curTabIndex + 1];
+                        curTabIndex += 1;
+                    } else if ((xDistance >= 100 || vel.x >= 300) && curTabIndex > 0) {
+                        // Moved enough to change page (go left), and there is at least 1 page on the left
+                        [tabChooser setCurrentPage:curTabIndex - 1];
+                        curTabIndex -= 1;
+                    }
+                    
+                    // If the page index wasn't changed, it will just scroll back to the page's original position
+                    CGRect frame = tabScroller.frame;
+                    frame.origin.x = frame.size.width * curTabIndex;
+                    frame.origin.y = 0;
+                    [tabScroller setContentOffset:frame.origin animated:YES];
+                    
+                    panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_NONE;
+                    
+                    break;
+                };
+                    
+                default: break;
+            }
+            
+        } else if (panGestureRecognizerType == PAN_GESTURE_RECOGNIZER_UP) {
+            CGFloat yDistance = [gesture translationInView:tabScroller].y;
+            UIView *tabView = [(WebViewTab *)webViewTabs[curTabIndex] viewHolder];
+            
+            switch (gesture.state) {
+                case UIGestureRecognizerStateBegan: {
+                    originalPoint = [tabView center];
+                    break;
+                };
+                case UIGestureRecognizerStateChanged: {
+                    if (yDistance <= 0) {
+                        tabView.center = CGPointMake(originalPoint.x, originalPoint.y + yDistance);
+                    }
+                    
+                    break;
+                };
+                case UIGestureRecognizerStateEnded: {
+                    NSLog(@"vel.y: %f", vel.y);
+                    if (-yDistance <= self.view.frame.size.height/4 && vel.y >= -1500) {
+                        // Moved the view less than 1/4th of the view height, or is moving fast enough to consider the user wants to close
+                        [UIView animateWithDuration:0.5 animations:^{
+                            [tabView setCenter:originalPoint];
+                        } completion:^(BOOL finished) {}];
+                    } else {
+                        [UIView animateWithDuration:0.2 animations:^{
+                            [tabView setCenter:CGPointMake(originalPoint.x, -originalPoint.y)];
+                        } completion:^(BOOL finished) {
+                            [self removeWithoutFocusingTab:[NSNumber numberWithLong:curTabIndex]];
+                        }];
+                    }
+                    panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_NONE;
+                    
+                    break;
+                };
+                    
+                default: break;
+            }
+        }
+        
+    }
+}
+
+- (void)touchedPageControlDot:(id)sender {
+    UIPageControl *pager = sender;
+    NSInteger page = pager.currentPage;
+    [tabChooser setCurrentPage:page];
+    curTabIndex = (int)page;
+    CGRect frame = tabScroller.frame;
+    frame.origin.x = frame.size.width * page;
+    frame.origin.y = 0;
+    [tabScroller setContentOffset:frame.origin animated:YES];
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return YES;
 }
 
 - (void)slideToCurrentTabWithCompletionBlock:(void(^)(BOOL))block

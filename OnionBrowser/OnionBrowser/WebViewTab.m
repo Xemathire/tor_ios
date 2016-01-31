@@ -379,7 +379,7 @@ AppDelegate *appDelegate;
         [self prepareForNewURL:navigationURL];
         
         // Cancel any existing nav
-        [_webView stopLoading];
+        [self.webView stopLoading];
         
         // Remove the "connecting..." (initial tor load) overlay if it still exists.
         UIView *loadingStatus = [self.viewHolder viewWithTag:kLoadingStatusTag];
@@ -515,10 +515,8 @@ AppDelegate *appDelegate;
     [self setProgress:@0.0];
     [self setProgress:@0.1];
     
-    /*
     if (self.url == nil)
         self.url = [[__webView request] URL];
-     */
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
