@@ -171,27 +171,6 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
       [self startup2];
     }
     
-    /* Add background to status bar */
-    CGFloat width = self.window.frame.size.width;
-    
-    if (self.window.frame.size.height > self.window.frame.size.width) {
-        width = self.window.frame.size.height;
-    }
-    
-    /*
-     [FakeNavBar setBackgroundColor:[UIColor colorWithRed:259 green:259 blue:263 alpha:0.9f]];
-     UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
-     UIVisualEffectView *viewInducingBlur = [[UIVisualEffectView alloc] initWithEffect:effect];
-     [viewInducingBlur setFrame:FakeNavBar.bounds];
-     [FakeNavBar addSubview:viewInducingBlur];
-     */
-    
-    /*
-    UIView *FakeNavBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, 20)];
-    FakeNavBar.backgroundColor = [UIColor groupTableViewBackgroundColor];
-    
-    [self.window addSubview:FakeNavBar];
-    */
     return YES;
 }
 
