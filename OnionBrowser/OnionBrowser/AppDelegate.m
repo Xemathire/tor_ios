@@ -332,6 +332,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     [_window addSubview:windowOverlay];
     [_window bringSubviewToFront:windowOverlay];
      */
+    
     [_tor disableTorCheckLoop];
 }
 
@@ -353,13 +354,12 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
+     if (windowOverlay != nil) {
+         [windowOverlay removeFromSuperview];
+     }
+
     _window.hidden = NO;
     appWebView.view.hidden = NO;
-    /*
-    if (windowOverlay != nil) {
-        [windowOverlay removeFromSuperview];
-    }
-     */
 
     // Don't want to call "activateTorCheckLoop" directly since we
     // want to HUP tor first.
@@ -424,7 +424,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 #pragma mark -
 #pragma mark App helpers
 
-- (NSUInteger) deviceType{
+- (NSUInteger) deviceType {
     size_t size;
     sysctlbyname("hw.machine", NULL, &size, NULL, 0);
     char *machine = malloc(size);

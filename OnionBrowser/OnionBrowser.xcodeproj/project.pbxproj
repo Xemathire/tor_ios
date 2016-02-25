@@ -12,6 +12,7 @@
 		336AAF4D1C01F4DF00CA19AC /* urlblocker_targets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 336AAF4A1C01F4DF00CA19AC /* urlblocker_targets.plist */; };
 		336AAF4F1C01FB2F00CA19AC /* InAppSettings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 336AAF4E1C01FB2F00CA19AC /* InAppSettings.bundle */; };
 		336AAF511C01FD4100CA19AC /* credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 336AAF501C01FD4100CA19AC /* credits.html */; };
+		33B5C16A1C7E4D6D00EA5673 /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = 33B5C1691C7E4D6D00EA5673 /* JSTools.js */; };
 		33B7C1611C020BF8002D0612 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33B7C1601C020BF8002D0612 /* Launch Screen.xib */; };
 		33E49E031C01CE370005E25B /* WebViewMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 33E49E001C01CE370005E25B /* WebViewMenuController.m */; };
 		33E49E041C01CE370005E25B /* WebViewTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 33E49E021C01CE370005E25B /* WebViewTab.m */; };
@@ -179,6 +180,7 @@
 		336AAF4A1C01F4DF00CA19AC /* urlblocker_targets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = urlblocker_targets.plist; sourceTree = "<group>"; };
 		336AAF4E1C01FB2F00CA19AC /* InAppSettings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = InAppSettings.bundle; sourceTree = "<group>"; };
 		336AAF501C01FD4100CA19AC /* credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = credits.html; sourceTree = "<group>"; };
+		33B5C1691C7E4D6D00EA5673 /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		33B7C1601C020BF8002D0612 /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		33E49DFF1C01CE370005E25B /* WebViewMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewMenuController.h; sourceTree = "<group>"; };
 		33E49E001C01CE370005E25B /* WebViewMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewMenuController.m; sourceTree = "<group>"; };
@@ -1057,6 +1059,7 @@
 				696C33AD1530D0D400990E69 /* startup.html */,
 				695BF04618944B5500C27BC1 /* startup2.html */,
 				33EC68201C0A079900EE6395 /* starting.html */,
+				33B5C1691C7E4D6D00EA5673 /* JSTools.js */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1239,6 +1242,7 @@
 				336AAF4D1C01F4DF00CA19AC /* urlblocker_targets.plist in Resources */,
 				696EBD8214F7877900B81BC9 /* InfoPlist.strings in Resources */,
 				69374255189CBAF1002C65A0 /* help.html in Resources */,
+				33B5C16A1C7E4D6D00EA5673 /* JSTools.js in Resources */,
 				336AAF4F1C01FB2F00CA19AC /* InAppSettings.bundle in Resources */,
 				696F9EB014F8DA6900BC5FDC /* torrc in Resources */,
 				69F88FCC1500A9D900C7BE98 /* geoip in Resources */,

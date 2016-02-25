@@ -35,12 +35,6 @@
 #import "WebViewMenuController.h"
 #import "WYPopoverController.h"
 
-#define STATUSBAR_HEIGHT 20
-#define TOOLBAR_HEIGHT 46
-#define TOOLBAR_PADDING_LEFT 8
-#define TOOLBAR_PADDING_RIGHT 10
-#define TOOLBAR_BUTTON_SIZE 30
-
 @implementation WebViewController {
     AppDelegate *appDelegate;
     
@@ -201,56 +195,6 @@
     [tabToolbar setBackgroundColor:[UIColor clearColor]];
     [tabToolbar setHidden:true];
     [self.view insertSubview:tabToolbar aboveSubview:toolbar];
-    
-    /*
-     UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-     [button setTitle:@"＋" forState:UIControlStateNormal];
-     button.layer.backgroundColor = [UIColor colorWithWhite:1.0f alpha:0.8].CGColor;
-     button.titleLabel.font = [UIFont systemFontOfSize:25];
-     
-     [button setAutoresizingMask:UIViewAutoresizingNone];
-     [button setFrame:CGRectMake(0, 0, 30, 30)];
-     button.layer.cornerRadius = 5.0;
-     
-     // create effects
-     UIBlurEffect *blur = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
-     // UIVibrancyEffect *vibrancy = [UIVibrancyEffect effectForBlurEffect:blur];
-     
-     // add effects to effect views
-     UIVisualEffectView *effectView = [[UIVisualEffectView alloc]initWithEffect:blur];
-     effectView.frame = button.frame;
-     // UIVisualEffectView *vibrantView = [[UIVisualEffectView alloc]initWithEffect:vibrancy];
-     // vibrantView.frame = button.frame;
-     
-     // [button addSubview:effectView];
-     // [button addSubview:vibrantView];
-    
-     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0.0 , 11.0f, 25.0f, 25.0f)];
-     [titleLabel setFont:[UIFont fontWithName:@"Helvetica" size:25]];
-     // [titleLabel setBackgroundColor:[UIColor clearColor]];
-     // [titleLabel setTextColor:[UIColor colorWithRed:157.0/255.0 green:157.0/255.0 blue:157.0/255.0 alpha:1.0]];
-     [titleLabel setText:@"＋"];
-     [titleLabel setTextAlignment:NSTextAlignmentCenter];
-     // [titleLabel setBackgroundColor:[UIColor redColor]];
-     // [[titleLabel layer] setBackgroundColor:[UIColor colorWithWhite:1.0f alpha:0.8f].CGColor];
-     [titleLabel setTextColor:self.view.tintColor];
-     titleLabel.layer.cornerRadius = 5.0;
-     
-     // create effects
-     UIBlurEffect *blur = [UIBlurEffect effectWithStyle:UIBlurEffectStyleExtraLight];
-     // UIVibrancyEffect *vibrancy = [UIVibrancyEffect effectForBlurEffect:blur];
-     
-     // add effects to effect views
-     UIVisualEffectView *effectView = [[UIVisualEffectView alloc]initWithEffect:blur];
-     effectView.frame = CGRectMake(0.0 , 0.0f, 24.0f, 24.0f);
-     effectView.layer.cornerRadius = 5.0;
-     effectView.clipsToBounds = YES;
-     // UIVisualEffectView *vibrantView = [[UIVisualEffectView alloc]initWithEffect:vibrancy];
-     // vibrantView.frame = titleLabel.frame;
-     
-     [titleLabel addSubview:effectView];
-     // [titleLabel addSubview:vibrantView];
-     */
     
     // Create custom button with + symbol and blur
     UIButton *addButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.5f, 30.0f, 30.0f)]; // 0.5f because the eye always thinks the cross isn't centered when using integers as position values
@@ -1147,8 +1091,10 @@
             switch (gesture.state) {
                 case UIGestureRecognizerStateBegan: {
                     originalPoint = [tabView center];
-                    shouldHideStatusBar = YES;
-                    [self setNeedsStatusBarAppearanceUpdate];
+                    [UIView animateWithDuration:0.2 animations:^{
+                        shouldHideStatusBar = YES;
+                        [self setNeedsStatusBarAppearanceUpdate];
+                    }];
                     
                     break;
                 };
@@ -1173,10 +1119,11 @@
                         }];
                     }
                     
-                    shouldHideStatusBar = NO;
+                    [UIView animateWithDuration:0.2 animations:^{
+                        shouldHideStatusBar = NO;
+                        [self setNeedsStatusBarAppearanceUpdate];
+                    }];
                     panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_NONE;
-                    
-                    [self setNeedsStatusBarAppearanceUpdate];
                     
                     break;
                 };
@@ -1221,6 +1168,11 @@
 - (void)goHome:(NSURL *)url {
     [self removeAllTabs];
     [self addNewTabForURL:url];
+}
+
+-(UIStatusBarAnimation)preferredStatusBarUpdateAnimation
+{
+    return UIStatusBarAnimationFade;
 }
 
 @end

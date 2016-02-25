@@ -29,6 +29,7 @@
 #import "AppDelegate.h"
 //#import "URLInterceptor.h"
 #import "WebViewTab.h"
+#import "WebViewController.h"
 #import <objc/runtime.h>
 
 //#import "NSString+JavascriptEscape.h"
@@ -168,26 +169,16 @@ AppDelegate *appDelegate;
 
 /* for long press gesture recognizer to work properly */
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
-	
+    
 	if (![gestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]])
 		return NO;
 	
 	if ([gestureRecognizer state] != UIGestureRecognizerStateBegan)
 		return YES;
 
-	BOOL haveLinkOrImage = NO;
-
-	NSArray *elements = [self elementsAtLocationFromGestureRecognizer:gestureRecognizer];
-	for (NSDictionary *element in elements) {
-		NSString *k = [element allKeys][0];
-		
-		if ([k isEqualToString:@"a"] || [k isEqualToString:@"img"]) {
-			haveLinkOrImage = YES;
-			break;
-		}
-	}
+	NSString *tags = [self elementsAtLocationFromGestureRecognizer:gestureRecognizer][0];
 	
-	if (haveLinkOrImage) {
+	if ([tags rangeOfString:@"A"].location != NSNotFound || [tags rangeOfString:@"IMG"].location != NSNotFound) {
 		/* this is enough to cancel the touch when the long press gesture fires, so that the link being held down doesn't activate as a click once the finger is let up */
 		if ([otherGestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]]) {
 			otherGestureRecognizer.enabled = NO;
@@ -515,7 +506,6 @@ AppDelegate *appDelegate;
     [self setProgress:@0.0];
     [self setProgress:@0.1];
     
-    #warning Removed comments arround test
     if (self.url == nil)
         self.url = [[__webView request] URL];
 }
@@ -883,50 +873,35 @@ AppDelegate *appDelegate;
 }
 
 - (void)longPressMenu:(UILongPressGestureRecognizer *)sender {
-    #warning longPress not called
 	UIAlertController *alertController;
 	NSString *href, *img, *alt;
     
 	if (sender.state != UIGestureRecognizerStateBegan)
 		return;
-	
+    
 #ifdef TRACE
 	NSLog(@"[Tab %@] long-press gesture recognized", self.tabIndex);
 #endif
 	
 	NSArray *elements = [self elementsAtLocationFromGestureRecognizer:sender];
-	for (NSDictionary *element in elements) {
-		NSString *k = [element allKeys][0];
-		NSDictionary *attrs = [element objectForKey:k];
-		
-		if ([k isEqualToString:@"a"]) {
-			href = [attrs objectForKey:@"href"];
-			
-			/* only use if image alt is blank */
-			if (!alt || [alt isEqualToString:@""])
-				alt = [attrs objectForKey:@"title"];
-		}
-		else if ([k isEqualToString:@"img"]) {
-			img = [attrs objectForKey:@"src"];
-			
-			NSString *t = [attrs objectForKey:@"title"];
-			if (t && ![t isEqualToString:@""])
-				alt = t;
-			else
-				alt = [attrs objectForKey:@"alt"];
-		}
-	}
 	
 #ifdef TRACE
 	NSLog(@"[Tab %@] context menu href:%@, img:%@, alt:%@", self.tabIndex, href, img, alt);
 #endif
 	
-	if (!(href || img)) {
+    if (![elements[2] isEqualToString:@"A"] && ![elements[2] isEqualToString:@"IMG"]) {
 		sender.enabled = false;
 		sender.enabled = true;
 		return;
 	}
-	
+    
+    href = elements[1];
+    alt = elements[3];
+    
+    if ([elements[2] isEqualToString:@"IMG"]) {
+        img = href;
+    }
+    
 	alertController = [UIAlertController alertControllerWithTitle:href message:alt preferredStyle:UIAlertControllerStyleActionSheet];
 	
 	UIAlertAction *openAction = [UIAlertAction actionWithTitle:@"Open" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -980,7 +955,7 @@ AppDelegate *appDelegate;
 		popover.sourceRect = [[[appDelegate appWebView] view] bounds];
 		popover.permittedArrowDirections = UIPopoverArrowDirectionAny;
 	}
-	
+    	
 	[[appDelegate appWebView] presentViewController:alertController animated:YES completion:nil];
 }
 
@@ -1050,28 +1025,131 @@ AppDelegate *appDelegate;
 	[[self viewHolder] setTransform:CGAffineTransformIdentity];
 }
 
+- (CGSize)windowSize
+{
+    CGSize size;
+    size.width = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] integerValue];
+    size.height = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] integerValue];
+    return size;
+}
+
+- (CGPoint)scrollOffset
+{
+    CGPoint pt;
+    pt.x = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageXOffset"] integerValue];
+    pt.y = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] integerValue];
+    return pt;
+}
+
 - (NSArray *)elementsAtLocationFromGestureRecognizer:(UIGestureRecognizer *)uigr
 {
-	CGPoint tap = [uigr locationInView:[self webView]];
-	tap.y -= [[[self webView] scrollView] contentInset].top;
-	
-	/* translate tap coordinates from view to scale of page */
-	CGSize windowSize = CGSizeMake(
-				       [[[self webView] stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] intValue],
-				       [[[self webView] stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] intValue]
-				       );
-	CGSize viewSize = [[self webView] frame].size;
-	float ratio = windowSize.width / viewSize.width;
-	CGPoint tapOnPage = CGPointMake(tap.x * ratio, tap.y * ratio);
+    
+    /*
+     CGPoint tap = [uigr locationInView:[self webView]];
+     tap.y -= [[[self webView] scrollView] contentInset].top;
+     
+     // translate tap coordinates from view to scale of page
+    CGSize windowSize = CGSizeMake(
+                                   [[[self webView] stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] intValue],
+                                   [[[self webView] stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] intValue]
+                                   );
+    CGSize viewSize = [[self webView] frame].size;
+    float ratio = windowSize.width / viewSize.width;
+    CGPoint tapOnPage = CGPointMake(tap.x * ratio, tap.y * ratio);
+     */
+
+    CGPoint tap = [uigr locationInView:[self webView]];
+    
+    // convert point from window to view coordinate system, and remove status bar and toolbar's height to point
+    tap = [self.webView convertPoint:tap fromView:nil];
+    tap.y += [UIApplication sharedApplication].statusBarFrame.size.height;
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    if (![userDefaults boolForKey:@"toolbar_on_bottom"]) {
+        tap.y += TOOLBAR_HEIGHT;
+    }
+    
+    // convert point from view to HTML coordinate system
+    CGPoint offset  = [self scrollOffset];
+    CGSize viewSize = [[self webView] frame].size;
+    CGSize windowSize = [self windowSize];
+    
+    CGFloat f = windowSize.width / viewSize.width;
+    tap.x = tap.x * f + offset.x;
+    tap.y = tap.y * f + offset.y;
 	
 	/* now find if there are usable elements at those coordinates and extract their attributes */
-	NSString *json = [[self webView] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"JSON.stringify(__endless.elementsAtPoint(%li, %li));", (long)tapOnPage.x, (long)tapOnPage.y]];
-	if (json == nil) {
-		NSLog(@"[Tab %@] didn't get any JSON back from __endless.elementsAtPoint", self.tabIndex);
-		return @[];
+	// NSString *json = [[self webView] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"JSON.stringify(__endless.elementsAtPoint(%li, %li));", (long)tap.x, (long)tap.y]];
+    
+    // Load the JavaScript code from the Resources and inject it into the web page
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"JSTools" ofType:@"js"];
+    NSString *jsCode = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    [[self webView] stringByEvaluatingJavaScriptFromString:jsCode];
+    
+    // Get the tags at the touch location
+    NSString *tags = [[self webView] stringByEvaluatingJavaScriptFromString:
+                      [NSString stringWithFormat:@"__TheOnionBrowerGetHTMLElementsAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
+    
+    /*
+    NSString *tagSRC = [[self webView] stringByEvaluatingJavaScriptFromString:
+                         [NSString stringWithFormat:@"__TheOnionBrowerGetLinkSRCAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
+    NSString *tag = [[self webView] stringByEvaluatingJavaScriptFromString:
+                         [NSString stringWithFormat:@"__TheOnionBrowerGetLinkTagAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
+    
+    NSString *name = [[self webView] stringByEvaluatingJavaScriptFromString:
+                     [NSString stringWithFormat:@"__TheOnionBrowerGetLinkNameAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
+     */
+    
+    // __TheOnionBrowerGetLinkInfoAtPoint
+    NSString *jsonString = [[self webView] stringByEvaluatingJavaScriptFromString:
+                         [NSString stringWithFormat:@"__TheOnionBrowerGetLinkInfoAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
+    NSArray *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
+
+    NSString *tagSRC;
+    NSString *tag;
+    NSString *name;
+    
+    if ([json count] != 3) {
+        return @[@"", @"", @"", @""];
+    }
+    
+    tagSRC = [json objectAtIndex:0];
+    tag = [json objectAtIndex:1];
+    name = [json objectAtIndex:2];
+    
+	if ([tags isEqualToString:@""] || [tagSRC  isEqualToString:@""] || [tag isEqualToString:@""]) {
+		return @[@"", @"", @"", @""];
 	}
-	
-	return [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
+    
+    if ([name  isEqualToString:@"null"]) {
+        name = @"";
+    }
+    
+    /* Keep only the first line of text if there are multiple */
+    if (![name  isEqualToString:@""]) {
+        for (int i = 0; i < [[name componentsSeparatedByString: @"\n"] count]; i++) {
+            if (![[[name componentsSeparatedByString: @"\n"] objectAtIndex:i]  isEqualToString:@""]) {
+                name = [[name componentsSeparatedByString: @"\n"] objectAtIndex:i];
+                break;
+            }
+        }
+    }
+    
+    /* Remove leading whitespaces */
+    NSInteger i = 0;
+    while (i < [name length] && [[NSCharacterSet whitespaceCharacterSet] characterIsMember:[name characterAtIndex:i]]) {
+        i++;
+    }
+    name = [name substringFromIndex:i];
+    
+    /* Remove trailing whitespaces */
+    i = [name length];
+    while (i > 0 && [[NSCharacterSet whitespaceCharacterSet] characterIsMember:[name characterAtIndex:i - 1]]) {
+        i--;
+    }
+    name = [name substringToIndex:i];
+    
+    return @[tags, tagSRC, tag, name];
 }
 
 -(void)openSettingsView {

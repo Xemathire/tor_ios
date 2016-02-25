@@ -836,11 +836,12 @@ static void _cfsocketCallback( CFSocketRef inCFSocketRef, CFSocketCallBackType i
 
 + (void)ignoreBrokenPipes
 {
+    NSLog(@"ignoreBrokenPipes");
 	// Ignore the broken pipe signal
-	signal( SIGPIPE, SIG_IGN );
+	//signal( SIGPIPE, SIG_IGN );
 }
 
-+(NSString*)	stringWithSocketAddress: (struct in_addr*)inAddress
++(NSString *) stringWithSocketAddress: (struct in_addr*)inAddress
 {
 	return [NSString stringWithCString: inet_ntoa( *inAddress ) encoding: NSASCIIStringEncoding];
 }

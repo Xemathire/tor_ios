@@ -35,6 +35,12 @@
 #define PAN_GESTURE_RECOGNIZER_UP 1
 #define PAN_GESTURE_RECOGNIZER_SIDE 2
 
+#define STATUSBAR_HEIGHT 20
+#define TOOLBAR_HEIGHT 46
+#define TOOLBAR_PADDING_LEFT 8
+#define TOOLBAR_PADDING_RIGHT 10
+#define TOOLBAR_BUTTON_SIZE 30
+
 @interface WebViewController : UIViewController <UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate, IASKSettingsDelegate, WYPopoverControllerDelegate>
 
 @property BOOL toolbarOnBottom;
