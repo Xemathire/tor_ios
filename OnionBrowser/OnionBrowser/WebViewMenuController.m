@@ -29,13 +29,10 @@
 #import "AppDelegate.h"
 #import "Bookmark.h"
 #import "BookmarkController.h"
-//#import "CookieController.h"
 #import "IASKAppSettingsViewController.h"
-//#import "HTTPSEverywhereRuleController.h"
 #import "WebViewMenuController.h"
 #import "BridgeViewController.h"
-
-//#import "OnePasswordExtension.h"
+#define CELL_HEIGHT 35
 
 @implementation WebViewMenuController
 
@@ -69,7 +66,7 @@ NSString * const LABEL = @"L";
 
 - (CGSize)preferredContentSize
 {
-	return CGSizeMake(250, [self tableView:nil heightForRowAtIndexPath:nil] * [buttons count]);
+	return CGSizeMake(250, CELL_HEIGHT * [buttons count]);
 }
 
 #pragma mark - Table view data source
@@ -161,7 +158,7 @@ NSString * const LABEL = @"L";
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	return 35;
+	return CELL_HEIGHT;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath

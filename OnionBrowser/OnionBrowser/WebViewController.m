@@ -705,6 +705,7 @@
     [forwardButton setTintColor:(forwardButton.enabled ? [progressBar tintColor] : [UIColor grayColor])];
     
     [urlField setFrame:[self frameForUrlField]];
+    [self updateProgress];
 }
 
 - (void)updateProgress

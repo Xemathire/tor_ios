@@ -746,7 +746,9 @@ CGRect IASKCGRectSwap(CGRect rect);
         } else if ([self.delegate respondsToSelector:@selector(settingsViewController:buttonTappedForKey:)]) {
             // deprecated, provided for backward compatibility
             NSLog(@"InAppSettingsKit Warning: -settingsViewController:buttonTappedForKey: is deprecated. Please use -settingsViewController:buttonTappedForSpecifier:");
-            [self.delegate settingsViewController:self buttonTappedForKey:[specifier key]];
+            // [self.delegate settingsViewController:self buttonTappedForKey:[specifier key]];
+            //Changed method to remove depreciation warning
+            [self.delegate settingsViewController:self buttonTappedForSpecifier:specifier];
         } else {
             // legacy code, provided for backward compatibility
             // the delegate mechanism above is much cleaner and doesn't leak
