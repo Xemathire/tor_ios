@@ -132,6 +132,7 @@
     [urlField setSpellCheckingType:UITextSpellCheckingTypeNo];
     [urlField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [urlField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
+    [urlField setPlaceholder:@"URL or query"];
     [urlField setDelegate:self];
     [toolbar addSubview:urlField];
     

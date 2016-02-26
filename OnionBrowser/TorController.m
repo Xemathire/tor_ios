@@ -10,6 +10,7 @@
 #import "NSData+Conversion.h"
 #import "AppDelegate.h"
 #import "Reachability.h"
+#import "ALToastView.h"
 
 @implementation TorController
 
@@ -296,6 +297,8 @@
                  selector:@selector(checkTor)
                  userInfo:nil
                  repeats:NO];
+
+                [ALToastView toastInView:appDelegate.appWebView.view withText:@"Initializing Tor circuit...\nFirst page load may be slow to start." andDuration:5];
             } else {
                 // Haven't done initial load yet and still waiting on bootstrap, so
                 // render status.

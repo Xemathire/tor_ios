@@ -30,6 +30,7 @@
 //#import "URLInterceptor.h"
 #import "WebViewTab.h"
 #import "WebViewController.h"
+#import "ALToastView.h"
 #import <objc/runtime.h>
 
 //#import "NSString+JavascriptEscape.h"
@@ -321,9 +322,7 @@ AppDelegate *appDelegate;
                         progress_str,
                         progress_str,
                         summary_str];
-    
-    //NSLog(@"%@", status);
-    
+        
     [loadingStatus loadHTMLString:[status description] baseURL:nil];
 }
 
@@ -406,13 +405,17 @@ AppDelegate *appDelegate;
             objc_setAssociatedObject(alertView, &AlertViewExternProtoUrl, navigationURL, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
             return;
         } else {
-            //NSLog(@"cannot open %@", [navigationURL absoluteString]);
+            NSMutableDictionary *details = [NSMutableDictionary dictionary];
+            [details setValue:@"Invalid input URL" forKey:NSLocalizedDescriptionKey];
+            NSError *error = [NSError errorWithDomain:@"NSURLErrorUnsupportedURL" code:-1002 userInfo:details];
+            [self informError:error withMessage:[NSString stringWithFormat:@"Failed to open URL: \"%@\"", [navigationURL absoluteString]]];
+            
+            self.url = navigationURL;
             [self addressBarCancel];
             return;
         }
     }
 }
-
 
 - (void)prepareForNewURL:(NSURL *)URL
 {
@@ -516,23 +519,25 @@ AppDelegate *appDelegate;
 #endif
     [self setProgress:@1.0];
     
+    // Disable default long press menu
+    [webView stringByEvaluatingJavaScriptFromString:@"document.body.style.webkitTouchCallout='none';"];
+    
     [self.title setText:[_webView stringByEvaluatingJavaScriptFromString:@"document.title"]];
     self.url = [NSURL URLWithString:[_webView stringByEvaluatingJavaScriptFromString:@"window.location.href"]];
 }
 
-/*
 - (void)webView:(UIWebView *)__webView didFailLoadWithError:(NSError *)error
 {
-    self.url = self.webView.request.URL;
+    // self.url = self.webView.request.URL;
     [self setProgress:@0];
     
     if ([[error domain] isEqualToString:NSURLErrorDomain] && error.code == NSURLErrorCancelled)
         return;
-    
+     
     // "The operation couldn't be completed. (Cocoa error 3072.)" - useless
     if ([[error domain] isEqualToString:NSCocoaErrorDomain] && error.code == NSUserCancelledError)
         return;
-    
+     
     NSString *msg = [error localizedDescription];
     
     // https://opensource.apple.com/source/libsecurity_ssl/libsecurity_ssl-36800/lib/SecureTransport.h
@@ -552,19 +557,14 @@ AppDelegate *appDelegate;
     
     NSString *u;
     if ((u = [[error userInfo] objectForKey:@"NSErrorFailingURLStringKey"]) != nil)
-        msg = [NSString stringWithFormat:@"%@\n\n%@", msg, u];
+        msg = [NSString stringWithFormat:@"%@\n%@", msg, u];
     
 #ifdef TRACE
     NSLog(@"[Tab %@] showing error dialog: %@ (%@)", self.tabIndex, msg, error);
 #endif
     
-    UIAlertView *m = [[UIAlertView alloc] initWithTitle:@"Error" message:msg delegate:self cancelButtonTitle: @"Ok" otherButtonTitles:nil];
-    [m show];
-    
-    [self webViewDidFinishLoad:__webView];
-    [self informError:error];
+    [self informError:error withMessage:msg];
 }
-*/
 
 - (void)webView:(UIWebView *)__webView callbackWith:(NSString *)callback
 {
@@ -577,7 +577,7 @@ AppDelegate *appDelegate;
     [__webView stringByEvaluatingJavaScriptFromString:finalcb];
 }
 
-- (void)informError:(NSError *)error {
+- (void)informError:(NSError *)error withMessage:(NSString *)message {
     
     // Skip NSURLErrorDomain:kCFURLErrorCancelled because that's just "Cancel"
     // (user pressing stop button). Likewise with WebKitErrorFrameLoadInterrupted
@@ -587,7 +587,6 @@ AppDelegate *appDelegate;
         return;
     }
     
-    
     if ([error.domain isEqualToString:NSPOSIXErrorDomain] && (error.code == 61)) {
         /* Tor died */
         
@@ -595,18 +594,15 @@ AppDelegate *appDelegate;
         NSLog(@"Tor socket failure: %@, %li --- %@ --- %@", error.domain, (long)error.code, error.localizedDescription, error.userInfo);
 #endif
         
-        UIAlertView* alertView = [[UIAlertView alloc]
-                                  initWithTitle:@"Tor connection failure"
-                                  message:@"The Onion Browser lost connection to the Tor anonymity network and is unable to reconnect. This may occur if The Onion Browser went to the background or if device went to sleep while The Onion Browser was active.\n\nPlease quit the app and try again. If you need to bookmark the current page or save information from the current page, you may press 'Cancel' to remain in the app without network capability."
-                                  delegate:nil
-                                  cancelButtonTitle:@"Cancel"
-                                  otherButtonTitles:@"Quit App",nil];
-        alertView.delegate = self;
-        alertView.tag = ALERTVIEW_TORFAIL;
+        NSString *errorTitle = @"Tor connection failure";
+        NSString *errorDescription = @"\nThe Onion Browser lost connection to the Tor anonymity network and is unable to reconnect. This may occur if The Onion Browser went to the background or if device went to sleep while The Onion Browser was active.\n\nPlease quit the app and try again.";
+
+        // report the error inside the webview
+        NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 150%%;\">%@</div><div style=\"font-size: 120%%;\">%@</div></div></div></div></div>", errorTitle, errorDescription, message];
         
-        [alertView show];
-    } else if ([error.domain isEqualToString:@"NSOSStatusErrorDomain"] &&
-               (error.code == -9807 || error.code == -9812)) {
+        [self.webView loadHTMLString:errorString baseURL:self.url];
+        
+    } else if ([error.domain isEqualToString:@"NSOSStatusErrorDomain"] && (error.code == -9807 || error.code == -9812)) {
         /* INVALID CERT */
         // Invalid certificate chain; valid cert chain, untrusted root
         
@@ -682,14 +678,10 @@ AppDelegate *appDelegate;
                                 error.localizedDescription, error.domain, (long)error.code];
         }
         
-        UIAlertView* alertView = [[UIAlertView alloc]
-                                  initWithTitle:errorTitle
-                                  message:errorDescription
-                                  delegate:nil
-                                  cancelButtonTitle:@"OK"
-                                  otherButtonTitles:nil];
-        [alertView show];
+        // report the error inside the webview
+        NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 150%%;\">%@</div><div style=\"font-size: 120%%;\">%@</div></div></div></div></div>", errorTitle, errorDescription, message];
         
+        [self.webView loadHTMLString:errorString baseURL:self.url];
     }
 }
 
@@ -874,7 +866,7 @@ AppDelegate *appDelegate;
 
 - (void)longPressMenu:(UILongPressGestureRecognizer *)sender {
 	UIAlertController *alertController;
-	NSString *href, *img, *alt;
+	NSString *href, *img;
     
 	if (sender.state != UIGestureRecognizerStateBegan)
 		return;
@@ -896,13 +888,12 @@ AppDelegate *appDelegate;
 	}
     
     href = elements[1];
-    alt = elements[3];
     
     if ([elements[2] isEqualToString:@"IMG"]) {
         img = href;
     }
     
-	alertController = [UIAlertController alertControllerWithTitle:href message:alt preferredStyle:UIAlertControllerStyleActionSheet];
+	alertController = [UIAlertController alertControllerWithTitle:href message:nil preferredStyle:UIAlertControllerStyleActionSheet];
 	
 	UIAlertAction *openAction = [UIAlertAction actionWithTitle:@"Open" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 		[self loadURL:[NSURL URLWithString:href]];
@@ -922,11 +913,9 @@ AppDelegate *appDelegate;
         NSData *imgdata = [NSData dataWithContentsOfURL:imgurl];
 		if (imgdata) {
 			UIImage *i = [UIImage imageWithData:imgdata];
-			UIImageWriteToSavedPhotosAlbum(i, self, nil, nil);
-		}
-		else {
-			UIAlertView *m = [[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"An error occurred downloading image %@", img] delegate:self cancelButtonTitle: @"Ok" otherButtonTitles:nil];
-			[m show];
+			UIImageWriteToSavedPhotosAlbum(i, self,  @selector(image:didFinishSavingWithError:contextInfo:), nil);
+		} else {
+            [ALToastView toastInView:self.viewHolder withText:@"Failed to download image:\nCouldn't retrieve the image's data" andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3];
 		}
 	}];
 	
@@ -1043,7 +1032,6 @@ AppDelegate *appDelegate;
 
 - (NSArray *)elementsAtLocationFromGestureRecognizer:(UIGestureRecognizer *)uigr
 {
-    
     /*
      CGPoint tap = [uigr locationInView:[self webView]];
      tap.y -= [[[self webView] scrollView] contentInset].top;
@@ -1060,7 +1048,7 @@ AppDelegate *appDelegate;
 
     CGPoint tap = [uigr locationInView:[self webView]];
     
-    // convert point from window to view coordinate system, and remove status bar and toolbar's height to point
+    // convert point from window to view coordinate system, and remove status bar and toolbar's height
     tap = [self.webView convertPoint:tap fromView:nil];
     tap.y += [UIApplication sharedApplication].statusBarFrame.size.height;
     
@@ -1077,10 +1065,8 @@ AppDelegate *appDelegate;
     CGFloat f = windowSize.width / viewSize.width;
     tap.x = tap.x * f + offset.x;
     tap.y = tap.y * f + offset.y;
-	
-	/* now find if there are usable elements at those coordinates and extract their attributes */
-	// NSString *json = [[self webView] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"JSON.stringify(__endless.elementsAtPoint(%li, %li));", (long)tap.x, (long)tap.y]];
     
+	/* now find if there are usable elements at those coordinates and extract their attributes */
     // Load the JavaScript code from the Resources and inject it into the web page
     NSString *path = [[NSBundle mainBundle] pathForResource:@"JSTools" ofType:@"js"];
     NSString *jsCode = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
@@ -1090,66 +1076,44 @@ AppDelegate *appDelegate;
     NSString *tags = [[self webView] stringByEvaluatingJavaScriptFromString:
                       [NSString stringWithFormat:@"__TheOnionBrowerGetHTMLElementsAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
     
-    /*
-    NSString *tagSRC = [[self webView] stringByEvaluatingJavaScriptFromString:
-                         [NSString stringWithFormat:@"__TheOnionBrowerGetLinkSRCAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
-    NSString *tag = [[self webView] stringByEvaluatingJavaScriptFromString:
-                         [NSString stringWithFormat:@"__TheOnionBrowerGetLinkTagAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
-    
-    NSString *name = [[self webView] stringByEvaluatingJavaScriptFromString:
-                     [NSString stringWithFormat:@"__TheOnionBrowerGetLinkNameAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
-     */
-    
-    // __TheOnionBrowerGetLinkInfoAtPoint
+    // Get the link info at the touch location
     NSString *jsonString = [[self webView] stringByEvaluatingJavaScriptFromString:
                          [NSString stringWithFormat:@"__TheOnionBrowerGetLinkInfoAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
-    NSArray *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
-
-    NSString *tagSRC;
-    NSString *tag;
-    NSString *name;
     
-    if ([json count] != 3) {
+    if (!jsonString) {
         return @[@"", @"", @"", @""];
     }
     
-    tagSRC = [json objectAtIndex:0];
-    tag = [json objectAtIndex:1];
-    name = [json objectAtIndex:2];
+    // Convert the jason string to an array
+    NSArray *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
+
+    NSString *source = @"";
+    NSString *tag = @"";
     
-	if ([tags isEqualToString:@""] || [tagSRC  isEqualToString:@""] || [tag isEqualToString:@""]) {
-		return @[@"", @"", @"", @""];
+    if ([json count] != 2) {
+        return @[@"", @"", @"", @""];
+    }
+    
+    source = [json objectAtIndex:0]; // Contains the URL
+    tag = [json objectAtIndex:1]; // Contains A or IMG (or nothing) depending on what the user clicked
+    
+    // If no proper link or image has been found
+	if ([source  isEqualToString:@""] || ([tag isEqualToString:@""] && [tags isEqualToString:@""])) {
+		return @[@"", @"", @""];
 	}
+        
+    tags = [NSString stringWithFormat:@"%@, %@", tag, tags]; // If the user clicked slightly next to the URL, the fuzz will still detect it but won't add it to the tags list, so we add it here
     
-    if ([name  isEqualToString:@"null"]) {
-        name = @"";
+    return @[tags, source, tag];
+}
+
+- (void)image:(UIImage*)image didFinishSavingWithError:(NSError *)error contextInfo:(void*)contextInfo
+{
+    if (error) {
+        [ALToastView toastInView:self.viewHolder withText:[NSString stringWithFormat:@"Failed to download image:\n%@", [error localizedDescription]] andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3];
+    } else {
+        [ALToastView toastInView:self.viewHolder withText:@"Successfully saved image"];
     }
-    
-    /* Keep only the first line of text if there are multiple */
-    if (![name  isEqualToString:@""]) {
-        for (int i = 0; i < [[name componentsSeparatedByString: @"\n"] count]; i++) {
-            if (![[[name componentsSeparatedByString: @"\n"] objectAtIndex:i]  isEqualToString:@""]) {
-                name = [[name componentsSeparatedByString: @"\n"] objectAtIndex:i];
-                break;
-            }
-        }
-    }
-    
-    /* Remove leading whitespaces */
-    NSInteger i = 0;
-    while (i < [name length] && [[NSCharacterSet whitespaceCharacterSet] characterIsMember:[name characterAtIndex:i]]) {
-        i++;
-    }
-    name = [name substringFromIndex:i];
-    
-    /* Remove trailing whitespaces */
-    i = [name length];
-    while (i > 0 && [[NSCharacterSet whitespaceCharacterSet] characterIsMember:[name characterAtIndex:i - 1]]) {
-        i--;
-    }
-    name = [name substringToIndex:i];
-    
-    return @[tags, tagSRC, tag, name];
 }
 
 -(void)openSettingsView {
