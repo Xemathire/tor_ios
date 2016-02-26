@@ -747,7 +747,7 @@ CGRect IASKCGRectSwap(CGRect rect);
             // deprecated, provided for backward compatibility
             NSLog(@"InAppSettingsKit Warning: -settingsViewController:buttonTappedForKey: is deprecated. Please use -settingsViewController:buttonTappedForSpecifier:");
             // [self.delegate settingsViewController:self buttonTappedForKey:[specifier key]];
-            //Changed method to remove depreciation warning
+            // Changed method to remove depreciation warning
             [self.delegate settingsViewController:self buttonTappedForSpecifier:specifier];
         } else {
             // legacy code, provided for backward compatibility

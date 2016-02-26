@@ -118,16 +118,17 @@
 }
 
 - (void)appDidBecomeActive {
+    _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:0.25f
+                                                          target:self
+                                                        selector:@selector(activateTorCheckLoop)
+                                                        userInfo:nil
+                                                         repeats:NO];
+
     if (![_mSocket isConnected]) {
         #ifdef DEBUG
         NSLog(@"[tor] Came back from background, sending HUP" );
         #endif
         [_mSocket writeString:@"SIGNAL HUP\n" encoding:NSUTF8StringEncoding];
-        _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:0.25f
-                                                              target:self
-                                                            selector:@selector(activateTorCheckLoop)
-                                                            userInfo:nil
-                                                             repeats:NO];
         [self hupTor];
     } else {
         NSLog(@"_mSocket isConnected");

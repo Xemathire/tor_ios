@@ -581,8 +581,7 @@ AppDelegate *appDelegate;
     
     // Skip NSURLErrorDomain:kCFURLErrorCancelled because that's just "Cancel"
     // (user pressing stop button). Likewise with WebKitErrorFrameLoadInterrupted
-    if (([error.domain isEqualToString:NSURLErrorDomain] && (error.code == kCFURLErrorCancelled))||
-        (([error.domain isEqualToString:(NSString *)@"WebKitErrorDomain"]) && (error.code == 102))
+    if (([error.domain isEqualToString:NSURLErrorDomain] && (error.code == kCFURLErrorCancelled)) || (([error.domain isEqualToString:(NSString *)@"WebKitErrorDomain"]) && (error.code == 102))
         ){
         return;
     }
@@ -595,7 +594,7 @@ AppDelegate *appDelegate;
 #endif
         
         NSString *errorTitle = @"Tor connection failure";
-        NSString *errorDescription = @"\nThe Onion Browser lost connection to the Tor anonymity network and is unable to reconnect. This may occur if The Onion Browser went to the background or if device went to sleep while The Onion Browser was active.\n\nPlease quit the app and try again.";
+        NSString *errorDescription = @"\nThe Onion Browser lost connection to the Tor anonymity network and is unable to reconnect. This may occur if The Onion Browser went to the background or if the device went to sleep while The Onion Browser was active.\n\nPlease quit the app and try again.";
 
         // report the error inside the webview
         NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 150%%;\">%@</div><div style=\"font-size: 120%%;\">%@</div></div></div></div></div>", errorTitle, errorDescription, message];
@@ -634,9 +633,7 @@ AppDelegate *appDelegate;
         NSLog(@"Displayed Error: %@, %li --- %@ --- %@", error.domain, (long)error.code, error.localizedDescription, error.userInfo);
 #endif
         
-        if ([error.domain isEqualToString:(NSString *)kCFErrorDomainCFNetwork] &&
-            ([error.domain isEqualToString:@"NSOSStatusErrorDomain"] &&
-             (error.code == -9800 || error.code == -9801 || error.code == -9809 || error.code == -9818))) {
+        if (([error.domain isEqualToString:@"NSOSStatusErrorDomain"] && (error.code == -9800 || error.code == -9801 || error.code == -9809 || error.code == -9818))) {
                 /* SSL/TLS ERROR */
                 // https://www.opensource.apple.com/source/Security/Security-55179.13/libsecurity_ssl/Security/SecureTransport.h
                 
