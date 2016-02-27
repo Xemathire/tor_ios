@@ -78,7 +78,7 @@
 - (void)loadView
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    
+
     appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [appDelegate setAppWebView:self];
     
@@ -269,41 +269,62 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)encodeRestorableStateWithCoder:(NSCoder *)coder
-{
-    [super encodeRestorableStateWithCoder:coder];
-    
-    NSMutableArray *wvtd = [[NSMutableArray alloc] initWithCapacity:webViewTabs.count - 1];
-    for (WebViewTab *wvt in webViewTabs) {
-        if (wvt.url == nil)
-            continue;
+- (BOOL)saveCurrentState {
+    if (webViewTabs && webViewTabs.count > 0) {        
+        NSMutableArray *wvtd = [[NSMutableArray alloc] initWithCapacity:webViewTabs.count - 1];
+        for (WebViewTab *wvt in webViewTabs) {
+            if (wvt.url == nil)
+                continue;
+                        
+            [wvtd addObject:@{@"url" : wvt.url, @"title" : wvt.title.text}];
+        }
         
-        [wvtd addObject:@{ @"url" : wvt.url, @"title" : wvt.title.text }];
-        [[wvt webView] setRestorationIdentifier:[wvt.url absoluteString]];
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths objectAtIndex:0];
+        NSString *appFile = [documentsDirectory stringByAppendingPathComponent:@"savedCoder.txt"];
         
-#ifdef TRACE
-        NSLog(@"encoded restoration state for tab %@ with %@", wvt.tabIndex, wvtd[wvtd.count - 1]);
-#endif
+        NSMutableArray *dataArray = [NSMutableArray array];
+        [dataArray addObject:wvtd];
+        [dataArray addObject:[NSNumber numberWithInt:curTabIndex]];
+        
+        [NSKeyedArchiver archiveRootObject:dataArray toFile:appFile];
+        
+        // Successfully saved state
+        return YES;
     }
-    [coder encodeObject:wvtd forKey:@"webViewTabs"];
-    [coder encodeObject:[NSNumber numberWithInt:curTabIndex] forKey:@"curTabIndex"];
+    
+    // Failed to save state
+    return NO;
 }
 
-- (void)decodeRestorableStateWithCoder:(NSCoder *)coder
-{
-    [super decodeRestorableStateWithCoder:coder];
+- (BOOL)restoreFromSavedState {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *appFile = [documentsDirectory stringByAppendingPathComponent:@"savedCoder.txt"];
+    NSMutableArray *dataArray = [NSKeyedUnarchiver unarchiveObjectWithFile:appFile];
     
-    NSMutableArray *wvt = [coder decodeObjectForKey:@"webViewTabs"];
+    if (dataArray) {
+        [self removeAllTabs];
+        [self decodeRestorableStateWithArray:dataArray];
+        
+        // Successfully restored state, return yes
+        return YES;
+    }
+    
+    // Faile to restore state, return no
+    return NO;
+}
+
+- (void)decodeRestorableStateWithArray:(NSArray *)dataArray
+{
+    NSMutableArray *wvt = dataArray[0];
     for (int i = 0; i < wvt.count; i++) {
         NSDictionary *params = wvt[i];
-#ifdef TRACE
-        NSLog(@"restoring tab %d with %@", i, params);
-#endif
         WebViewTab *wvt = [self addNewTabForURL:[params objectForKey:@"url"] forRestoration:YES withCompletionBlock:nil];
         [[wvt title] setText:[params objectForKey:@"title"]];
     }
     
-    NSNumber *cp = [coder decodeObjectForKey:@"curTabIndex"];
+    NSNumber *cp = dataArray[1];
     if (cp != nil) {
         if ([cp intValue] <= [webViewTabs count] - 1)
             [self setCurTabIndex:[cp intValue]];
@@ -316,6 +337,19 @@
     
     [self updateSearchBarDetails];
 }
+
+/*
+- (void)encodeRestorableStateWithCoder:(NSCoder *)coder
+{
+    [super encodeRestorableStateWithCoder:coder];
+    
+    [self saveCurrentState];
+}
+- (void)decodeRestorableStateWithCoder:(NSCoder *)coder
+{
+    [super decodeRestorableStateWithCoder:coder];
+}
+*/
 
 - (void)viewDidAppear:(BOOL)animated
 {
@@ -521,6 +555,10 @@
             [self showTabsWithCompletionBlock:swapToTab];
         }
         else if (url != nil) {
+            [wvt loadURL:url];
+        }
+    } else {
+        if (url != nil) {
             [wvt loadURL:url];
         }
     }

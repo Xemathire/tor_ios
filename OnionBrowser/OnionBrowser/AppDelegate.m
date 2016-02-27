@@ -171,6 +171,18 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
       [self startup2];
     }
     
+    
+    /* Used to save app state when the app is crashing */
+    NSSetUncaughtExceptionHandler(&HandleException);
+    
+    struct sigaction signalAction;
+    memset(&signalAction, 0, sizeof(signalAction));
+    signalAction.sa_handler = &HandleSignal;
+    
+    sigaction(SIGABRT, &signalAction, NULL);
+    sigaction(SIGILL, &signalAction, NULL);
+    sigaction(SIGBUS, &signalAction, NULL);
+    
     return YES;
 }
 
@@ -349,6 +361,11 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
         #endif
         exit(0);
     } else {
+        // Save state on crash if the user chose to
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        if ([userDefaults boolForKey:@"save_state_on_close"]) {
+            [appWebView saveCurrentState];
+        }
         [_tor disableTorCheckLoop];
     }
 }
@@ -368,6 +385,10 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Wipe all cookies & caches on the way out.
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    if ([userDefaults boolForKey:@"save_state_on_close"]) {
+        [appWebView saveCurrentState];
+    }
     [self wipeAppData];
     _window.hidden = YES;
     appWebView.view.hidden = YES;
@@ -503,6 +524,20 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     }
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
     */
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    /* Delete saved state */
+    if (![userDefaults boolForKey:@"save_state_on_close"]) {
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths objectAtIndex:0];
+        NSString *appFile = [documentsDirectory stringByAppendingPathComponent:@"savedCoder.txt"];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        
+        if([fileManager fileExistsAtPath:appFile]) {
+            [fileManager removeItemAtPath:appFile error:nil];
+        }
+    }
 
     // Delete all Caches, Cookies, Preferences in app's "Library" data dir. (Connection settings & etc end up in "Documents", not "Library".)
     NSArray *dataPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
@@ -825,6 +860,22 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
         return @"Mozilla/5.0 (iPad; CPU OS 8_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12A405 Safari/600.1.4";
     }
     return nil;
+}
+
+void HandleException(NSException *exception) {
+    // Save state on crash if the user chose to
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    if ([userDefaults boolForKey:@"save_state_on_close"]) {
+        [[(AppDelegate *)[[UIApplication sharedApplication] delegate] appWebView] saveCurrentState];
+    }
+}
+
+void HandleSignal(int signal) {
+    // Save state on crash if the user chose to
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    if ([userDefaults boolForKey:@"save_state_on_close"]) {
+        [[(AppDelegate *)[[UIApplication sharedApplication] delegate] appWebView] saveCurrentState];
+    }
 }
 
 @end

@@ -286,6 +286,19 @@
                 if (appDelegate.startUrl != nil) {
                     [wvc askToLoadURL:appDelegate.startUrl];
                 } else {
+                    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                    
+                    BOOL restored = NO;
+                    /* Delete saved state */
+                    if ([userDefaults boolForKey:@"save_state_on_close"]) {
+                        if ([[appDelegate appWebView] restoreFromSavedState]) {
+                            restored = YES;
+                            [ALToastView toastInView:appDelegate.appWebView.view withText:@"Restored saved session"];
+                        } else {
+                            [ALToastView toastInView:appDelegate.appWebView.view withText:@"Failed to restore previous session" andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1]];
+                        }
+                    }
+                    
                     // Didn't launch with a "theonionbrowser://" or "theonionbrowsers://" URL
                     // so just launch regular start page.
                     [wvc loadURL:[NSURL URLWithString:@"theonionbrowser:home"]];

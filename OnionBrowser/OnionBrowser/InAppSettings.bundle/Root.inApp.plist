@@ -95,6 +95,24 @@
 			<string></string>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
+			<key>FooterText</key>
+			<string>When quitting the app, save all open links and reopen them in the next session. Navigation history and cookies are not saved.</string>
+		</dict>
+		<dict>
+			<key>Key</key>
+			<string>save_state_on_close</string>
+			<key>Title</key>
+			<string>Save session when closing app</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string></string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
 		</dict>
 		<dict>
 			<key>Key</key>

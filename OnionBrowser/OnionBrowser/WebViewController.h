@@ -52,6 +52,9 @@
 
 - (void)viewIsVisible;
 
+- (BOOL)saveCurrentState;
+- (BOOL)restoreFromSavedState;
+
 - (WebViewTab *)addNewTabForURL:(NSURL *)url;
 - (void)removeTab:(NSNumber *)tabNumber andFocusTab:(NSNumber *)toFocus;
 - (void)removeTab:(NSNumber *)tabNumber;

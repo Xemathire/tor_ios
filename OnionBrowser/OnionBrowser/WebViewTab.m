@@ -528,15 +528,20 @@ AppDelegate *appDelegate;
 
 - (void)webView:(UIWebView *)__webView didFailLoadWithError:(NSError *)error
 {
+    NSLog(@"error: %@", error);
+    
     // self.url = self.webView.request.URL;
     [self setProgress:@0];
     
+    // For the user's sake, display every possible error
+    /*
     if ([[error domain] isEqualToString:NSURLErrorDomain] && error.code == NSURLErrorCancelled)
         return;
      
     // "The operation couldn't be completed. (Cocoa error 3072.)" - useless
     if ([[error domain] isEqualToString:NSCocoaErrorDomain] && error.code == NSUserCancelledError)
         return;
+     */
      
     NSString *msg = [error localizedDescription];
     
@@ -578,11 +583,17 @@ AppDelegate *appDelegate;
 }
 
 - (void)informError:(NSError *)error withMessage:(NSString *)message {
-    
+    NSLog(@"message: %@", message);
+
     // Skip NSURLErrorDomain:kCFURLErrorCancelled because that's just "Cancel"
     // (user pressing stop button). Likewise with WebKitErrorFrameLoadInterrupted
-    if (([error.domain isEqualToString:NSURLErrorDomain] && (error.code == kCFURLErrorCancelled)) || (([error.domain isEqualToString:(NSString *)@"WebKitErrorDomain"]) && (error.code == 102))
-        ){
+    if (([error.domain isEqualToString:NSURLErrorDomain] && (error.code == kCFURLErrorCancelled))) {
+        return;
+    }
+    
+    if ((([error.domain isEqualToString:(NSString *)@"WebKitErrorDomain"]) && (error.code == 102))) {
+        [ALToastView toastInView:self.viewHolder withText:@"Frame load interrupted" andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1]];
+        
         return;
     }
     
@@ -597,7 +608,7 @@ AppDelegate *appDelegate;
         NSString *errorDescription = @"\nThe Onion Browser lost connection to the Tor anonymity network and is unable to reconnect. This may occur if The Onion Browser went to the background or if the device went to sleep while The Onion Browser was active.\n\nPlease quit the app and try again.";
 
         // report the error inside the webview
-        NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 150%%;\">%@</div><div style=\"font-size: 120%%;\">%@</div></div></div></div></div>", errorTitle, errorDescription, message];
+        NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 2em;\">%@</div><div style=\"font-size: 2em;\">%@</div></div></div></div></div>", errorTitle, errorDescription, message];
         
         [self.webView loadHTMLString:errorString baseURL:self.url];
         
@@ -641,7 +652,6 @@ AppDelegate *appDelegate;
                 errorTitle = @"HTTPS Connection Failed";
                 errorDescription = [NSString stringWithFormat:@"A secure connection to '%@' could not be made.\nThe site might be down, there could be a Tor network outage, or your 'minimum SSL/TLS' setting might want stronger security than the website provides.\n\nFull error: '%@'",
                                     url.host, error.localizedDescription];
-                
             } else if ([error.domain isEqualToString:NSURLErrorDomain]) {
                 /* HTTP ERRORS */
                 // https://www.opensource.apple.com/source/Security/Security-55179.13/libsecurity_ssl/Security/SecureTransport.h
@@ -676,7 +686,7 @@ AppDelegate *appDelegate;
         }
         
         // report the error inside the webview
-        NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 150%%;\">%@</div><div style=\"font-size: 120%%;\">%@</div></div></div></div></div>", errorTitle, errorDescription, message];
+        NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 2em;\">%@</div><div style=\"font-size: 2em;\">%@</div></div></div></div></div>", errorTitle, errorDescription, message];
         
         [self.webView loadHTMLString:errorString baseURL:self.url];
     }
@@ -690,7 +700,6 @@ AppDelegate *appDelegate;
         exit(0);
     }
     
-    
     if ((alertView.tag == ALERTVIEW_SSL_WARNING) && (buttonIndex == 1)) {
         // "Continue anyway" for SSL cert error
         AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
@@ -700,12 +709,7 @@ AppDelegate *appDelegate;
         NSString *hostname = url.host;
         [appDelegate.sslWhitelistedDomains addObject:hostname];
         
-        UIAlertView* newAlertView = [[UIAlertView alloc]
-                                     initWithTitle:@"Whitelisted Domain"
-                                     message:[NSString stringWithFormat:@"SSL certificate errors for '%@' will be ignored for the rest of this session.", hostname] delegate:nil
-                                     cancelButtonTitle:@"OK"
-                                     otherButtonTitles:nil];
-        [newAlertView show];
+        [ALToastView toastInView:self.viewHolder withText:@"This website's SSL certificate errors will be\n ignored for the rest of this session." andDuration:5];
         
         // Reload (now that we have added host to whitelist)
         [self loadURL:url];
