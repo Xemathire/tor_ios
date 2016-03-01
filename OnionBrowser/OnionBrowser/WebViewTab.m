@@ -528,8 +528,6 @@ AppDelegate *appDelegate;
 
 - (void)webView:(UIWebView *)__webView didFailLoadWithError:(NSError *)error
 {
-    NSLog(@"error: %@", error);
-    
     // self.url = self.webView.request.URL;
     [self setProgress:@0];
     
@@ -583,8 +581,6 @@ AppDelegate *appDelegate;
 }
 
 - (void)informError:(NSError *)error withMessage:(NSString *)message {
-    NSLog(@"message: %@", message);
-
     // Skip NSURLErrorDomain:kCFURLErrorCancelled because that's just "Cancel"
     // (user pressing stop button). Likewise with WebKitErrorFrameLoadInterrupted
     if (([error.domain isEqualToString:NSURLErrorDomain] && (error.code == kCFURLErrorCancelled))) {
@@ -709,7 +705,7 @@ AppDelegate *appDelegate;
         NSString *hostname = url.host;
         [appDelegate.sslWhitelistedDomains addObject:hostname];
         
-        [ALToastView toastInView:self.viewHolder withText:@"This website's SSL certificate errors will be\n ignored for the rest of this session." andDuration:5];
+        [ALToastView toastInView:self.viewHolder withText:@"This website's SSL certificate errors will be ignored for the rest of this session." andDuration:5];
         
         // Reload (now that we have added host to whitelist)
         [self loadURL:url];
@@ -1099,7 +1095,7 @@ AppDelegate *appDelegate;
     tag = [json objectAtIndex:1]; // Contains A or IMG (or nothing) depending on what the user clicked
     
     // If no proper link or image has been found
-	if ([source  isEqualToString:@""] || ([tag isEqualToString:@""] && [tags isEqualToString:@""])) {
+	if (([source  isEqualToString:@""] || [source  isEqualToString:@"undefined"]) || ([tag isEqualToString:@""] && [tags isEqualToString:@""])) {
 		return @[@"", @"", @""];
 	}
         
@@ -1108,7 +1104,7 @@ AppDelegate *appDelegate;
     return @[tags, source, tag];
 }
 
-- (void)image:(UIImage*)image didFinishSavingWithError:(NSError *)error contextInfo:(void*)contextInfo
+- (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo
 {
     if (error) {
         [ALToastView toastInView:self.viewHolder withText:[NSString stringWithFormat:@"Failed to download image:\n%@", [error localizedDescription]] andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3];

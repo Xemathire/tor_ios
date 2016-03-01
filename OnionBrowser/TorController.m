@@ -12,29 +12,34 @@
 #import "Reachability.h"
 #import "ALToastView.h"
 
-@implementation TorController
+@implementation TorController {
+    int nbrFailedAttempts;
+}
 
 #define STATUS_CHECK_TIMEOUT 3.0f
+#define MAX_FAILED_ATTEMPTS 5
 
 @synthesize
-    didFirstConnect,
-    torControlPort = _torControlPort,
-    torSocksPort = _torSocksPort,
-    torThread = _torThread,
-    torCheckLoopTimer = _torCheckLoopTimer,
-    torStatusTimeoutTimer = _torStatusTimeoutTimer,
-    mSocket = _mSocket,
-    controllerIsAuthenticated = _controllerIsAuthenticated,
-    connectionStatus = _connectionStatus
+didFirstConnect,
+torControlPort = _torControlPort,
+torSocksPort = _torSocksPort,
+torThread = _torThread,
+torCheckLoopTimer = _torCheckLoopTimer,
+torStatusTimeoutTimer = _torStatusTimeoutTimer,
+mSocket = _mSocket,
+controllerIsAuthenticated = _controllerIsAuthenticated,
+connectionStatus = _connectionStatus
 ;
 
 -(id)init {
-    if (self=[super init]) {
+    if (self = [super init]) {
         _torControlPort = (arc4random() % (57343-49153)) + 49153;
         _torSocksPort = (arc4random() % (65534-57344)) + 57344;
         
         _controllerIsAuthenticated = NO;
         _connectionStatus = CONN_STATUS_NONE;
+        
+        nbrFailedAttempts = 0;
         
         // listen to changes in connection state
         // (tor has auto detection when external IP changes, but if we went
@@ -74,6 +79,43 @@
                                                          repeats:NO];
 }
 
+- (void)stopTor {
+    // [_mSocket writeString:@"QUIT\n" encoding:NSUTF8StringEncoding]; // try SHUTDOWN?
+    [_mSocket writeString:@"SIGNAL SHUTDOWN\n" encoding:NSUTF8StringEncoding];
+    // [_mSocket writeString:@"SIGNAL HALT\n" encoding:NSUTF8StringEncoding];
+    // [_mSocket writeString:@"killall tor\n" encoding:NSUTF8StringEncoding];
+    // [_mSocket writeString:@"QUIT\n" encoding:NSUTF8StringEncoding];
+    // [_mSocket writeString:@"EXIT\n" encoding:NSUTF8StringEncoding];
+    
+    // kill(@"tor", SIGKILL);
+    // [self performSelector:@selector(rebootTor) withObject:nil afterDelay:1.0];
+}
+
+- (void)rebootTor {
+    if (_torThread != nil) {
+        [_torThread exitThread];  // Cleanup
+        [_torThread cancel];
+        _torThread = nil;
+    }
+    
+    if (_mSocket) {
+        [_mSocket close];
+        _mSocket = nil;
+    }
+    
+    if (_torCheckLoopTimer != nil) {
+        [_torCheckLoopTimer invalidate];
+    }
+    if (_torStatusTimeoutTimer != nil) {
+        [_torStatusTimeoutTimer invalidate];
+    }
+    
+    // nbrFailedAttempts = 0;
+    
+    // [self startTor];
+    [self performSelector:@selector(startTor) withObject:nil afterDelay:1.0];
+}
+
 - (void)hupTor {
     if (_torCheckLoopTimer != nil) {
         [_torCheckLoopTimer invalidate];
@@ -81,7 +123,7 @@
     if (_torStatusTimeoutTimer != nil) {
         [_torStatusTimeoutTimer invalidate];
     }
-
+    
     [_mSocket writeString:@"SIGNAL HUP\n" encoding:NSUTF8StringEncoding];
     _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:1.0f
                                                           target:self
@@ -91,9 +133,9 @@
 }
 
 - (void)requestNewTorIdentity {
-    #ifdef DEBUG
+#ifdef DEBUG
     NSLog(@"[tor] Requesting new identity (SIGNAL NEWNYM)" );
-    #endif
+#endif
     [_mSocket writeString:@"SIGNAL NEWNYM\n" encoding:NSUTF8StringEncoding];
 }
 
@@ -103,11 +145,11 @@
 
 - (void)reachabilityChanged {
     Reachability* reach = [Reachability reachabilityForInternetConnection];
-
+    
     if (reach.currentReachabilityStatus != NotReachable) {
-        #ifdef DEBUG
+#ifdef DEBUG
         NSLog(@"[tor] Reachability changed (now online), sending HUP" );
-        #endif
+#endif
         [self hupTor];
     }
 }
@@ -115,6 +157,7 @@
 
 - (void)appDidEnterBackground {
     [self disableTorCheckLoop];
+    nbrFailedAttempts = 0;
 }
 
 - (void)appDidBecomeActive {
@@ -123,15 +166,15 @@
                                                         selector:@selector(activateTorCheckLoop)
                                                         userInfo:nil
                                                          repeats:NO];
-
+    
+    nbrFailedAttempts = 0;
+    
     if (![_mSocket isConnected]) {
-        #ifdef DEBUG
+#ifdef DEBUG
         NSLog(@"[tor] Came back from background, sending HUP" );
-        #endif
-        [_mSocket writeString:@"SIGNAL HUP\n" encoding:NSUTF8StringEncoding];
+#endif
+        
         [self hupTor];
-    } else {
-        NSLog(@"_mSocket isConnected");
     }
 }
 
@@ -139,10 +182,10 @@
 #pragma mark Tor control port
 
 - (void)activateTorCheckLoop {
-    #ifdef DEBUG
+#ifdef DEBUG
     NSLog(@"[tor] Checking Tor Control Port" );
-    #endif
-
+#endif
+    
     _controllerIsAuthenticated = NO;
     
     [ULINetSocket ignoreBrokenPipes];
@@ -160,7 +203,7 @@
 - (void)disableTorCheckLoop {
     // When in background, don't poll the Tor control port.
     [ULINetSocket ignoreBrokenPipes];
-
+    
     [_mSocket close];
     _mSocket = nil;
     
@@ -179,10 +222,10 @@
             [_torStatusTimeoutTimer invalidate];
         }
         _torStatusTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval:STATUS_CHECK_TIMEOUT
-                                                              target:self
-                                                            selector:@selector(checkTorStatusTimeout)
-                                                            userInfo:nil
-                                                             repeats:NO];
+                                                                  target:self
+                                                                selector:@selector(checkTorStatusTimeout)
+                                                                userInfo:nil
+                                                                 repeats:NO];
     }
 }
 
@@ -193,36 +236,41 @@
     // near instantaneous.)
     //
     // Fail: Restart Tor? (Maybe HUP?)
-    NSLog(@"[tor] checkTor timed out, attempting to restart tor");
+    // NSLog(@"[tor] checkTor timed out, attempting to restart tor");
+    NSLog(@"[tor] checkTor timed out");
     // [self startTor];
     // [self hupTor];
 }
 
-
-
-- (void)netsocketConnected:(ULINetSocket*)inNetSocket {
+- (void)netsocketConnected:(ULINetSocket *)inNetSocket {
     /* Authenticate on first control port connect */
-    #ifdef DEBUG
+#ifdef DEBUG
     NSLog(@"[tor] Control Port Connected" );
-    #endif
+#endif
+    
     NSData *torCookie = [_torThread readTorCookie];
     
-    NSString *authMsg = [NSString stringWithFormat:@"authenticate %@\n",
-                         [torCookie hexadecimalString]];
+    NSString *authMsg = [NSString stringWithFormat:@"authenticate %@\n", [torCookie hexadecimalString]];
     [_mSocket writeString:authMsg encoding:NSUTF8StringEncoding];
     
     _controllerIsAuthenticated = NO;
 }
 
-
-- (void)netsocketDisconnected:(ULINetSocket*)inNetSocket {
-    #ifdef DEBUG
+- (void)netsocketDisconnected:(ULINetSocket *)inNetSocket {
+#ifdef DEBUG
     NSLog(@"[tor] Control Port Disconnected" );
-    #endif
+#endif
     
     // Attempt to reconnect the netsocket
-    [self disableTorCheckLoop];
-    [self activateTorCheckLoop];
+    if (nbrFailedAttempts <= MAX_FAILED_ATTEMPTS) {
+        [self disableTorCheckLoop];
+        [self activateTorCheckLoop];
+        nbrFailedAttempts += 1;
+    } else {
+        //nbrFailedAttempts = 0;
+        [self performSelectorOnMainThread:@selector(stopTor) withObject:nil waitUntilDone:YES];
+        // [(AppDelegate *)[[UIApplication sharedApplication] delegate] restartTor];
+    }
 }
 
 - (void)netsocket:(ULINetSocket*)inNetSocket dataAvailable:(unsigned)inAmount {
@@ -231,11 +279,11 @@
     if (!_controllerIsAuthenticated) {
         // Response to AUTHENTICATE
         if ([newMsgIn hasPrefix:@"250"]) {
-            #ifdef DEBUG
+#ifdef DEBUG
             NSLog(@"[tor] Control Port Authenticated Successfully" );
-            #endif
+#endif
             _controllerIsAuthenticated = YES;
-
+            
             [_mSocket writeString:@"getinfo status/bootstrap-phase\n" encoding:NSUTF8StringEncoding];
             _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:0.15f
                                                                   target:self
@@ -244,9 +292,9 @@
                                                                  repeats:NO];
         }
         else {
-            #ifdef DEBUG
+#ifdef DEBUG
             NSLog(@"[tor] Control Port: Got unknown post-authenticate message %@", _msgIn);
-            #endif
+#endif
             // Could not authenticate with control port. This is the worst thing
             // that can happen on app init and should fail badly so that the
             // app does not just hang there.
@@ -281,21 +329,21 @@
         WebViewTab *wvc = appDelegate.appWebView.curWebViewTab;
         if (!didFirstConnect) {
             if ([newMsgIn rangeOfString:@"BOOTSTRAP PROGRESS=100"].location != NSNotFound) {
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+
                 // This is our first go-around (haven't loaded page into webView yet)
                 // but we are now at 100%, so go ahead.
                 if (appDelegate.startUrl != nil) {
                     [wvc askToLoadURL:appDelegate.startUrl];
                 } else {
-                    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                    
                     BOOL restored = NO;
                     /* Delete saved state */
                     if ([userDefaults boolForKey:@"save_state_on_close"]) {
                         if ([[appDelegate appWebView] restoreFromSavedState]) {
                             restored = YES;
-                            [ALToastView toastInView:appDelegate.appWebView.view withText:@"Restored saved session"];
+                            [ALToastView toastInView:appDelegate.appWebView.view withText:@"Restored saved tabs"];
                         } else {
-                            [ALToastView toastInView:appDelegate.appWebView.view withText:@"Failed to restore previous session" andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1]];
+                            [ALToastView toastInView:appDelegate.appWebView.view withText:@"Failed to restore previous tabs" andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1]];
                         }
                     }
                     
@@ -306,20 +354,28 @@
                 didFirstConnect = YES;
                 
                 // See "checkTor call in middle of app" a little bit below.
-                 _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:5.0f
-                 target:self
-                 selector:@selector(checkTor)
-                 userInfo:nil
-                 repeats:NO];
-
-                [ALToastView toastInView:appDelegate.appWebView.view withText:@"Initializing Tor circuit...\nFirst page load may be slow to start." andDuration:5];
+                _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:3.0f
+                                                                      target:self
+                                                                    selector:@selector(checkTor)
+                                                                    userInfo:nil
+                                                                     repeats:NO];
+                
+                // Check if the tutorial should be displayed
+                if ([userDefaults stringForKey:@"app_version_number"] == nil || [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"] compare:[userDefaults stringForKey:@"app_version_number"] options:NSNumericSearch] == NSOrderedDescending) {
+                    // If the stored version number is strictly less than the current version, show tutorial
+                    [userDefaults setObject:[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"] forKey:@"app_version_number"];
+                    [userDefaults synchronize];
+                    
+                    [appDelegate.appWebView showTutorial];
+                } else
+                    [ALToastView toastInView:appDelegate.appWebView.view withText:@"Initializing Tor circuit...\nFirst page load may be slow to start." andDuration:5];
             } else {
                 // Haven't done initial load yet and still waiting on bootstrap, so
                 // render status.
                 
                 if (_msgIn == NULL)
                     _msgIn = newMsgIn;
-
+                
                 [wvc renderTorStatus:@[newMsgIn, _msgIn]];
                 _msgIn = newMsgIn;
                 _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:0.15f
@@ -345,9 +401,9 @@
             
             [self hupTor];
         } else {
-            #ifdef DEBUG
+#ifdef DEBUG
             NSLog(@"[tor] Control Port: orconn-status: OK");
-            #endif
+#endif
             _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:5.0f
                                                                   target:self
                                                                 selector:@selector(checkTor)

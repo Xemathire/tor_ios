@@ -51,7 +51,6 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     
     if (![fileManager fileExistsAtPath:[path stringByAppendingPathComponent:@"bookmarks.plist"]]) {
         [Bookmark addBookmarkForURLString:@"https://duckduckgo.com" withName:@"DuckDuckGo"];
-        [Bookmark addBookmarkForURLString:@"https://www.3g2upl4pq6kufc4m.onion/" withName:@"DuckDuckGo (Hidden service)"];
         [Bookmark addBookmarkForURLString:@"https://bing.com" withName:@"Bing"];
         [Bookmark addBookmarkForURLString:@"https://search.yahoo.com" withName:@"Yahoo search"];
     }
@@ -59,14 +58,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     return YES;
 }
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    /*
-    // Detect bookmarks file.
-    NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"Settings.sqlite"];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    doPrepopulateBookmarks = (![fileManager fileExistsAtPath:[storeURL path]]);
-    */
-    
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
     /* Tell iOS to encrypt everything in the app's sandboxed storage. */
     [self updateFileEncryption];
     // Repeat encryption every 15 seconds, to catch new caches, cookies, etc.
@@ -162,7 +154,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 
     // OLD IOS SECURITY WARNINGS
     if ([[[UIDevice currentDevice] systemVersion] compare:@"8.2" options:NSNumericSearch] == NSOrderedAscending) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Outdated iOS Warning" message:@"You are running an older version of iOS that may use weak HTTPS encryption (“FREAK exploit”). iOS 8.2 contains a fix for this issue.\n\nUsing Tor cannot protect your data from system-level vulnerabilities.\n\nFor your safety, you should upate to the latest version of iOS so that you receive the latest security fixes. Future versions of The Onion Browser will drop support for iOS versions older than 8.2." preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Outdated iOS Warning" message:@"You are running an older version of iOS that may use weak HTTPS encryption (“FREAK exploit”). iOS 8.2 contains a fix for this issue.\n\nUsing Tor cannot protect your data from system-level vulnerabilities.\n\nFor your safety, you should upate to the latest version of iOS so that you receive the latest security fixes." preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
           [self startup2];
         }]];
@@ -228,6 +220,39 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     [self updateTorrc];
     _tor = [[TorController alloc] init];
     [_tor startTor];
+}
+
+- (void) restartTor {
+    /*
+    [appWebView animateAllTabsRemoval];
+    [self wipeAppData];
+    _tor = nil;
+
+    sslWhitelistedDomains = [[NSMutableArray alloc] init];
+    
+    NSMutableDictionary *settings = self.getSettings;
+    NSInteger cookieSetting = [[settings valueForKey:@"cookies"] integerValue];
+    if (cookieSetting == COOKIES_ALLOW_ALL) {
+        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookieAcceptPolicy:NSHTTPCookieAcceptPolicyAlways];
+    } else if (cookieSetting == COOKIES_BLOCK_THIRDPARTY) {
+        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookieAcceptPolicy:NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain];
+    } else if (cookieSetting == COOKIES_BLOCK_ALL) {
+        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookieAcceptPolicy:NSHTTPCookieAcceptPolicyNever];
+    }
+    
+    // Start the spinner for the "connecting..." phase
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    */
+    
+    /*******************/
+    /*
+    // Clear non-whitelisted cookies
+    [[self cookieJar] clearAllOldNonWhitelistedData];
+    
+    [self updateTorrc];
+    // _tor = [[TorController alloc] init];
+    // [_tor startTor];
+     */
 }
 
 #pragma mark - Core Data stack
@@ -366,7 +391,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
         if ([userDefaults boolForKey:@"save_state_on_close"]) {
             [appWebView saveCurrentState];
         }
-        [_tor disableTorCheckLoop];
+        [_tor appDidEnterBackground];
     }
 }
 
@@ -513,8 +538,6 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 }
 
 - (void)wipeAppData {
-    [[self appWebView] removeAllTabs];
-    
     /*
     // This is probably incredibly redundant since we just delete all the files, below
     NSHTTPCookie *cookie;

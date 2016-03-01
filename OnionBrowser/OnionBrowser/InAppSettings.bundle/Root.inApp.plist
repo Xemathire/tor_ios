@@ -102,7 +102,7 @@
 			<key>Key</key>
 			<string>save_state_on_close</string>
 			<key>Title</key>
-			<string>Save session when closing app</string>
+			<string>Save tabs when exiting app</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>DefaultValue</key>
@@ -248,7 +248,15 @@
 			<key>Type</key>
 			<string>PSChildPaneSpecifier</string>
 			<key>IASKChildTitle</key>
-			<string>About Endless</string>
+			<string>About The Onion Browser</string>
+		</dict>
+		<dict>
+			<key>Key</key>
+			<string>ButtonShowTutorial</string>
+			<key>Title</key>
+			<string>Show tutorial</string>
+			<key>Type</key>
+			<string>IASKButtonSpecifier</string>
 		</dict>
 	</array>
 	<key>StringsTable</key>

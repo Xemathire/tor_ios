@@ -34,6 +34,7 @@
 #define PAN_GESTURE_RECOGNIZER_NONE 0
 #define PAN_GESTURE_RECOGNIZER_UP 1
 #define PAN_GESTURE_RECOGNIZER_SIDE 2
+#define PAN_GESTURE_RECOGNIZER_EDGE_SIZE 80
 
 #define STATUSBAR_HEIGHT 20
 #define TOOLBAR_HEIGHT 46
@@ -59,6 +60,7 @@
 - (void)removeTab:(NSNumber *)tabNumber andFocusTab:(NSNumber *)toFocus;
 - (void)removeTab:(NSNumber *)tabNumber;
 - (void)removeAllTabs;
+- (void)animateAllTabsRemoval;
 
 - (void)webViewTouched;
 - (void)updateProgress;
@@ -69,5 +71,6 @@
 - (void)prepareForNewURLFromString:(NSString *)url;
 
 - (void)goHome:(NSURL *)url;
+- (void)showTutorial;
 
 @end

@@ -23,17 +23,16 @@
 // THE SOFTWARE.
 //
 
-/**********
-    NOTE
- **********
+/* NOTE:
  
  Added options to ALToastView:
- • Can give custom background color to the view
- • Can give custom duration
- 
- I also made the text a bit bigger and added functions without those custom options to make it compatible with previous calls
- 
- **********/
+ • Can provide custom background color to the view
+ • Can provide custom duration
+ • View stays in parent view's bounds
+ • Views are automatically re-positioned when interface orientation changes
+ • Made the text bigger (auto-adjusts font size to fit)
+ • Label can have up to 3 lines
+ */
 
 #import <QuartzCore/QuartzCore.h>
 #import "ALToastView.h"
@@ -42,6 +41,13 @@
 // Set default visibility duration
 static const CGFloat kDuration = 2;
 
+// Set default font size
+static const int fontSize = 16;
+
+// Set default padding arround the label
+static const int leftPadding = 10;
+static const int topPadding = 5;
+static const int distanceToBottom = 40;
 
 // Static toastview queue variable
 static NSMutableArray *toasts;
@@ -54,6 +60,7 @@ static NSMutableArray *toasts;
 
 @property (nonatomic, readonly) UILabel *textLabel;
 @property (nonatomic) int duration;
+@property (nonatomic) UIView *parentView;
 
 - (void)fadeToastOut;
 + (void)nextToastInView:(UIView *)parentView withDuration:(int)duration;
@@ -72,29 +79,38 @@ static NSMutableArray *toasts;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
-- (id)initWithText:(NSString *)text {
+- (id)initWithText:(NSString *)text andParentView:(UIView *)parentView {
     if ((self = [self initWithFrame:CGRectZero])) {
+        self.parentView = parentView;
+        
         // Add corner radius
         self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.6];
         self.layer.cornerRadius = 5;
         self.autoresizingMask = UIViewAutoresizingNone;
         self.autoresizesSubviews = NO;
         
+        // Compute the label's size
+        NSAttributedString *attributedText = [[NSAttributedString alloc] initWithString:text attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:fontSize]}];
+        CGRect rect = [attributedText boundingRectWithSize:(CGSize){self.parentView.bounds.size.width - 2 * leftPadding, self.parentView.bounds.size.height / 2}
+                                                   options:NSStringDrawingUsesLineFragmentOrigin
+                                                   context:nil];
+        
         // Init and add label
-        _textLabel = [[UILabel alloc] init];
+        _textLabel = [[UILabel alloc] initWithFrame:rect];
         _textLabel.text = text;
-        _textLabel.font = [UIFont systemFontOfSize:16];
+        _textLabel.font = [UIFont systemFontOfSize:fontSize];
         _textLabel.minimumScaleFactor = 12.0/16.0;
         _textLabel.textColor = [UIColor whiteColor];
-        _textLabel.adjustsFontSizeToFitWidth = NO;
+        _textLabel.adjustsFontSizeToFitWidth = YES;
         _textLabel.backgroundColor = [UIColor clearColor];
-        _textLabel.numberOfLines = 2;
-        [_textLabel sizeToFit];
+        _textLabel.numberOfLines = 3;
         
         self.duration = kDuration;
         
         [self addSubview:_textLabel];
-        _textLabel.frame = CGRectOffset(_textLabel.frame, 10, 5);
+        _textLabel.frame = CGRectOffset(_textLabel.frame, leftPadding, topPadding);
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification  object:nil];
     }
     
     return self;
@@ -125,13 +141,13 @@ static NSMutableArray *toasts;
 
 + (void)toastInView:(UIView *)parentView withText:(NSString *)text andBackgroundColor:(UIColor *)backgroundColor andDuration:(int)duration {
     // Add new instance to queue
-    ALToastView *view = [[ALToastView alloc] initWithText:text];
+    ALToastView *view = [[ALToastView alloc] initWithText:text andParentView:parentView];
     
     if (backgroundColor) {
         view.backgroundColor = backgroundColor;
     }
     
-    if (duration != kDuration) {
+    if (duration) {
         view.duration = duration;
     }
     
@@ -141,7 +157,7 @@ static NSMutableArray *toasts;
     CGFloat pHeight = parentView.frame.size.height;
     
     // Change toastview frame
-    view.frame = CGRectMake((pWidth - lWidth - 20) / 2., pHeight - lHeight - 60, lWidth + 20, lHeight + 10);
+    view.frame = CGRectMake((pWidth - lWidth - 2 * leftPadding) / 2., pHeight - lHeight - distanceToBottom, lWidth + 2 * leftPadding, lHeight + 2 * topPadding);
     view.alpha = 0.0f;
     
     if (toasts == nil) {
@@ -160,10 +176,25 @@ static NSMutableArray *toasts;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private
 
+- (void)orientationChanged:(NSNotification *)notification {
+    [self adjustViewsForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+}
+
+- (void) adjustViewsForOrientation:(UIInterfaceOrientation) orientation {
+    for (ALToastView *view in toasts) {
+        // Update all toast view's frames
+        CGFloat lWidth = view.textLabel.frame.size.width;
+        CGFloat lHeight = view.textLabel.frame.size.height;
+        CGFloat pWidth = view.parentView.frame.size.width;
+        CGFloat pHeight = view.parentView.frame.size.height;
+        
+        view.frame = CGRectMake((pWidth - lWidth - 2 * leftPadding) / 2., pHeight - lHeight - distanceToBottom, lWidth + 2 * leftPadding, lHeight + 2 * topPadding);
+    }
+}
+
 - (void)fadeToastOut {
     // Fade in parent view
     [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionAllowUserInteraction
-     
                      animations:^{
                          self.alpha = 0.f;
                      }
@@ -178,7 +209,7 @@ static NSMutableArray *toasts;
                              toasts = nil;
                          }
                          else
-                             [ALToastView nextToastInView:parentView withDuration:self.duration];
+                             [ALToastView nextToastInView:parentView withDuration:[(ALToastView *)[toasts objectAtIndex:0] duration]];
                      }];
 }
 

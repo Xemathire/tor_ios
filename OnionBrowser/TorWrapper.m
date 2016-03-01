@@ -8,8 +8,11 @@
 
 #import "TorWrapper.h"
 #import "AppDelegate.h"
+#include <container.h>
 
-@implementation TorWrapper
+@implementation TorWrapper {
+    BOOL test;
+}
 
 -(NSData *)readTorCookie {
     /* We have the CookieAuthentication ControlPort method set up, so Tor
@@ -23,6 +26,8 @@
 }
 
 -(void)main {
+    test = false;
+    
     AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
     NSString *tmpDir = NSTemporaryDirectory();
     
@@ -65,6 +70,12 @@
     #endif
     char* argv[] = {arg_0, arg_1, arg_2, arg_3, arg_4, arg_5, arg_6, arg_7, arg_8, arg_9, arg_10, arg_11, arg_12, NULL};
     tor_main(13, argv);
+}
+
+- (void)exitThread {
+    // int postfork = 1; // If postfork, we are a worker process and we want to free only the parts of memory that we won't touch. If !postfork, Tor is shutting down and we should free everything.
+    // tor_free_all(postfork);
+    // tor_cleanup();
 }
 
 @end

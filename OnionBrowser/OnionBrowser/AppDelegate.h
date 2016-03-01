@@ -70,9 +70,10 @@ extern NSString * const STATE_RESTORE_TRY_KEY;
 
 @property (nonatomic) Boolean doPrepopulateBookmarks;
 
-- (void)updateTorrc;
-- (NSURL *)applicationDocumentsDirectory;
-- (void)wipeAppData;
+- (void) updateTorrc;
+- (void) restartTor;
+- (NSURL *) applicationDocumentsDirectory;
+- (void) wipeAppData;
 - (NSUInteger) deviceType;
 - (Boolean) isRunningTests;
 

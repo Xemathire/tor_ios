@@ -13,4 +13,6 @@
 @interface TorWrapper : NSThread
 
 -(NSData *)readTorCookie;
+- (void)exitThread;
+
 @end

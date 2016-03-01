@@ -29,11 +29,11 @@
 #import "AppDelegate.h"
 #import "BookmarkController.h"
 #import "SSLCertificateViewController.h"
-//#import "URLInterceptor.h"
 #import "WebViewController.h"
 #import "WebViewTab.h"
 #import "WebViewMenuController.h"
 #import "WYPopoverController.h"
+#import "EAIntroView.h"
 
 @implementation WebViewController {
     AppDelegate *appDelegate;
@@ -72,7 +72,8 @@
     BookmarkController *bookmarks;
     
     CGPoint originalPoint;
-    int panGestureRecognizerType; // 0: None, 1: Remove tab, 2: change page
+    CGPoint panGestureOriginPoint;
+    int panGestureRecognizerType; // 0: None, 1: Remove tab, 2: Change page
 }
 
 - (void)loadView
@@ -304,7 +305,7 @@
     NSMutableArray *dataArray = [NSKeyedUnarchiver unarchiveObjectWithFile:appFile];
     
     if (dataArray) {
-        [self removeAllTabs];
+        [self animateAllTabsRemoval];
         [self decodeRestorableStateWithArray:dataArray];
         
         // Successfully restored state, return yes
@@ -332,10 +333,15 @@
         [tabScroller setContentOffset:CGPointMake([self frameForTabIndex:tabChooser.currentPage].origin.x, 0) animated:NO];
         
         /* wait for the UI to catch up */
-        [[self curWebViewTab] performSelector:@selector(refresh) withObject:nil afterDelay:0.5];
+        [[self curWebViewTab] performSelector:@selector(forceRefresh) withObject:nil afterDelay:0.5];
+        [[self curWebViewTab] setNeedsForceRefresh:NO];
     }
     
     [self updateSearchBarDetails];
+
+    if (showingTabs) {
+        [self performSelectorOnMainThread:@selector(showTabsWithCompletionBlock:) withObject:nil waitUntilDone:YES];
+    }
 }
 
 /*
@@ -506,10 +512,6 @@
         WebViewTab *wvt = [webViewTabs objectAtIndex:i];
         [[[wvt webView] scrollView] setScrollsToTop:(i == tab)];
     }
-    
-    if ([[self curWebViewTab] needsRefresh]) {
-        [[self curWebViewTab] refresh];
-    }
 }
 
 - (WebViewTab *)addNewTabForURL:(NSURL *)url
@@ -559,9 +561,19 @@
         }
     } else {
         if (url != nil) {
-            [wvt loadURL:url];
+            // Don't load the urls, as the current tab's url will be loaded later and we don't want to load the other ones to avoid using bandwidth
+            [wvt setUrl:url];
+            [wvt setNeedsForceRefresh:YES];
         }
     }
+    
+    // Add a pan gesture recognizer for "two finger to change tab"
+    // NOTE: not using an edge recognizer to control the edge's side, as the regular one is too small for 2 fingers and makes the feature hard to use
+    UIPanGestureRecognizer *panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerDrag:)];
+    [panGestureRecognizer setMinimumNumberOfTouches:2];
+    [panGestureRecognizer setMaximumNumberOfTouches:2];
+    [panGestureRecognizer setDelegate:self];
+    [wvt.webView addGestureRecognizer:panGestureRecognizer];
     
     return wvt;
 }
@@ -673,6 +685,14 @@
     [tabChooser setNumberOfPages:0];
     
     [self updateSearchBarDetails];
+}
+
+- (void)animateAllTabsRemoval {
+    if (!showingTabs) {
+        [self performSelectorOnMainThread:@selector(showTabsWithCompletionBlock:) withObject:nil waitUntilDone:YES];
+    }
+    
+    [self removeAllTabs];
 }
 
 - (void)updateSearchBarDetails
@@ -951,6 +971,7 @@
     return YES;
 }
 
+#pragma mark - InAppSettings
 - (void)settingsViewControllerDidEnd:(IASKAppSettingsViewController *)sender
 {
     [self dismissViewControllerAnimated:YES completion:nil];
@@ -963,6 +984,13 @@
     
     if (self.toolbarOnBottom != oldtob)
         [self adjustLayoutToSize:CGSizeMake(self.view.bounds.size.width, self.view.bounds.size.height)];
+}
+
+- (void)settingsViewController:(IASKAppSettingsViewController *)sender buttonTappedForSpecifier:(IASKSpecifier*)specifier {
+    if ([specifier.key isEqualToString:@"ButtonShowTutorial"]) {
+        [sender dismiss:nil];
+        [self showTutorial];
+    }
 }
 
 - (void)showTabs:(id)_id
@@ -1007,6 +1035,8 @@
         [tabScroller addGestureRecognizer:singleTapGestureRecognizer];
         
         UIPanGestureRecognizer *closeGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleDrag:)];
+        [closeGestureRecognizer setMinimumNumberOfTouches:1];
+        [closeGestureRecognizer setMaximumNumberOfTouches:1];
         [tabScroller addGestureRecognizer:closeGestureRecognizer];
     }
     else {
@@ -1024,6 +1054,17 @@
         
         tabScroller.scrollEnabled = NO;
         tabScroller.pagingEnabled = NO;
+        
+        // Refresh/force refresh if necessary
+        if ([[self curWebViewTab] needsForceRefresh]) {
+            [[self curWebViewTab] forceRefresh];
+            [[self curWebViewTab] setNeedsForceRefresh:NO];
+        }
+        
+        if ([[self curWebViewTab] needsRefresh]) {
+            [[self curWebViewTab] refresh];
+            [[self curWebViewTab] setNeedsRefresh:NO];
+        }
         
         [self updateSearchBarDetails];
     }
@@ -1068,6 +1109,91 @@
     }
     else {
         [self showTabs:nil];
+    }
+}
+
+- (void)handleTwoFingerDrag:(UIPanGestureRecognizer *)gesture {
+    if (!showingTabs) {
+        CGPoint vel = [gesture velocityInView:tabScroller];
+        
+        if (CGPointEqualToPoint(panGestureOriginPoint, CGPointZero)) {
+            panGestureOriginPoint = [gesture locationInView:self.curWebViewTab.viewHolder];
+        }
+        
+        if (panGestureRecognizerType == PAN_GESTURE_RECOGNIZER_NONE && fabs(vel.x) > 50 && tabChooser.numberOfPages > 1) {
+            // User is trying to change tab, and there are at least 2 tabs
+
+            if (panGestureOriginPoint.x <= PAN_GESTURE_RECOGNIZER_EDGE_SIZE || panGestureOriginPoint.x >= (self.curWebViewTab.viewHolder.bounds.size.width - PAN_GESTURE_RECOGNIZER_EDGE_SIZE)) {
+                // User started from the edge of the screen
+                panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_SIDE;
+            }
+        }
+        
+        if (panGestureRecognizerType == PAN_GESTURE_RECOGNIZER_SIDE) {
+            CGFloat xDistance = [gesture translationInView:tabScroller].x;
+            
+            switch (gesture.state) {
+                case UIGestureRecognizerStateChanged: {
+                    CGRect frame = tabScroller.frame;
+                    frame.origin.x = frame.size.width * curTabIndex;
+                    frame.origin.y = 0;
+                    
+                    // Disable "impossible" drags to remove ugly transitions
+                    if (xDistance < 0 && curTabIndex == tabChooser.numberOfPages - 1)
+                        xDistance = 0;
+                    else if (xDistance > 0 && curTabIndex == 0)
+                        xDistance = 0;
+                    
+                    [tabScroller setContentOffset:CGPointMake(frame.origin.x - xDistance, frame.origin.y) animated:NO];
+                    break;
+                };
+                    
+                case UIGestureRecognizerStateEnded: {
+                    if ((xDistance <= -100 || vel.x <= -300) && curTabIndex < tabChooser.numberOfPages - 1) {
+                        // Moved enough to change tab (go right), and there is at least 1 tab on the right
+                        [tabChooser setCurrentPage:curTabIndex + 1];
+                        curTabIndex += 1;
+                    } else if ((xDistance >= 100 || vel.x >= 300) && curTabIndex > 0) {
+                        // Moved enough to change tab (go left), and there is at least 1 tab on the left
+                        [tabChooser setCurrentPage:curTabIndex - 1];
+                        curTabIndex -= 1;
+                    }
+                    
+                    // If the page index wasn't changed, it will just scroll back to the page's original position
+                    CGRect frame = tabScroller.frame;
+                    frame.origin.x = frame.size.width * curTabIndex;
+                    frame.origin.y = 0;
+                    [tabScroller setContentOffset:frame.origin animated:YES];
+                    
+                    // Update the searchBar to match the selected tab
+                    [self updateSearchBarDetails];
+                    
+                    
+                    // Refresh/force refresh if necessary
+                    if ([[self curWebViewTab] needsForceRefresh]) {
+                        [[self curWebViewTab] forceRefresh];
+                        [[self curWebViewTab] setNeedsForceRefresh:NO];
+                    }
+                    
+                    if ([[self curWebViewTab] needsRefresh]) {
+                        [[self curWebViewTab] refresh];
+                        [[self curWebViewTab] setNeedsRefresh:NO];
+                    }
+
+                    panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_NONE;
+                    panGestureOriginPoint = CGPointZero;
+                    
+                    
+                    break;
+                };
+                    
+                default: break;
+            }
+            
+        } else if (gesture.state == UIGestureRecognizerStateEnded) {
+            // Reset the origin point for the gesture
+            panGestureOriginPoint = CGPointZero;
+        }
     }
 }
 
@@ -1208,6 +1334,66 @@
 - (void)goHome:(NSURL *)url {
     [self removeAllTabs];
     [self addNewTabForURL:url];
+}
+
+- (void)showTutorial {
+    // Compute the image views' frame
+    CGRect frame = appDelegate.appWebView.view.bounds;
+    frame.size.height -= 100;
+    frame.origin.y -= 50;
+    
+    
+    // Initialize the image views
+    UIImageView *view1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"page_1"]];
+    [view1 setContentMode:UIViewContentModeScaleAspectFit];
+    [view1 setFrame:frame];
+    
+    UIImageView *view2 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"page_2"]];
+    [view2 setContentMode:UIViewContentModeScaleAspectFit];
+    [view2 setFrame:frame];
+    
+    UIImageView *view3 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"page_3"]];
+    [view3 setContentMode:UIViewContentModeScaleAspectFit];
+    [view3 setFrame:frame];
+    
+    
+    // Initialize all the pages with their content
+    EAIntroPage *page1 = [EAIntroPage page];
+    [page1 setDesc:@"Swipe up with one finger to close a tab."];
+    [page1 setDescColor:[UIColor blackColor]];
+    [page1 setDescFont:[UIFont systemFontOfSize:16]];
+    [page1 setBgColor:[UIColor whiteColor]];
+    [page1 setTitleIconView:view1];
+    [page1 setDescPositionY:90];
+    [page1 setTitleIconPositionY:20];
+    
+    EAIntroPage *page2 = [EAIntroPage page];
+    [page2 setDesc:@"Use two fingers and drag from the edge of the screen to change tab."];
+    [page2 setDescColor:[UIColor blackColor]];
+    [page2 setDescFont:[UIFont systemFontOfSize:16]];
+    [page2 setBgColor:[UIColor whiteColor]];
+    [page2 setTitleIconView:view2];
+    [page2 setDescPositionY:90];
+    [page2 setTitleIconPositionY:20];
+    
+    EAIntroPage *page3 = [EAIntroPage page];
+    [page3 setDesc:@"You can disable the tabs restoration feature in the settings."];
+    [page3 setDescColor:[UIColor blackColor]];
+    [page3 setDescFont:[UIFont systemFontOfSize:16]];
+    [page3 setBgColor:[UIColor whiteColor]];
+    [page3 setTitleIconView:view3];
+    [page3 setDescPositionY:90];
+    [page3 setTitleIconPositionY:20];
+    
+    // Initialize the view containing all the pages
+    EAIntroView *intro = [[EAIntroView alloc] initWithFrame:appDelegate.appWebView.view.bounds andPages:@[page1, page2, page3]];
+    [intro setPageControlY:20];
+    [[intro pageControl] setPageIndicatorTintColor:[UIColor lightGrayColor]];
+    [[intro pageControl] setCurrentPageIndicatorTintColor:[UIColor grayColor]];
+    [[intro skipButton] setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    
+    // Display the view
+    [intro showInView:appDelegate.appWebView.view animateDuration:0.3];
 }
 
 -(UIStatusBarAnimation)preferredStatusBarUpdateAnimation

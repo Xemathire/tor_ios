@@ -168,15 +168,18 @@ CGRect IASKCGRectSwap(CGRect rect);
 	_showCreditsFooter = YES; // display credits for InAppSettingsKit creators
 }
 
-- (void)viewDidLoad {
+-(void) viewDidLoad {
     [super viewDidLoad];
     if ([self isPad]) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-        if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)	// don't use etched style on iOS 7
+        if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)  // don't use etched style on iOS 7
 #endif
             self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLineEtched;
+        if ([self.tableView respondsToSelector:@selector(setCellLayoutMarginsFollowReadableWidth:)])
+            self.tableView.cellLayoutMarginsFollowReadableWidth = NO;
+        
     }
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapToEndEdit:)];   
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapToEndEdit:)];
     tapGesture.cancelsTouchesInView = NO;
     [self.tableView addGestureRecognizer:tapGesture];
 }
