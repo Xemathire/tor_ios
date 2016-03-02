@@ -309,7 +309,7 @@
             [[self delegate] HTTPConnection:self didReceiveResponse:URLResponse];
         }
     }
-    
+        
 process:
     switch (streamEvent) {
         case NSStreamEventHasSpaceAvailable:
@@ -348,7 +348,7 @@ process:
                     SSLGetNegotiatedCipher(sslContext, &cipher);
                     [cert setNegotiatedCipher:cipher];
                     
-                    [[self delegate] HTTPConnection:self didReceiveSecTrust:trust certificate:cert];
+                    [[self delegate] HTTPConnection:self didReceiveSecTrust:trust certificate:cert withURL:URL];
                 }
             }
             

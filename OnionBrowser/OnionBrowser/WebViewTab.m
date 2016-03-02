@@ -1074,13 +1074,18 @@ AppDelegate *appDelegate;
 
 - (void)refresh
 {
+    NSLog(@"Refreshing...");
+    
 	[self setNeedsRefresh:FALSE];
 	[[self webView] reload];
+    
+    [self setSSLCertificate:_SSLCertificate]; // Refreshing, current certificate is still valid
 }
 
 - (void)forceRefresh
 {
 	[self loadURL:[self url]];
+    [self setSSLCertificate:_SSLCertificate];
 }
 
 - (void)zoomOut

@@ -200,7 +200,7 @@ NSString * const LABEL = @"L";
 
 - (void)menuRefresh
 {
-	[[appDelegate appWebView] forceRefresh];
+	[[appDelegate appWebView] refresh];
 }
 
 - (void)menuSettings

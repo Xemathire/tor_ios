@@ -454,10 +454,14 @@ static NSString *_javascriptToInject;
 	[self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowedInMemoryOnly];
 }
 
-- (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveSecTrust:(SecTrustRef)secTrustRef certificate:(SSLCertificate *)certificate
-{
-	if (self.isOrigin)
-		[wvt setSSLCertificate:certificate];
+- (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveSecTrust:(SecTrustRef)secTrustRef certificate:(SSLCertificate *)certificate withURL:(NSURL *)URL {
+    // Update all necessary tabs
+    for (int i = 0; i < [[[appDelegate appWebView] webViewTabs] count]; i++) {
+        WebViewTab *tab = [[[appDelegate appWebView] webViewTabs] objectAtIndex:i];
+        if ([[[tab url] absoluteString] isEqualToString:[URL absoluteString]]) {
+            [tab setSSLCertificate:certificate];
+        }
+    }
 }
 
 - (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveData:(NSData *)data {

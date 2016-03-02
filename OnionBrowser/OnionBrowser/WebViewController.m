@@ -1423,7 +1423,7 @@
     [page3 setTitleIconPositionY:20];
     
     EAIntroPage *page4 = [EAIntroPage page];
-    [page4 setDesc:@"A new tabs restoration feature repoens your tabs each time you launch the app."];
+    [page4 setDesc:@"A new tabs restoration feature reopens your tabs each time you launch the app."];
     [page4 setDescColor:[UIColor blackColor]];
     [page4 setDescFont:[UIFont systemFontOfSize:16]];
     [page4 setBgColor:[UIColor whiteColor]];

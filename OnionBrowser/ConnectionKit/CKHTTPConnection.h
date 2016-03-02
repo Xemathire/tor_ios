@@ -53,7 +53,7 @@
 - (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response;
 - (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveData:(NSData *)data;
 
-- (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveSecTrust:(SecTrustRef)secTrustRef certificate:(SSLCertificate *)certificate;
+- (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveSecTrust:(SecTrustRef)secTrustRef certificate:(SSLCertificate *)certificate withURL:(NSURL *)URL;
 
 - (void)HTTPConnectionDidFinishLoading:(CKHTTPConnection *)connection;
 - (void)HTTPConnection:(CKHTTPConnection *)connection didFailWithError:(NSError *)error;
