@@ -32,6 +32,8 @@
 #import "IASKAppSettingsViewController.h"
 #import "WebViewMenuController.h"
 #import "BridgeViewController.h"
+#import "IASKAppSettingsViewController.h"
+#import "HTTPSEverywhereRuleController.h"
 #define CELL_HEIGHT 35
 
 @implementation WebViewMenuController
@@ -58,6 +60,7 @@ NSString * const LABEL = @"L";
 	[buttons addObject:@{ FUNC : @"menuManageBookmarks", LABEL : @"Manage Bookmarks" }];
 	[buttons addObject:@{ FUNC : @"menuSettings", LABEL : @"Settings" }];
     [buttons addObject:@{ FUNC : @"menuOpenBridge", LABEL : @"Add Tor bridge" }];
+    [buttons addObject:@{ FUNC : @"menuHTTPSEverywhere", LABEL : @"HTTPS Everywhere" }];
     [buttons addObject:@{ FUNC : @"menuNewIdentity", LABEL : @"New identity" }];
 
 	[self.view setBackgroundColor:[UIColor clearColor]];
@@ -139,6 +142,14 @@ NSString * const LABEL = @"L";
         }
         else
             cell.userInteractionEnabled = cell.textLabel.enabled = NO;
+    } else if ([func isEqualToString:@"menuHTTPSEverywhere"] && haveURL) {
+        cellImage = [UIImage imageNamed:@"httpsEverywhere"];
+        long ruleCount = [[[[appDelegate appWebView] curWebViewTab] applicableHTTPSEverywhereRules] count];
+        
+        if (ruleCount > 0) {
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld rule%@ in use", ruleCount, (ruleCount == 1 ? @"" : @"s")];
+            cell.detailTextLabel.textColor = [UIColor colorWithRed:0 green:0.5 blue:0 alpha:1];
+        }
     }
     else if ([func isEqualToString:@"menuSettings"])
         cellImage = [UIImage imageNamed:@"settingsImage"];
@@ -212,14 +223,15 @@ NSString * const LABEL = @"L";
 	UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:cc];
 	[[appDelegate appWebView] presentViewController:navController animated:YES completion:nil];
 }
+*/
 
 - (void)menuHTTPSEverywhere
 {
-	HTTPSEverywhereRuleController *herc = [[HTTPSEverywhereRuleController alloc] init];
-	UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:herc];
-	[[appDelegate webViewController] presentViewController:navController animated:YES completion:nil];
+    HTTPSEverywhereRuleController *herc = [[HTTPSEverywhereRuleController alloc] init];
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:herc];
+    [[appDelegate appWebView] presentViewController:navController animated:YES completion:nil];
 }
- */
+
 
 - (void)menuManageBookmarks
 {
@@ -237,15 +249,6 @@ NSString * const LABEL = @"L";
 {
     [self updateHomepage:[NSString stringWithFormat:@"%@", [[[appDelegate appWebView] curWebViewTab] url]]];
 }
-/*
-- (void)menuOnePassword
-{
-	[[OnePasswordExtension sharedExtension] fillItemIntoWebView:[[[appDelegate webViewController] curWebViewTab] webView] forViewController:[appDelegate webViewController] sender:[[appDelegate webViewController] settingsButton] showOnlyLogins:NO completion:^(BOOL success, NSError *error) {
-		if (!success)
-			NSLog(@"[OnePasswordExtension] failed to fill into webview: %@", error);
-	}];
-}
-*/
 
 - (void)menuOpenInSafari
 {
@@ -262,7 +265,6 @@ NSString * const LABEL = @"L";
 
 - (void)menuOpenBridge {
     AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-    //if (![appDelegate.tor didFirstConnect]) {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Bridge Configuration"
                                                     message:@"You can configure bridges here if your ISP normally blocks access to Tor.\n\nIf you did not mean to access the Bridge configuration, press \"Cancel\", then \"Restart App\", and then re-launch The Onion Browser."
                                                    delegate:nil

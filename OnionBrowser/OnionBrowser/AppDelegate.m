@@ -13,6 +13,7 @@
 #import <sys/utsname.h>
 #import "BridgeViewController.h"
 #import "Bookmark.h"
+#import "URLInterceptor.h"
 
 NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 
@@ -54,6 +55,8 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
         [Bookmark addBookmarkForURLString:@"https://bing.com" withName:@"Bing"];
         [Bookmark addBookmarkForURLString:@"https://search.yahoo.com" withName:@"Yahoo search"];
     }
+    
+    [NSURLProtocol registerClass:[URLInterceptor class]];
     
     return YES;
 }

@@ -1,21 +1,25 @@
-//
-//  CKHTTPConnection.m
-//  Connection
-//
-//  Created by Mike on 17/03/2009.
-//  Copyright 2009 Karelia Software. All rights reserved.
-//
-//  Originally from ConnectionKit 2.0 branch; source at:
-//  http://www.opensource.utr-software.com/source/connection/branches/2.0/CKHTTPConnection.m
-//  (CKHTTPConnection.m last updated rev 1242, 2009-06-16 09:40:21 -0700, by mabdullah)
-//  
-//  Under Modified BSD License, as per description at
-//  http://www.opensource.utr-software.com/
-//
+/*
+ * Endless
+ * Copyright (c) 2014-2015 joshua stein <jcs@jcs.org>
+ *
+ * Originally created by Mike Abdullah on 17/03/2009.
+ * Copyright 2009 Karelia Software. All rights reserved.
+ *
+ * Originally from ConnectionKit 2.0 branch; source at:
+ * http://www.opensource.utr-software.com/source/connection/branches/2.0/CKHTTPConnection.m
+ * (CKHTTPConnection.m last updated rev 1242, 2009-06-16 09:40:21 -0700, by mabdullah)
+ *
+ * Under Modified BSD License, as per description at
+ * http://www.opensource.utr-software.com/
+ */
 
 #import "CKHTTPConnection.h"
+#import "HostSettings.h"
+#import "SSLCertificate.h"
 #import "AppDelegate.h"
 
+/* disable keep-alives for now, as they cause problems with ssl connection options */
+#undef USE_KEEPALIVES
 
 // There is no public API for creating an NSHTTPURLResponse. The only way to create one then, is to
 // have a private subclass that others treat like a standard NSHTTPURLResponse object. Framework
@@ -25,12 +29,13 @@
 
 @interface CKHTTPURLResponse : NSHTTPURLResponse
 {
-    @private
-    NSInteger       _statusCode;
-    NSDictionary    *_headerFields;
+@private
+    NSInteger _statusCode;
+    NSDictionary *_headerFields;
 }
 
 - (id)initWithURL:(NSURL *)URL HTTPMessage:(CFHTTPMessageRef)message;
+
 @end
 
 
@@ -66,7 +71,6 @@
 
 #pragma mark -
 
-
 @implementation CKHTTPConnection
 
 #pragma mark  Init & Dealloc
@@ -80,14 +84,13 @@
 {
     NSParameterAssert(request);
     
-    if (self = [super init])
-    {
+    if (self = [super init]) {
         _delegate = delegate;
         
         // Kick off the connection
         _HTTPRequest = [request makeHTTPMessage];
         _HTTPBodyStream = [request HTTPBodyStream];
-
+        
         [self start];
     }
     
@@ -101,21 +104,20 @@
 
 #pragma mark Accessors
 
-- (CFHTTPMessageRef)HTTPRequest { return _HTTPRequest; }
+- (CFHTTPMessageRef)HTTPRequest {
+    return _HTTPRequest;
+}
 
-- (NSInputStream *)HTTPStream { return _HTTPStream; }
+- (NSInputStream *)HTTPStream {
+    return _HTTPStream;
+}
 
-- (NSInputStream *)stream { return (NSInputStream *)[self HTTPStream]; }
+- (NSInputStream *)stream {
+    return (NSInputStream *)[self HTTPStream];
+}
 
-- (id <CKHTTPConnectionDelegate>)delegate { return _delegate; }
-
-/*  CFHTTPStream provides no callback API for upload progress, so clients must request it themselves.
- */
-- (NSUInteger)lengthOfDataSent
-{
-    return [[[self stream]
-             propertyForKey:(NSString *)kCFStreamPropertyHTTPRequestBytesWrittenCount]
-            unsignedIntValue];
+- (id <CKHTTPConnectionDelegate>)delegate {
+    return _delegate;
 }
 
 #pragma mark Status handling
@@ -130,60 +132,60 @@
         _HTTPStream = (__bridge_transfer NSInputStream *)CFReadStreamCreateForHTTPRequest(NULL, [self HTTPRequest]);
     
     CFReadStreamSetProperty((__bridge CFReadStreamRef)(_HTTPStream), kCFStreamPropertyHTTPAttemptPersistentConnection, kCFBooleanTrue);
-
+    
     AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-
+    
     // SSL/TLS hardening -- this is a TLS request
     NSURL *url = (__bridge NSURL *)(CFHTTPMessageCopyRequestURL([self HTTPRequest]));
     if([[[url scheme] lowercaseString] isEqualToString:@"https"]) {
-      CFMutableDictionaryRef sslOptions = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-      Boolean setSSLOption = NO;
-
-      // Enforce TLS version
-      // https://developer.apple.com/library/ios/technotes/tn2287/_index.html#//apple_ref/doc/uid/DTS40011309
-      // Byte tlsVersionOption = [[settings valueForKey:@"tlsver"] integerValue];
-      NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-      NSString *min_tls_version = [userDefaults stringForKey:@"min_tls_version"];
-    
-      if ([min_tls_version isEqualToString:@"1.1"] || [min_tls_version isEqualToString:@"1.0"]) {
-        CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, kCFStreamSocketSecurityLevelTLSv1);
-        setSSLOption = YES;
-      } else if ([min_tls_version isEqualToString:@"1.2"] || [min_tls_version isEqualToString:@"auto"]) {
-        CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, CFSTR("kCFStreamSocketSecurityLevelTLSv1_2"));
-        setSSLOption = YES;
-      } else {
-        //CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, kCFStreamSocketSecurityLevelNegotiatedSSL);
-      }
-
-      // Ignore SSL errors for domains if user has explicitly said to "continue anyway"
-      // (for self-signed certs)
-      NSURL *URL = [_HTTPStream propertyForKey:(NSString *)kCFStreamPropertyHTTPFinalURL];
-      if ([URL.absoluteString rangeOfString:@"https://"].location == 0) {
-          Boolean ignoreSSLErrors = NO;
-          for (NSString *whitelistHost in appDelegate.sslWhitelistedDomains) {
-              if ([whitelistHost isEqualToString:URL.host]) {
-                  #ifdef DEBUG
-                      NSLog(@"%@ in SSL host whitelist ignoring SSL certificate status", URL.host);
-                  #endif
-                  ignoreSSLErrors = YES;
-                  break;
-              }
-          }
-          if (ignoreSSLErrors) {
-              CFDictionarySetValue(sslOptions, kCFStreamSSLValidatesCertificateChain, kCFBooleanFalse);
-              setSSLOption = YES;
-          }
-      }
-      if (setSSLOption) {
-        CFReadStreamSetProperty((__bridge CFReadStreamRef)_HTTPStream, kCFStreamPropertySSLSettings, sslOptions);
-      }
+        CFMutableDictionaryRef sslOptions = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        Boolean setSSLOption = NO;
+        
+        // Enforce TLS version
+        // https://developer.apple.com/library/ios/technotes/tn2287/_index.html#//apple_ref/doc/uid/DTS40011309
+        // Byte tlsVersionOption = [[settings valueForKey:@"tlsver"] integerValue];
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSString *min_tls_version = [userDefaults stringForKey:@"min_tls_version"];
+        
+        if ([min_tls_version isEqualToString:@"1.1"] || [min_tls_version isEqualToString:@"1.0"]) {
+            CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, kCFStreamSocketSecurityLevelTLSv1);
+            setSSLOption = YES;
+        } else if ([min_tls_version isEqualToString:@"1.2"] || [min_tls_version isEqualToString:@"auto"]) {
+            CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, CFSTR("kCFStreamSocketSecurityLevelTLSv1_2"));
+            setSSLOption = YES;
+        } else {
+            //CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, kCFStreamSocketSecurityLevelNegotiatedSSL);
+        }
+        
+        // Ignore SSL errors for domains if user has explicitly said to "continue anyway"
+        // (for self-signed certs)
+        NSURL *URL = [_HTTPStream propertyForKey:(NSString *)kCFStreamPropertyHTTPFinalURL];
+        if ([URL.absoluteString rangeOfString:@"https://"].location == 0) {
+            Boolean ignoreSSLErrors = NO;
+            for (NSString *whitelistHost in appDelegate.sslWhitelistedDomains) {
+                if ([whitelistHost isEqualToString:URL.host]) {
+#ifdef DEBUG
+                    NSLog(@"%@ in SSL host whitelist ignoring SSL certificate status", URL.host);
+#endif
+                    ignoreSSLErrors = YES;
+                    break;
+                }
+            }
+            if (ignoreSSLErrors) {
+                CFDictionarySetValue(sslOptions, kCFStreamSSLValidatesCertificateChain, kCFBooleanFalse);
+                setSSLOption = YES;
+            }
+        }
+        if (setSSLOption) {
+            CFReadStreamSetProperty((__bridge CFReadStreamRef)_HTTPStream, kCFStreamPropertySSLSettings, sslOptions);
+        }
     } // {/TLS hardening}
-
+    
     // Use tor proxy server
     NSString *hostKey = (NSString *)kCFStreamPropertySOCKSProxyHost;
     NSString *portKey = (NSString *)kCFStreamPropertySOCKSProxyPort;
     int proxyPortNumber = appDelegate.tor.torSocksPort;
-
+    
     NSMutableDictionary *proxyToUse = [NSMutableDictionary
                                        dictionaryWithObjectsAndKeys:@"127.0.0.1",hostKey,
                                        [NSNumber numberWithInt: proxyPortNumber],portKey,
@@ -195,6 +197,57 @@
     [_HTTPStream open];
 }
 
+- (BOOL)disableWeakSSLCiphers:(SSLContextRef)sslContext
+{
+    OSStatus status;
+    size_t numSupported;
+    SSLCipherSuite *supported = NULL;
+    SSLCipherSuite *enabled = NULL;
+    int numEnabled = 0;
+    
+    status = SSLGetNumberSupportedCiphers(sslContext, &numSupported);
+    if (status != noErr) {
+        NSLog(@"failed getting number of supported ciphers");
+        return NO;
+    }
+    
+    supported = (SSLCipherSuite *)malloc(numSupported * sizeof(SSLCipherSuite));
+    status = SSLGetSupportedCiphers(sslContext, supported, &numSupported);
+    if (status != noErr) {
+        NSLog(@"failed getting supported ciphers");
+        return NO;
+    }
+    
+    enabled = (SSLCipherSuite *)malloc(numSupported * sizeof(SSLCipherSuite));
+    
+    /* XXX: should we reverse this and only ban bad ciphers and allow all others? */
+    for (int i = 0; i < numSupported; i++) {
+        switch (supported[i]) {
+            case TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256:
+            case TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256:
+            case TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA:
+            case TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA:
+            case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:
+            case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA:
+            case TLS_DHE_RSA_WITH_AES_128_CBC_SHA:
+            case TLS_DHE_RSA_WITH_AES_256_CBC_SHA:
+            case TLS_RSA_WITH_AES_128_CBC_SHA:
+            case TLS_RSA_WITH_AES_256_CBC_SHA:
+            case TLS_RSA_WITH_3DES_EDE_CBC_SHA:
+                enabled[numEnabled++] = supported[i];
+                break;
+        }
+    }
+    
+    status = SSLSetEnabledCiphers(sslContext, enabled, numEnabled);
+    if (status != noErr) {
+        NSLog(@"[CKHTTPConnection] failed setting enabled ciphers on %@: %d", sslContext, (int)status);
+        return NO;
+    }
+    
+    return YES;
+}
+
 - (void)_cancelStream
 {
     // Support method to cancel the HTTP stream, but not change the delegate. Used for:
@@ -203,7 +256,7 @@
     //  C) Restarting the connection after an HTTP redirect
     [_HTTPStream close];
     CFBridgingRelease((__bridge_retained CFTypeRef)(_HTTPStream));
-    //[_HTTPStream release]; 
+    //[_HTTPStream release];
     _HTTPStream = nil;
 }
 
@@ -218,40 +271,37 @@
 {
     NSParameterAssert(theStream == [self stream]);
     
-    // Handle the response as soon as it's available
-    if (!_haveReceivedResponse)
-    {
+    NSURL *URL = [theStream propertyForKey:(NSString *)kCFStreamPropertyHTTPFinalURL];
+    
+    if (!_haveReceivedResponse) {
         CFHTTPMessageRef response = (__bridge CFHTTPMessageRef)[theStream propertyForKey:(NSString *)kCFStreamPropertyHTTPResponseHeader];
-        if (response && CFHTTPMessageIsHeaderComplete(response))
-        {
+        if (response && CFHTTPMessageIsHeaderComplete(response)) {
             // Construct a NSURLResponse object from the HTTP message
-            NSURL *URL = [theStream propertyForKey:(NSString *)kCFStreamPropertyHTTPFinalURL];
             NSHTTPURLResponse *URLResponse = [NSHTTPURLResponse responseWithURL:URL HTTPMessage:response];
             
+            /* work around bug where CFHTTPMessageIsHeaderComplete reports true but there is no actual header data to be found */
+            if ([URLResponse statusCode] == 200 && [URLResponse expectedContentLength] == 0 && [[URLResponse allHeaderFields] count] == 0) {
+#ifdef TRACE
+                NSLog(@"[CKHTTPConnection] hit CFHTTPMessageIsHeaderComplete bug, waiting for more data");
+#endif
+                goto process;
+            }
+            
             // If the response was an authentication failure, try to request fresh credentials.
-            if ([URLResponse statusCode] == 401 || [URLResponse statusCode] == 407)
-            {
+            if ([URLResponse statusCode] == 401 || [URLResponse statusCode] == 407) {
                 // Cancel any further loading and ask the delegate for authentication
                 [self _cancelStream];
                 
-                NSAssert(![self currentAuthenticationChallenge],
-                         @"Authentication challenge received while another is in progress");
+                NSAssert(![self currentAuthenticationChallenge], @"Authentication challenge received while another is in progress");
                 
-                _authenticationChallenge = [[CKHTTPAuthenticationChallenge alloc] initWithResponse:response
-                                                                                proposedCredential:nil
-                                                                              previousFailureCount:_authenticationAttempts
-                                                                                   failureResponse:URLResponse
-                                                                                            sender:self];
+                _authenticationChallenge = [[CKHTTPAuthenticationChallenge alloc] initWithResponse:response proposedCredential:nil previousFailureCount:_authenticationAttempts failureResponse:URLResponse sender:self];
                 
-                if ([self currentAuthenticationChallenge])
-                {
+                if ([self currentAuthenticationChallenge]) {
                     _authenticationAttempts++;
                     [[self delegate] HTTPConnection:self didReceiveAuthenticationChallenge:[self currentAuthenticationChallenge]];
-                    
                     return; // Stops the delegate being sent a response received message
                 }
             }
-            
             
             // By reaching this point, the response was not a valid request for authentication,
             // so go ahead and report it
@@ -260,37 +310,59 @@
         }
     }
     
-    
-    
-    // Next course of action depends on what happened to the stream
-    switch (streamEvent)
-    {
-            
-        case NSStreamEventErrorOccurred:    // Report an error in the stream as the operation failing
-            [[self delegate] HTTPConnection:self didFailWithError:[theStream streamError]];
+process:
+    switch (streamEvent) {
+        case NSStreamEventHasSpaceAvailable:
+            socketReady = true;
             break;
-            
-            
+        case NSStreamEventErrorOccurred:
+            if (!socketReady && !retriedSocket) {
+                /* probably a dead keep-alive socket from the get go */
+                retriedSocket = true;
+                NSLog(@"[CKHTTPConnection] socket for %@ dead but never writable, retrying (%@)", [URL absoluteString], [theStream streamError]);
+                [self _cancelStream];
+                [self start];
+            }
+            else
+                [[self delegate] HTTPConnection:self didFailWithError:[theStream streamError]];
+            break;
             
         case NSStreamEventEndEncountered:   // Report the end of the stream to the delegate
             [[self delegate] HTTPConnectionDidFinishLoading:self];
             break;
-    
-        
-        case NSStreamEventHasBytesAvailable:
-        {
-            NSMutableData *data = [[NSMutableData alloc] initWithCapacity:1024];    // Report any data loaded to the delegate
-            while ([theStream hasBytesAvailable])
-            {
+            
+        case NSStreamEventHasBytesAvailable: {
+            socketReady = true;
+            
+            if ([[[URL scheme] lowercaseString] isEqualToString:@"https"]) {
+                SecTrustRef trust = (__bridge SecTrustRef)[theStream propertyForKey:(__bridge NSString *)kCFStreamPropertySSLPeerTrust];
+                if (trust != nil) {
+                    SSLCertificate *cert = [[SSLCertificate alloc] initWithSecTrustRef:trust];
+                    
+                    SSLContextRef sslContext = (__bridge SSLContextRef)[theStream propertyForKey:(__bridge NSString *)kCFStreamPropertySSLContext];
+                    SSLProtocol proto;
+                    SSLGetNegotiatedProtocolVersion(sslContext, &proto);
+                    [cert setNegotiatedProtocol:proto];
+                    
+                    SSLCipherSuite cipher;
+                    SSLGetNegotiatedCipher(sslContext, &cipher);
+                    [cert setNegotiatedCipher:cipher];
+                    
+                    [[self delegate] HTTPConnection:self didReceiveSecTrust:trust certificate:cert];
+                }
+            }
+            
+            NSMutableData *data = [[NSMutableData alloc] initWithCapacity:1024];
+            while ([theStream hasBytesAvailable]) {
                 uint8_t buf[1024];
                 NSUInteger len = [theStream read:buf maxLength:1024];
                 [data appendBytes:(const void *)buf length:len];
             }
-
+            
             [[self delegate] HTTPConnection:self didReceiveData:data];
+            
             break;
         }
-            
         default:
             break;
     }
@@ -304,7 +376,9 @@
 
 @implementation CKHTTPConnection (Authentication)
 
-- (CKHTTPAuthenticationChallenge *)currentAuthenticationChallenge { return _authenticationChallenge; }
+- (CKHTTPAuthenticationChallenge *)currentAuthenticationChallenge {
+    return _authenticationChallenge;
+}
 
 - (void)_finishCurrentAuthenticationChallenge
 {
@@ -316,13 +390,10 @@
     NSParameterAssert(challenge == [self currentAuthenticationChallenge]);
     [self _finishCurrentAuthenticationChallenge];
     
-    // Retry the request, this time with authentication // TODO: What if this function fails?
+    // Retry the request, this time with authentication
+    // TODO: What if this function fails?
     CFHTTPAuthenticationRef HTTPAuthentication = [(CKHTTPAuthenticationChallenge *)challenge CFHTTPAuthentication];
-    CFHTTPMessageApplyCredentials([self HTTPRequest],
-                                  HTTPAuthentication,
-                                  (__bridge CFStringRef)[credential user],
-                                  (__bridge CFStringRef)[credential password],
-                                  NULL);
+    CFHTTPMessageApplyCredentials([self HTTPRequest], HTTPAuthentication, (__bridge CFStringRef)[credential user], (__bridge CFStringRef)[credential password], NULL);
     [self start];
 }
 
@@ -355,80 +426,22 @@
 
 - (CFHTTPMessageRef)makeHTTPMessage
 {
-    CFHTTPMessageRef result = CFHTTPMessageCreateRequest(NULL,
-                                                         (__bridge CFStringRef)[self HTTPMethod],
-                                                         (__bridge CFURLRef)[self URL],
-                                                         kCFHTTPVersion1_1);
-    //[NSMakeCollectable(result) autorelease];
+    CFHTTPMessageRef result = CFHTTPMessageCreateRequest(NULL, (__bridge CFStringRef)[self HTTPMethod], (__bridge CFURLRef)[self URL], kCFHTTPVersion1_1);
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-    NSMutableDictionary *settings = appDelegate.getSettings;
-
-    Byte spoofUserAgent = [[settings valueForKey:@"uaspoof"] integerValue];
-
+    CFHTTPMessageSetHeaderFieldValue(result, (__bridge CFStringRef)@"Accept-Encoding", (__bridge CFStringRef)@"gzip, deflate");
+#ifdef USE_KEEPALIVES
+    CFHTTPMessageSetHeaderFieldValue(result, (__bridge CFStringRef)@"Connection", (__bridge CFStringRef)@"keep-alive");
+#endif
     
-    NSDictionary *HTTPHeaderFields = [self allHTTPHeaderFields];
-    NSEnumerator *HTTPHeaderFieldsEnumerator = [HTTPHeaderFields keyEnumerator];
-    NSString *aHTTPHeaderField;
-    while (aHTTPHeaderField = [HTTPHeaderFieldsEnumerator nextObject])
-    {
-        if (([aHTTPHeaderField isEqualToString:@"User-Agent"])&& (spoofUserAgent != UA_SPOOF_NO)){
-            #ifdef DEBUG
-                //NSLog(@"Spoofing User-Agent");
-            #endif
-            CFHTTPMessageSetHeaderFieldValue(result,
-                                             (__bridge CFStringRef)aHTTPHeaderField,
-                                             (__bridge CFStringRef)appDelegate.customUserAgent);
-            continue;
-        }
-        CFHTTPMessageSetHeaderFieldValue(result,
-                                         (__bridge CFStringRef)aHTTPHeaderField,
-                                         (__bridge CFStringRef)[HTTPHeaderFields objectForKey:aHTTPHeaderField]);
+    for (NSString *hf in [self allHTTPHeaderFields]) {
+        CFHTTPMessageSetHeaderFieldValue(result, (__bridge CFStringRef)hf, (__bridge CFStringRef)[[self allHTTPHeaderFields] objectForKey:hf]);
     }
-    /* Do not track (DNT) header */
     
-    // Byte dntHeader = [[settings valueForKey:@"dnt"] integerValue];
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    BOOL send_dnt = [userDefaults boolForKey:@"send_dnt"];
-    
-    if (send_dnt) {
-        // DNT_HEADER_CANTRACK is 0 and DNT_HEADER_NOTRACK is 1,
-        // so we can pass that value in as the "DNT: X" value
-        CFHTTPMessageSetHeaderFieldValue(result,
-                                         (__bridge CFStringRef)@"DNT",
-                                         (__bridge CFStringRef)[NSString stringWithFormat:@"%d",
-                                                                1]);
-        // #if DEBUG
-        // NSLog(@"Sending 'DNT: %d' header", dntValue);
-        // #endif
-    }
-
-    // Send cookies we have (in sharedHTTPCookieStorage) that are valid for this URL
-    NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[self URL]];
-    if ([cookies count] > 0) {
-        NSDictionary *cookieHeaders = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
-        for (NSString *headerKey in cookieHeaders) {
-            CFHTTPMessageSetHeaderFieldValue(result,
-                                             (__bridge CFStringRef)headerKey,
-                                             (__bridge CFStringRef)[cookieHeaders objectForKey:headerKey]);
-            #if DEBUG
-                NSLog(@"Sent cookie header --- %@: %@", headerKey, [cookieHeaders objectForKey:headerKey]);
-            #endif 
-
-        }
-    }
-
-    CFHTTPMessageSetHeaderFieldValue(result,
-                                     (__bridge CFStringRef)@"Accept-Encoding",
-                                     (__bridge CFStringRef)@"gzip");
-
     NSData *body = [self HTTPBody];
     if (body)
-    {
         CFHTTPMessageSetBody(result, (__bridge_retained CFDataRef)body);
-    }
     
-    return result;  // NOT autoreleased/collectable
+    return result;
 }
 
 @end
@@ -451,7 +464,6 @@
 
 - (id)initWithURL:(NSURL *)URL HTTPMessage:(CFHTTPMessageRef)message
 {
-    //_headerFields = NSMakeCollectable(CFHTTPMessageCopyAllHeaderFields(message));
     _headerFields = (__bridge_transfer NSDictionary *)CFHTTPMessageCopyAllHeaderFields(message);
     
     NSString *MIMEType = [_headerFields objectForKey:@"Content-Type"];
@@ -459,19 +471,22 @@
     NSString *encoding = [_headerFields objectForKey:@"Content-Encoding"];
     
     if (self = [super initWithURL:URL MIMEType:MIMEType expectedContentLength:contentLength textEncodingName:encoding])
-    {
         _statusCode = CFHTTPMessageGetResponseStatusCode(message);
-    }
+    
     return self;
 }
-    
+
 - (void)dealloc {
     CFRelease((__bridge_retained CFTypeRef)_headerFields);
 }
 
-- (NSDictionary *)allHeaderFields { return _headerFields;  }
+- (NSDictionary *)allHeaderFields {
+    return _headerFields;
+}
 
-- (NSInteger)statusCode { return _statusCode; }
+- (NSInteger)statusCode {
+    return _statusCode;
+}
 
 @end
 
@@ -491,27 +506,17 @@
 {
     NSParameterAssert(response);
     
-    
     // Try to create an authentication object from the response
     _HTTPAuthentication = CFHTTPAuthenticationCreateFromResponse(NULL, response);
     if (![self CFHTTPAuthentication])
-    {
         return nil;
-    }
-    //CFMakeCollectable(_HTTPAuthentication);
-    
     
     // NSURLAuthenticationChallenge only handles user and password
     if (!CFHTTPAuthenticationIsValid([self CFHTTPAuthentication], NULL))
-    {
         return nil;
-    }
     
     if (!CFHTTPAuthenticationRequiresUserNameAndPassword([self CFHTTPAuthentication]))
-    {
         return nil;
-    }
-    
     
     // Fail if we can't retrieve decent protection space info
     CFArrayRef authenticationDomains = CFHTTPAuthenticationCopyDomains([self CFHTTPAuthentication]);
@@ -519,30 +524,21 @@
     CFRelease(authenticationDomains);
     
     if (!URL || ![URL host])
-    {
         return nil;
-    }
-    
     
     // Fail for an unsupported authentication method
     CFStringRef authMethod = CFHTTPAuthenticationCopyMethod([self CFHTTPAuthentication]);
     NSString *authenticationMethod;
     if ([(__bridge NSString *)authMethod isEqualToString:(NSString *)kCFHTTPAuthenticationSchemeBasic])
-    {
         authenticationMethod = NSURLAuthenticationMethodHTTPBasic;
-    }
     else if ([(__bridge NSString *)authMethod isEqualToString:(NSString *)kCFHTTPAuthenticationSchemeDigest])
-    {
         authenticationMethod = NSURLAuthenticationMethodHTTPDigest;
-    }
-    else
-    {
+    else {
         CFRelease(authMethod);
-         // unsupported authentication scheme
+        // unsupported authentication scheme
         return nil;
     }
     CFRelease(authMethod);
-    
     
     // Initialise
     CFStringRef realm = CFHTTPAuthenticationCopyRealm([self CFHTTPAuthentication]);
@@ -561,8 +557,6 @@
                                    error:nil
                                   sender:sender];
     
-    
-    // Tidy up
     return self;
 }
 
@@ -571,8 +565,8 @@
     CFRelease(_HTTPAuthentication);
 }
 
-- (CFHTTPAuthenticationRef)CFHTTPAuthentication { return _HTTPAuthentication; }
+- (CFHTTPAuthenticationRef)CFHTTPAuthentication {
+    return _HTTPAuthentication;
+}
 
 @end
-
-            

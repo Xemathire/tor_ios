@@ -27,13 +27,11 @@
  */
 
 #import "AppDelegate.h"
-//#import "URLInterceptor.h"
+#import "URLInterceptor.h"
 #import "WebViewTab.h"
-#import "WebViewController.h"
 #import "ALToastView.h"
 #import <objc/runtime.h>
-
-//#import "NSString+JavascriptEscape.h"
+#import "NSString+JavascriptEscape.h"
 
 #define ALERTVIEW_SSL_WARNING 1
 #define ALERTVIEW_EXTERN_PROTO 2
@@ -44,8 +42,6 @@ const char AlertViewExternProtoUrl;
 const char AlertViewIncomingUrl;
 
 static char SSLWarningKey;
-
-static const NSInteger kLoadingStatusTag = 1003;
 
 @import WebKit;
 
@@ -98,6 +94,7 @@ AppDelegate *appDelegate;
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(webKitprogressEstimateChanged:) name:@"WebProgressEstimateChangedNotification" object:[_webView valueForKeyPath:@"documentView.webView"]];
 	
 	/* swiping goes back and forward in current webview */
+    /*
 	UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeRightAction:)];
 	[swipeRight setDirection:UISwipeGestureRecognizerDirectionRight];
 	[swipeRight setDelegate:self];
@@ -107,7 +104,8 @@ AppDelegate *appDelegate;
 	[swipeLeft setDirection:UISwipeGestureRecognizerDirectionLeft];
 	[swipeLeft setDelegate:self];
 	[self.webView addGestureRecognizer:swipeLeft];
-	
+     */
+    
 	_titleHolder = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
 	[_titleHolder setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.75]];
 
@@ -157,7 +155,7 @@ AppDelegate *appDelegate;
 			}
 		}
 	}
-	
+    
 	/* this doubles as a way to force the webview to initialize itself, otherwise the UA doesn't seem to set right before refreshing a previous restoration state */
 	NSString *ua = [_webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
 	NSArray *uap = [ua componentsSeparatedByString:@"/"];
@@ -170,6 +168,8 @@ AppDelegate *appDelegate;
 
 /* for long press gesture recognizer to work properly */
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    if ([gestureRecognizer isKindOfClass:[UIScreenEdgePanGestureRecognizer class]])
+        return YES;
     
 	if (![gestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]])
 		return NO;
@@ -346,24 +346,28 @@ AppDelegate *appDelegate;
     objc_setAssociatedObject(alertView, &AlertViewIncomingUrl, navigationURL, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-/*
- - (void)loadURL:(NSURL *)u withForce:(BOOL)force
- {
-	[self.webView stopLoading];
-	[self prepareForNewURL:u];
-	
-	NSMutableURLRequest *ur = [NSMutableURLRequest requestWithURL:u];
-	if (force)
- [ur setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
- 
-	[self.webView loadRequest:ur];
- }
- */
+- (void)loadURL: (NSURL *)navigationURL {
+    [self loadURL:navigationURL withForce:NO];
+}
 
+- (void)loadURL:(NSURL *)navigationURL withForce:(BOOL)force
+{
+    [self.webView stopLoading];
+    [self prepareForNewURL:navigationURL];
+    
+    NSMutableURLRequest *ur = [NSMutableURLRequest requestWithURL:navigationURL];
+    if (force)
+        [ur setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
+    
+    [ur setHTTPShouldUsePipelining:YES];
+    [self.webView loadRequest:ur];
+}
+
+/*
 -(void)loadURL: (NSURL *)navigationURL {
     NSString *urlProto = [[navigationURL scheme] lowercaseString];
     if ([urlProto isEqualToString:@"theonionbrowser"]||[urlProto isEqualToString:@"theonionbrowsers"]||[urlProto isEqualToString:@"about"]||[urlProto isEqualToString:@"http"]||[urlProto isEqualToString:@"https"]) {
-        /***** One of our supported protocols *****/
+        // One of our supported protocols
 
         // Update URL
         [self prepareForNewURL:navigationURL];
@@ -389,7 +393,7 @@ AppDelegate *appDelegate;
             [self updateTLSStatus:TLSSTATUS_NO];
         }
     } else {
-        /***** NOT a protocol that this app speaks, check with the OS if the user wants to *****/
+        // NOT a protocol that this app speaks, check with the OS if the user wants to
         if ([[UIApplication sharedApplication] canOpenURL:navigationURL]) {
             //NSLog(@"can open %@", [navigationURL absoluteString]);
             NSString *msg = [NSString stringWithFormat: @"The Onion Browser cannot load a '%@' link, but another app you have installed can.\n\nNote that the other app will not load data over Tor, which could leak identifying information.\n\nDo you wish to proceed?", navigationURL.scheme, nil];
@@ -416,6 +420,7 @@ AppDelegate *appDelegate;
         }
     }
 }
+*/
 
 - (void)prepareForNewURL:(NSURL *)URL
 {
@@ -480,6 +485,126 @@ AppDelegate *appDelegate;
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    NSURL *url = [request URL];
+    
+    /* treat endlesshttps?:// links clicked inside of web pages as normal links */
+    if ([[[url scheme] lowercaseString] isEqualToString:@"endlesshttp"]) {
+        url = [NSURL URLWithString:[[url absoluteString] stringByReplacingCharactersInRange:NSMakeRange(0, [@"endlesshttp" length]) withString:@"http"]];
+        [self loadURL:url];
+        return NO;
+    }
+    else if ([[[url scheme] lowercaseString] isEqualToString:@"endlesshttps"]) {
+        url = [NSURL URLWithString:[[url absoluteString] stringByReplacingCharactersInRange:NSMakeRange(0, [@"endlesshttps" length]) withString:@"https"]];
+        [self loadURL:url];
+        return NO;
+    }
+    
+    if (![[url scheme] isEqualToString:@"endlessipc"]) {
+        if ([[[request mainDocumentURL] absoluteString] isEqualToString:[[request URL] absoluteString]])
+            [self prepareForNewURL:[request mainDocumentURL]];
+        
+        return YES;
+    }
+    
+    /* endlessipc://fakeWindow.open/somerandomid?http... */
+    
+    NSString *action = [url host];
+    
+    NSString *param, *param2;
+    if ([[[request URL] pathComponents] count] >= 2)
+        param = [url pathComponents][1];
+    if ([[[request URL] pathComponents] count] >= 3)
+        param2 = [url pathComponents][2];
+    
+    NSString *value = [[[url query] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    
+    if ([action isEqualToString:@"console.log"]) {
+        NSString *json = [[[url query] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSLog(@"[Tab %@] [console.%@] %@", [self tabIndex], param, json);
+        /* no callback needed */
+        return NO;
+    }
+    
+#ifdef TRACE
+    NSLog(@"[Javascript IPC]: [%@] [%@] [%@] [%@]", action, param, param2, value);
+#endif
+    
+    if ([action isEqualToString:@"noop"]) {
+        [self webView:_webView callbackWith:@""];
+    }
+    else if ([action isEqualToString:@"window.open"]) {
+        /* only allow windows to be opened from mouse/touch events, like a normal browser's popup blocker */
+        if (navigationType == UIWebViewNavigationTypeLinkClicked) {
+            WebViewTab *newtab = [[appDelegate appWebView] addNewTabForURL:nil];
+            newtab.randID = param;
+            newtab.openedByTabHash = [NSNumber numberWithLong:self.hash];
+            
+            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__endless.openedTabs[\"%@\"].opened = true;", param]];
+        }
+        else {
+            /* TODO: show a "popup blocked" warning? */
+            NSLog(@"[Tab %@] blocked non-touch window.open() (nav type %ldl)", self.tabIndex, (long)navigationType);
+            
+            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__endless.openedTabs[\"%@\"].opened = false;", param]];
+        }
+    }
+    else if ([action isEqualToString:@"window.close"]) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Confirm" message:@"Allow this page to close its tab?" preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK action") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [[appDelegate appWebView] removeTab:[self tabIndex]];
+        }];
+        
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Cancel action") style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        [alertController addAction:okAction];
+        
+        [[appDelegate appWebView] presentViewController:alertController animated:YES completion:nil];
+        
+        [self webView:_webView callbackWith:@""];
+    }
+    else if ([action hasPrefix:@"fakeWindow."]) {
+        WebViewTab *wvt = [[self class] openedWebViewTabByRandID:param];
+        
+        if (wvt == nil) {
+            [self webView:_webView callbackWith:[NSString stringWithFormat:@"delete __endless.openedTabs[\"%@\"];", [param stringEscapedForJavasacript]]];
+        }
+        /* setters, just write into target webview */
+        else if ([action isEqualToString:@"fakeWindow.setName"]) {
+            [[wvt webView] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.name = \"%@\";", [value stringEscapedForJavasacript]]];
+            [self webView:_webView callbackWith:@""];
+        }
+        else if ([action isEqualToString:@"fakeWindow.setLocation"]) {
+            [[wvt webView] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.location = \"%@\";", [value stringEscapedForJavasacript]]];
+            [self webView:_webView callbackWith:@""];
+        }
+        else if ([action isEqualToString:@"fakeWindow.setLocationParam"]) {
+            /* TODO: whitelist param since we're sending it raw */
+            [[wvt webView] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.location.%@ = \"%@\";", param2, [value stringEscapedForJavasacript]]];
+            [self webView:_webView callbackWith:@""];
+        }
+        
+        /* getters, pull from target webview and write back to caller internal parameters (not setters) */
+        else if ([action isEqualToString:@"fakeWindow.getName"]) {
+            NSString *name = [[wvt webView] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.name;"]];
+            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__endless.openedTabs[\"%@\"]._name = \"%@\";", [param stringEscapedForJavasacript], [name stringEscapedForJavasacript]]];
+        }
+        else if ([action isEqualToString:@"fakeWindow.getLocation"]) {
+            NSString *loc = [[wvt webView] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"JSON.stringify(window.location);"]];
+            /* don't encode loc, it's (hopefully a safe) hash */
+            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__endless.openedTabs[\"%@\"]._location = new __endless.FakeLocation(%@)", [param stringEscapedForJavasacript], loc]];
+        }
+        
+        /* actions */
+        else if ([action isEqualToString:@"fakeWindow.close"]) {
+            [[appDelegate appWebView] removeTab:[wvt tabIndex]];
+            [self webView:_webView callbackWith:@""];
+        }
+    }
+    
+    return NO;
+    
+    /*
     if ([[[[request URL] scheme] lowercaseString] isEqualToString:@"data"]) {
         NSString *url = [[request URL] absoluteString];
         NSRegularExpression *regex = [NSRegularExpression
@@ -493,7 +618,8 @@ AppDelegate *appDelegate;
             // This is a "data:" URI that isn't an image. Since this could be an HTML page,
             // PDF file, or other dynamic document, we should block it.
             // TODO: for now, this is silent
-            return NO;
+            #warning return NO
+            // return NO;
         }
     }
     
@@ -501,6 +627,7 @@ AppDelegate *appDelegate;
     [[appDelegate appWebView] updateSearchBarDetails];
 
     return YES;
+     */
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)__webView
@@ -508,6 +635,9 @@ AppDelegate *appDelegate;
     /* reset and then let WebViewController animate to our actual progress */
     [self setProgress:@0.0];
     [self setProgress:@0.1];
+    
+    // Update can go back/forward
+    [[appDelegate appWebView] updateSearchBarDetails];
     
     if (self.url == nil)
         self.url = [[__webView request] URL];
@@ -531,42 +661,14 @@ AppDelegate *appDelegate;
     // self.url = self.webView.request.URL;
     [self setProgress:@0];
     
-    // For the user's sake, display every possible error
-    /*
     if ([[error domain] isEqualToString:NSURLErrorDomain] && error.code == NSURLErrorCancelled)
         return;
      
     // "The operation couldn't be completed. (Cocoa error 3072.)" - useless
     if ([[error domain] isEqualToString:NSCocoaErrorDomain] && error.code == NSUserCancelledError)
         return;
-     */
-     
-    NSString *msg = [error localizedDescription];
     
-    // https://opensource.apple.com/source/libsecurity_ssl/libsecurity_ssl-36800/lib/SecureTransport.h
-    if ([[error domain] isEqualToString:NSOSStatusErrorDomain]) {
-        switch (error.code) {
-            case errSSLProtocol: // -9800
-                msg = @"SSL protocol error";
-                break;
-            case errSSLNegotiation: // -9801
-                msg = @"SSL handshake failed";
-                break;
-            case errSSLXCertChainInvalid: // -9807
-                msg = @"SSL certificate chain verification error (self-signed certificate?)";
-                break;
-        }
-    }
-    
-    NSString *u;
-    if ((u = [[error userInfo] objectForKey:@"NSErrorFailingURLStringKey"]) != nil)
-        msg = [NSString stringWithFormat:@"%@\n%@", msg, u];
-    
-#ifdef TRACE
-    NSLog(@"[Tab %@] showing error dialog: %@ (%@)", self.tabIndex, msg, error);
-#endif
-    
-    [self informError:error withMessage:msg];
+    [self informError:error withMessage:@""];
 }
 
 - (void)webView:(UIWebView *)__webView callbackWith:(NSString *)callback
@@ -588,7 +690,9 @@ AppDelegate *appDelegate;
     }
     
     if ((([error.domain isEqualToString:(NSString *)@"WebKitErrorDomain"]) && (error.code == 102))) {
-        [ALToastView toastInView:self.viewHolder withText:@"Frame load interrupted" andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1]];
+        [ALToastView toastInView:self.viewHolder withText:@"Frame load interrupted, refreshing..." andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1]];
+        
+        [self forceRefresh];
         
         return;
     }
@@ -604,7 +708,7 @@ AppDelegate *appDelegate;
         NSString *errorDescription = @"\nThe Onion Browser lost connection to the Tor anonymity network and is unable to reconnect. This may occur if The Onion Browser went to the background or if the device went to sleep while The Onion Browser was active.\n\nPlease quit the app and try again.";
 
         // report the error inside the webview
-        NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 2em;\">%@</div><div style=\"font-size: 2em;\">%@</div></div></div></div></div>", errorTitle, errorDescription, message];
+        NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 2em;\">%@</div></div></div></div></div>", errorTitle, errorDescription];
         
         [self.webView loadHTMLString:errorString baseURL:self.url];
         
@@ -682,7 +786,7 @@ AppDelegate *appDelegate;
         }
         
         // report the error inside the webview
-        NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 2em;\">%@</div><div style=\"font-size: 2em;\">%@</div></div></div></div></div>", errorTitle, errorDescription, message];
+        NSString *errorString = [NSString stringWithFormat:@"<div><div><div><div style=\"padding: 40px 15px;text-align: center;\"><h1>%@</h1><div style=\"font-size: 2em;\">%@</div></div></div></div></div>", errorTitle, errorDescription];
         
         [self.webView loadHTMLString:errorString baseURL:self.url];
     }
@@ -751,69 +855,6 @@ AppDelegate *appDelegate;
     if (newStatus != TLSSTATUS_PREVIOUS) {
         _tlsStatus = newStatus;
     }
-    /*
-    UIView *uivSecure = [self.view viewWithTag:kTLSSecurePadlockTag];
-    if (uivSecure == nil) {
-        NSString *imgpth = [[NSBundle mainBundle] pathForResource:@"secure.png" ofType:nil];
-        uivSecure = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imgpth]];
-        UINavigationBar *navBar = (UINavigationBar *)[self.view viewWithTag:kNavBarTag];
-        
-        uivSecure.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-        uivSecure.tag = kTLSSecurePadlockTag;
-        uivSecure.frame = CGRectMake(kMargin + (navBar.bounds.size.width - 2*kMargin - 22), kSpacer * 2.0 + kLabelHeight*1.5, 18, 18);
-        [navBar addSubview:uivSecure];
-    }
-    UIView *uivInsecure = [self.view viewWithTag:kTLSInsecurePadlockTag];
-    if (uivInsecure == nil) {
-        NSString *imgpth = [[NSBundle mainBundle] pathForResource:@"insecure.png" ofType:nil];
-        uivInsecure = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imgpth]];
-        UINavigationBar *navBar = (UINavigationBar *)[self.view viewWithTag:kNavBarTag];
-        
-        uivInsecure.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
-        uivInsecure.tag = kTLSInsecurePadlockTag;
-        uivInsecure.frame = CGRectMake(kMargin + (navBar.bounds.size.width - 2*kMargin - 22), kSpacer * 2.0 + kLabelHeight*1.5, 18, 18);
-        [navBar addSubview:uivInsecure];
-    }
-    
-    if (_tlsStatus == TLSSTATUS_NO) {
-        [uivSecure setHidden:YES];
-        [uivInsecure setHidden:YES];
-    } else if (_tlsStatus == TLSSTATUS_YES) {
-        [uivSecure setHidden:NO];
-        [uivInsecure setHidden:YES];
-    } else {
-        [uivSecure setHidden:YES];
-        [uivInsecure setHidden:NO];
-    }
-     */
-}
-
-- (void)hideTLSStatus {
-    /*
-    UIView *uivSecure = [self.view viewWithTag:kTLSSecurePadlockTag];
-    if (uivSecure == nil) {
-        NSString *imgpth = [[NSBundle mainBundle] pathForResource:@"secure.png" ofType:nil];
-        uivSecure = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imgpth]];
-        UINavigationBar *navBar = (UINavigationBar *)[self.view viewWithTag:kNavBarTag];
-        
-        uivSecure.tag = kTLSSecurePadlockTag;
-        uivSecure.frame = CGRectMake(kMargin + (navBar.bounds.size.width - 2*kMargin - 22), kSpacer * 2.0 + kLabelHeight*1.5, 18, 18);
-        [navBar addSubview:uivSecure];
-    }
-    UIView *uivInsecure = [self.view viewWithTag:kTLSInsecurePadlockTag];
-    if (uivInsecure == nil) {
-        NSString *imgpth = [[NSBundle mainBundle] pathForResource:@"insecure.png" ofType:nil];
-        uivInsecure = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imgpth]];
-        UINavigationBar *navBar = (UINavigationBar *)[self.view viewWithTag:kNavBarTag];
-        
-        uivInsecure.tag = kTLSInsecurePadlockTag;
-        uivInsecure.frame = CGRectMake(kMargin + (navBar.bounds.size.width - 2*kMargin - 22), kSpacer * 2.0 + kLabelHeight*1.5, 18, 18);
-        [navBar addSubview:uivInsecure];
-    }
-    
-    [uivSecure setHidden:YES];
-    [uivInsecure setHidden:YES];
-     */
 }
 
 - (void)setSSLCertificate:(SSLCertificate *)SSLCertificate
@@ -848,12 +889,64 @@ AppDelegate *appDelegate;
 
 - (void)swipeRightAction:(UISwipeGestureRecognizer *)gesture
 {
+    NSLog(@"goBack");
 	[self goBack];
 }
 
 - (void)swipeLeftAction:(UISwipeGestureRecognizer *)gesture
 {
+    NSLog(@"goForward");
 	[self goForward];
+}
+
+- (void)handleLeftEdgePan:(UIScreenEdgePanGestureRecognizer *)gesture {
+    if (!appDelegate.appWebView.showingTabs) {
+        switch (gesture.state) {
+            case UIGestureRecognizerStateBegan: {
+                NSLog(@"Began");
+            }
+                
+            case UIGestureRecognizerStateCancelled: {
+                NSLog(@"Cancelled");
+            }
+                
+            case UIGestureRecognizerStateFailed: {
+                NSLog(@"Failed");
+            }
+                
+            case UIGestureRecognizerStateEnded: {
+                NSLog(@"Ended");
+            }
+                
+            default:
+                break;
+        }
+    }
+}
+
+- (void)handleRightEdgePan:(UIScreenEdgePanGestureRecognizer *)gesture {
+    if (!appDelegate.appWebView.showingTabs) {
+        switch (gesture.state) {
+            case UIGestureRecognizerStateBegan: {
+                NSLog(@"Began");
+            }
+                
+            case UIGestureRecognizerStateCancelled: {
+                NSLog(@"Cancelled");
+            }
+                
+            case UIGestureRecognizerStateFailed: {
+                NSLog(@"Failed");
+            }
+                
+            case UIGestureRecognizerStateEnded: {
+                NSLog(@"Ended");
+            }
+                
+            default:
+                break;
+        }
+    }
 }
 
 - (void)webViewTouched:(UIEvent *)event
@@ -906,6 +999,7 @@ AppDelegate *appDelegate;
 
 	UIAlertAction *saveImageAction = [UIAlertAction actionWithTitle:@"Save Image" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 		NSURL *imgurl = [NSURL URLWithString:img];
+        [URLInterceptor temporarilyAllow:imgurl];
 
         NSData *imgdata = [NSData dataWithContentsOfURL:imgurl];
 		if (imgdata) {
@@ -1011,38 +1105,9 @@ AppDelegate *appDelegate;
 	[[self viewHolder] setTransform:CGAffineTransformIdentity];
 }
 
-- (CGSize)windowSize
-{
-    CGSize size;
-    size.width = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] integerValue];
-    size.height = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] integerValue];
-    return size;
-}
-
-- (CGPoint)scrollOffset
-{
-    CGPoint pt;
-    pt.x = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageXOffset"] integerValue];
-    pt.y = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] integerValue];
-    return pt;
-}
-
 - (NSArray *)elementsAtLocationFromGestureRecognizer:(UIGestureRecognizer *)uigr
 {
     /*
-     CGPoint tap = [uigr locationInView:[self webView]];
-     tap.y -= [[[self webView] scrollView] contentInset].top;
-     
-     // translate tap coordinates from view to scale of page
-    CGSize windowSize = CGSizeMake(
-                                   [[[self webView] stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] intValue],
-                                   [[[self webView] stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] intValue]
-                                   );
-    CGSize viewSize = [[self webView] frame].size;
-    float ratio = windowSize.width / viewSize.width;
-    CGPoint tapOnPage = CGPointMake(tap.x * ratio, tap.y * ratio);
-     */
-
     CGPoint tap = [uigr locationInView:[self webView]];
     
     // convert point from window to view coordinate system, and remove status bar and toolbar's height
@@ -1062,6 +1127,19 @@ AppDelegate *appDelegate;
     CGFloat f = windowSize.width / viewSize.width;
     tap.x = tap.x * f + offset.x;
     tap.y = tap.y * f + offset.y;
+     */
+    
+    CGPoint tap = [uigr locationInView:[self webView]];
+    tap.y -= [[[self webView] scrollView] contentInset].top;
+    
+    /* translate tap coordinates from view to scale of page */
+    CGSize windowSize = CGSizeMake(
+                                   [[[self webView] stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] intValue],
+                                   [[[self webView] stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] intValue]
+                                   );
+    CGSize viewSize = [[self webView] frame].size;
+    float ratio = windowSize.width / viewSize.width;
+    CGPoint tapOnPage = CGPointMake(tap.x * ratio, tap.y * ratio);
     
 	/* now find if there are usable elements at those coordinates and extract their attributes */
     // Load the JavaScript code from the Resources and inject it into the web page
@@ -1071,11 +1149,11 @@ AppDelegate *appDelegate;
     
     // Get the tags at the touch location
     NSString *tags = [[self webView] stringByEvaluatingJavaScriptFromString:
-                      [NSString stringWithFormat:@"__TheOnionBrowerGetHTMLElementsAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
+                      [NSString stringWithFormat:@"__TheOnionBrowerGetHTMLElementsAtPoint(%li,%li);",(long)tapOnPage.x,(long)tapOnPage.y]];
     
     // Get the link info at the touch location
     NSString *jsonString = [[self webView] stringByEvaluatingJavaScriptFromString:
-                         [NSString stringWithFormat:@"__TheOnionBrowerGetLinkInfoAtPoint(%li,%li);",(long)tap.x,(long)tap.y]];
+                         [NSString stringWithFormat:@"__TheOnionBrowerGetLinkInfoAtPoint(%li,%li);",(long)tapOnPage.x,(long)tapOnPage.y]];
     
     if (!jsonString) {
         return @[@"", @"", @"", @""];

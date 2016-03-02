@@ -66,7 +66,6 @@ typedef NS_ENUM(NSInteger, WebViewTabSecureMode) {
 @property NSMutableDictionary *applicableHTTPSEverywhereRules;
 
 @property (nonatomic) NSString *torStatus;
-
 @property (nonatomic) Byte tlsStatus;
 
 @property (nonatomic) NSString *currentURL;
@@ -81,12 +80,13 @@ typedef NS_ENUM(NSInteger, WebViewTabSecureMode) {
 
 
 - (void)loadURL: (NSURL *)navigationURL;
+- (void)loadURL:(NSURL *)navigationURL withForce:(BOOL)force;
 - (void)askToLoadURL: (NSURL *)navigationURL;
 - (void)addressBarCancel;
 - (void)renderTorStatus: (NSArray *)statusArray;
 
-- (void)updateTLSStatus:(Byte)newStatus;
-- (void)hideTLSStatus;
+// - (void)updateTLSStatus:(Byte)newStatus;
+// - (void)hideTLSStatus;
 
 - (id)initWithFrame:(CGRect)frame;
 - (id)initWithFrame:(CGRect)frame withRestorationIdentifier:(NSString *)rid;

@@ -1,61 +1,59 @@
-//
-//  CKHTTPConnection.h
-//  Connection
-//
-//  Created by Mike on 17/03/2009.
-//  Copyright 2009 Karelia Software. All rights reserved.
-//
-//  Originally from ConnectionKit 2.0 branch; source at:
-//  http://www.opensource.utr-software.com/source/connection/branches/2.0/CKHTTPConnection.h
-//  (CKHTTPConnection.m last updated rev 1242, 2009-06-16 09:40:21 -0700, by mabdullah)
-//  
-//  Under Modified BSD License, as per description at
-//  http://www.opensource.utr-software.com/
-
-
-//  A sort of NSURLConnection-lite class. Deals purely with HTTP and is not multithreaded
-//  internally. Adds the ability to track upload progress.
-
+/*
+ * Endless
+ * Copyright (c) 2014-2015 joshua stein <jcs@jcs.org>
+ *
+ * Originally created by Mike Abdullah on 17/03/2009.
+ * Copyright 2009 Karelia Software. All rights reserved.
+ *
+ * Originally from ConnectionKit 2.0 branch; source at:
+ * http://www.opensource.utr-software.com/source/connection/branches/2.0/CKHTTPConnection.m
+ * (CKHTTPConnection.m last updated rev 1242, 2009-06-16 09:40:21 -0700, by mabdullah)
+ *
+ * Under Modified BSD License, as per description at
+ * http://www.opensource.utr-software.com/
+ */
 
 #import <Foundation/Foundation.h>
-
+#import "SSLCertificate.h"
 
 @protocol CKHTTPConnectionDelegate;
-@class CKHTTPAuthenticationChallenge;
 
+@class CKHTTPAuthenticationChallenge;
 
 @interface CKHTTPConnection : NSObject
 {
-    @private
-    __weak id <CKHTTPConnectionDelegate>   _delegate;       // weak ref
+@private
+    __weak id <CKHTTPConnectionDelegate> _delegate;
     
-    CFHTTPMessageRef       _HTTPRequest;
-    NSInputStream                   *_HTTPStream;
-    NSInputStream                   *_HTTPBodyStream;
-    BOOL                            _haveReceivedResponse;
-    CKHTTPAuthenticationChallenge   *_authenticationChallenge;
-    NSInteger                       _authenticationAttempts;
+    CFHTTPMessageRef _HTTPRequest;
+    NSInputStream *_HTTPStream;
+    NSInputStream *_HTTPBodyStream;
+    BOOL _haveReceivedResponse;
+    CKHTTPAuthenticationChallenge *_authenticationChallenge;
+    NSInteger _authenticationAttempts;
+    
+    BOOL socketReady;
+    BOOL retriedSocket;
 }
 
 + (CKHTTPConnection *)connectionWithRequest:(NSURLRequest *)request delegate:(id <CKHTTPConnectionDelegate>)delegate;
 
-/*  Any caching instructions will be ignored
- */
 - (id)initWithRequest:(NSURLRequest *)request delegate:(id <CKHTTPConnectionDelegate>)delegate;
 - (void)cancel;
-
-- (NSUInteger)lengthOfDataSent;
 
 @end
 
 
 @protocol CKHTTPConnectionDelegate  // Formal protocol for now
 
+- (void)HTTPConnection:(CKHTTPConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 - (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 - (void)HTTPConnection:(CKHTTPConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 
 - (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response;
 - (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveData:(NSData *)data;
+
+- (void)HTTPConnection:(CKHTTPConnection *)connection didReceiveSecTrust:(SecTrustRef)secTrustRef certificate:(SSLCertificate *)certificate;
 
 - (void)HTTPConnectionDidFinishLoading:(CKHTTPConnection *)connection;
 - (void)HTTPConnection:(CKHTTPConnection *)connection didFailWithError:(NSError *)error;
@@ -71,4 +69,3 @@
 @interface NSHTTPURLResponse (CKHTTPConnectionAdditions)
 + (NSHTTPURLResponse *)responseWithURL:(NSURL *)URL HTTPMessage:(CFHTTPMessageRef)message;
 @end
-

@@ -34,6 +34,7 @@
 #import "WebViewMenuController.h"
 #import "WYPopoverController.h"
 #import "EAIntroView.h"
+#import "URLInterceptor.h"
 
 @implementation WebViewController {
     AppDelegate *appDelegate;
@@ -62,7 +63,6 @@
     
     float lastWebViewScrollOffset;
     CGRect origTabScrollerFrame;
-    BOOL showingTabs;
     BOOL webViewScrollIsDecelerating;
     BOOL webViewScrollIsDragging;
     BOOL shouldHideStatusBar;
@@ -74,7 +74,11 @@
     CGPoint originalPoint;
     CGPoint panGestureOriginPoint;
     int panGestureRecognizerType; // 0: None, 1: Remove tab, 2: Change page
+    
+    UIPanGestureRecognizer *tabSelectionPanGestureRecognizer;
 }
+
+@synthesize showingTabs;
 
 - (void)loadView
 {
@@ -115,7 +119,7 @@
     [backButton setImage:backImage forState:UIControlStateNormal];
     [backButton addTarget:self action:@selector(goBack:) forControlEvents:UIControlEventTouchUpInside];
     [toolbar addSubview:backButton];
-    
+        
     forwardButton = [UIButton buttonWithType:UIButtonTypeCustom];
     UIImage *forwardImage = [[UIImage imageNamed:@"forward"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     [forwardButton setImage:forwardImage forState:UIControlStateNormal];
@@ -373,7 +377,10 @@
 - (void)viewIsVisible
 {
     if (webViewTabs.count == 0) {
-        [self addNewTabForURL:[NSURL URLWithString:@"theonionbrowser:starting"]];
+        NSString *startingString = [NSString stringWithFormat:@"<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Starting Tor</title><style>div{position: fixed;width: 98%%;top: 15%%;left: 1%%;right: 1%%;margin: 10px;}p {text-align: center;font-family: sans-serif;font-size: 5vw;font-style: normal;}.title {font-size: 6vw;}</style></head><body><div><p class=\"title\">Starting Tor</p><p>The Onion Browser will be redirected shortly, please wait up to 10 seconds…</p></div></body></html>"];
+        
+        [self addNewTabForURL:nil];
+        [self.curWebViewTab.webView loadHTMLString:startingString baseURL:[NSURL URLWithString:@"Starting..."]];
     }
 }
 
@@ -573,7 +580,7 @@
     [panGestureRecognizer setMinimumNumberOfTouches:2];
     [panGestureRecognizer setMaximumNumberOfTouches:2];
     [panGestureRecognizer setDelegate:self];
-    [wvt.webView addGestureRecognizer:panGestureRecognizer];
+    [wvt.viewHolder addGestureRecognizer:panGestureRecognizer];
     
     return wvt;
 }
@@ -704,17 +711,16 @@
         [urlField setTextAlignment:NSTextAlignmentNatural];
         [urlField setTextColor:[UIColor darkTextColor]];
         [urlField setLeftView:nil];
-    }
-    else {
+    } else {
         [urlField setTextAlignment:NSTextAlignmentCenter];
         [urlField setTextColor:[UIColor darkTextColor]];
         
         BOOL isEV = NO;
+                
         if (self.curWebViewTab && self.curWebViewTab.secureMode >= WebViewTabSecureModeSecure) {
             [urlField setLeftView:lockIcon];
-            
             if (self.curWebViewTab.secureMode == WebViewTabSecureModeSecureEV) {
-                /* wait until the page is done loading */
+                // wait until the page is done loading
                 if ([progressBar progress] >= 1.0) {
                     [urlField setTextColor:[UIColor colorWithRed:0 green:(183.0/255.0) blue:(82.0/255.0) alpha:1.0]];
                     
@@ -925,13 +931,14 @@
 
 - (void)goBack:(id)_id
 {
-    [self.curWebViewTab goBack];
+    if (self.curWebViewTab && self.curWebViewTab.canGoBack)
+        [self.curWebViewTab goBack];
 }
 
 - (void)goForward:(id)_id
 {
-    [self.curWebViewTab goForward];
-}
+    if (self.curWebViewTab && self.curWebViewTab.canGoForward)
+        [self.curWebViewTab goForward];}
 
 - (void)refresh
 {
@@ -977,6 +984,7 @@
     [self dismissViewControllerAnimated:YES completion:nil];
     
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [URLInterceptor setSendDNT:[userDefaults boolForKey:@"send_dnt"]];
     [[appDelegate cookieJar] setOldDataSweepTimeout:[NSNumber numberWithInteger:[userDefaults integerForKey:@"old_data_sweep_mins"]]];
     
     BOOL oldtob = self.toolbarOnBottom;
@@ -1034,12 +1042,15 @@
         singleTapGestureRecognizer.cancelsTouchesInView = NO;
         [tabScroller addGestureRecognizer:singleTapGestureRecognizer];
         
-        UIPanGestureRecognizer *closeGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleDrag:)];
-        [closeGestureRecognizer setMinimumNumberOfTouches:1];
-        [closeGestureRecognizer setMaximumNumberOfTouches:1];
-        [tabScroller addGestureRecognizer:closeGestureRecognizer];
+        tabSelectionPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleDrag:)];
+        [tabSelectionPanGestureRecognizer setMinimumNumberOfTouches:1];
+        [tabSelectionPanGestureRecognizer setMaximumNumberOfTouches:1];
+        [tabScroller addGestureRecognizer:tabSelectionPanGestureRecognizer];
     }
     else {
+        [tabScroller removeGestureRecognizer:tabSelectionPanGestureRecognizer];
+        tabSelectionPanGestureRecognizer = nil;
+        
         [UIView animateWithDuration:0.25 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^(void) {
             for (int i = 0; i < webViewTabs.count; i++) {
                 [(WebViewTab *)webViewTabs[i] zoomNormal];
@@ -1126,6 +1137,9 @@
             if (panGestureOriginPoint.x <= PAN_GESTURE_RECOGNIZER_EDGE_SIZE || panGestureOriginPoint.x >= (self.curWebViewTab.viewHolder.bounds.size.width - PAN_GESTURE_RECOGNIZER_EDGE_SIZE)) {
                 // User started from the edge of the screen
                 panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_SIDE;
+                // Prevent scrolling/zooming while the user is changing tab
+                [self.curWebViewTab.webView.scrollView.pinchGestureRecognizer setEnabled:NO];
+                [self.curWebViewTab.webView.scrollView.panGestureRecognizer setEnabled:NO];
             }
         }
         
@@ -1148,7 +1162,26 @@
                     break;
                 };
                     
+                case UIGestureRecognizerStateCancelled: {
+                    // Reset everything
+                    [self.curWebViewTab.webView.scrollView.pinchGestureRecognizer setEnabled:YES];
+                    [self.curWebViewTab.webView.scrollView.panGestureRecognizer setEnabled:YES];
+                    panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_NONE;
+                    panGestureOriginPoint = CGPointZero;
+                }
+                    
+                case UIGestureRecognizerStateFailed: {
+                    // Reset everything
+                    [self.curWebViewTab.webView.scrollView.pinchGestureRecognizer setEnabled:YES];
+                    [self.curWebViewTab.webView.scrollView.panGestureRecognizer setEnabled:YES];
+                    panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_NONE;
+                    panGestureOriginPoint = CGPointZero;
+                }
+                    
                 case UIGestureRecognizerStateEnded: {
+                    [self.curWebViewTab.webView.scrollView.pinchGestureRecognizer setEnabled:YES];
+                    [self.curWebViewTab.webView.scrollView.panGestureRecognizer setEnabled:YES];
+
                     if ((xDistance <= -100 || vel.x <= -300) && curTabIndex < tabChooser.numberOfPages - 1) {
                         // Moved enough to change tab (go right), and there is at least 1 tab on the right
                         [tabChooser setCurrentPage:curTabIndex + 1];
@@ -1183,7 +1216,6 @@
                     panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_NONE;
                     panGestureOriginPoint = CGPointZero;
                     
-                    
                     break;
                 };
                     
@@ -1193,6 +1225,8 @@
         } else if (gesture.state == UIGestureRecognizerStateEnded) {
             // Reset the origin point for the gesture
             panGestureOriginPoint = CGPointZero;
+            self.curWebViewTab.webView.scrollView.panGestureRecognizer.enabled = YES;
+            self.curWebViewTab.webView.scrollView.scrollEnabled = YES;
         }
     }
 }
@@ -1312,8 +1346,7 @@
     [tabScroller setContentOffset:frame.origin animated:YES];
 }
 
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
     return YES;
 }
 
@@ -1356,6 +1389,10 @@
     [view3 setContentMode:UIViewContentModeScaleAspectFit];
     [view3 setFrame:frame];
     
+    UIImageView *view4 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"page_4"]];
+    [view4 setContentMode:UIViewContentModeScaleAspectFit];
+    [view4 setFrame:frame];
+    
     
     // Initialize all the pages with their content
     EAIntroPage *page1 = [EAIntroPage page];
@@ -1377,16 +1414,25 @@
     [page2 setTitleIconPositionY:20];
     
     EAIntroPage *page3 = [EAIntroPage page];
-    [page3 setDesc:@"You can disable the tabs restoration feature in the settings."];
+    [page3 setDesc:@"Added HTTPS Everywhere, which makes your browsing more secure by encrypting your communications."];
     [page3 setDescColor:[UIColor blackColor]];
-    [page3 setDescFont:[UIFont systemFontOfSize:16]];
+    [page3 setDescFont:[UIFont systemFontOfSize:15]];
     [page3 setBgColor:[UIColor whiteColor]];
     [page3 setTitleIconView:view3];
     [page3 setDescPositionY:90];
     [page3 setTitleIconPositionY:20];
     
+    EAIntroPage *page4 = [EAIntroPage page];
+    [page4 setDesc:@"A new tabs restoration feature repoens your tabs each time you launch the app."];
+    [page4 setDescColor:[UIColor blackColor]];
+    [page4 setDescFont:[UIFont systemFontOfSize:16]];
+    [page4 setBgColor:[UIColor whiteColor]];
+    [page4 setTitleIconView:view4];
+    [page4 setDescPositionY:90];
+    [page4 setTitleIconPositionY:20];
+    
     // Initialize the view containing all the pages
-    EAIntroView *intro = [[EAIntroView alloc] initWithFrame:appDelegate.appWebView.view.bounds andPages:@[page1, page2, page3]];
+    EAIntroView *intro = [[EAIntroView alloc] initWithFrame:appDelegate.appWebView.view.bounds andPages:@[page1, page2, page3, page4]];
     [intro setPageControlY:20];
     [[intro pageControl] setPageIndicatorTintColor:[UIColor lightGrayColor]];
     [[intro pageControl] setCurrentPageIndicatorTintColor:[UIColor grayColor]];
