@@ -308,7 +308,9 @@
     NSString *appFile = [documentsDirectory stringByAppendingPathComponent:@"savedCoder.txt"];
     NSMutableArray *dataArray = [NSKeyedUnarchiver unarchiveObjectWithFile:appFile];
     
-    if (dataArray) {
+    // [dataArray count] should be > 1 because we save the current tab index
+    // dataArray[0] is the array containing the tabs to restore
+    if (dataArray && [dataArray count] > 1 && [dataArray[0] count] > 0) {
         [self animateAllTabsRemoval];
         [self decodeRestorableStateWithArray:dataArray];
         
@@ -325,8 +327,12 @@
     NSMutableArray *wvt = dataArray[0];
     for (int i = 0; i < wvt.count; i++) {
         NSDictionary *params = wvt[i];
-        WebViewTab *wvt = [self addNewTabForURL:[params objectForKey:@"url"] forRestoration:YES withCompletionBlock:nil];
-        [[wvt title] setText:[params objectForKey:@"title"]];
+        if ([params objectForKey:@"url"]) {
+            WebViewTab *wvt = [self addNewTabForURL:[params objectForKey:@"url"] forRestoration:YES withCompletionBlock:nil];
+            [[wvt title] setText:[params objectForKey:@"title"]];
+        } else {
+            [self addNewTabForURL:nil forRestoration:YES withCompletionBlock:nil];
+        }
     }
     
     NSNumber *cp = dataArray[1];

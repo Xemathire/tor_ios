@@ -85,9 +85,6 @@ typedef NS_ENUM(NSInteger, WebViewTabSecureMode) {
 - (void)addressBarCancel;
 - (void)renderTorStatus: (NSArray *)statusArray;
 
-// - (void)updateTLSStatus:(Byte)newStatus;
-// - (void)hideTLSStatus;
-
 - (id)initWithFrame:(CGRect)frame;
 - (id)initWithFrame:(CGRect)frame withRestorationIdentifier:(NSString *)rid;
 - (void)close;

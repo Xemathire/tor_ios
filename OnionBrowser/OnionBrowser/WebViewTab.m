@@ -313,7 +313,6 @@ AppDelegate *appDelegate;
                         "<div>"
                         "    After a few minutes, re-launch the app.<br/>"
                         "    If your ISP blocks Tor connections, you can configure bridges by pressing the settings button.<br/>"
-                        "    If you continue to have issues, go to <a target='_blank' href='theonionbrowser:help'>the help page</a>."
                         "</div>"
                         "</body>"
                         "</html>",
@@ -487,26 +486,26 @@ AppDelegate *appDelegate;
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
     NSURL *url = [request URL];
     
-    /* treat endlesshttps?:// links clicked inside of web pages as normal links */
-    if ([[[url scheme] lowercaseString] isEqualToString:@"endlesshttp"]) {
-        url = [NSURL URLWithString:[[url absoluteString] stringByReplacingCharactersInRange:NSMakeRange(0, [@"endlesshttp" length]) withString:@"http"]];
+    /* treat theonionbrowser?:// links clicked inside of web pages as normal links */
+    if ([[[url scheme] lowercaseString] isEqualToString:@"theonionbrowser"] && ![[url absoluteString] isEqualToString:@"theonionbrowser:home"]) {
+        url = [NSURL URLWithString:[[url absoluteString] stringByReplacingCharactersInRange:NSMakeRange(0, [@"theonionbrowser" length]) withString:@"http"]];
         [self loadURL:url];
         return NO;
     }
-    else if ([[[url scheme] lowercaseString] isEqualToString:@"endlesshttps"]) {
-        url = [NSURL URLWithString:[[url absoluteString] stringByReplacingCharactersInRange:NSMakeRange(0, [@"endlesshttps" length]) withString:@"https"]];
+    else if ([[[url scheme] lowercaseString] isEqualToString:@"theonionbrowsers"]) {
+        url = [NSURL URLWithString:[[url absoluteString] stringByReplacingCharactersInRange:NSMakeRange(0, [@"theonionbrowsers" length]) withString:@"https"]];
         [self loadURL:url];
         return NO;
     }
     
-    if (![[url scheme] isEqualToString:@"endlessipc"]) {
+    if (![[url scheme] isEqualToString:@"tobipc"]) {
         if ([[[request mainDocumentURL] absoluteString] isEqualToString:[[request URL] absoluteString]])
             [self prepareForNewURL:[request mainDocumentURL]];
         
         return YES;
     }
     
-    /* endlessipc://fakeWindow.open/somerandomid?http... */
+    /* tobipc://fakeWindow.open/somerandomid?http... */
     
     NSString *action = [url host];
     
@@ -539,13 +538,13 @@ AppDelegate *appDelegate;
             newtab.randID = param;
             newtab.openedByTabHash = [NSNumber numberWithLong:self.hash];
             
-            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__endless.openedTabs[\"%@\"].opened = true;", param]];
+            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__tob.openedTabs[\"%@\"].opened = true;", param]];
         }
         else {
             /* TODO: show a "popup blocked" warning? */
             NSLog(@"[Tab %@] blocked non-touch window.open() (nav type %ldl)", self.tabIndex, (long)navigationType);
             
-            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__endless.openedTabs[\"%@\"].opened = false;", param]];
+            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__tob.openedTabs[\"%@\"].opened = false;", param]];
         }
     }
     else if ([action isEqualToString:@"window.close"]) {
@@ -567,7 +566,7 @@ AppDelegate *appDelegate;
         WebViewTab *wvt = [[self class] openedWebViewTabByRandID:param];
         
         if (wvt == nil) {
-            [self webView:_webView callbackWith:[NSString stringWithFormat:@"delete __endless.openedTabs[\"%@\"];", [param stringEscapedForJavasacript]]];
+            [self webView:_webView callbackWith:[NSString stringWithFormat:@"delete __tob.openedTabs[\"%@\"];", [param stringEscapedForJavasacript]]];
         }
         /* setters, just write into target webview */
         else if ([action isEqualToString:@"fakeWindow.setName"]) {
@@ -587,12 +586,12 @@ AppDelegate *appDelegate;
         /* getters, pull from target webview and write back to caller internal parameters (not setters) */
         else if ([action isEqualToString:@"fakeWindow.getName"]) {
             NSString *name = [[wvt webView] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.name;"]];
-            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__endless.openedTabs[\"%@\"]._name = \"%@\";", [param stringEscapedForJavasacript], [name stringEscapedForJavasacript]]];
+            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__tob.openedTabs[\"%@\"]._name = \"%@\";", [param stringEscapedForJavasacript], [name stringEscapedForJavasacript]]];
         }
         else if ([action isEqualToString:@"fakeWindow.getLocation"]) {
             NSString *loc = [[wvt webView] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"JSON.stringify(window.location);"]];
             /* don't encode loc, it's (hopefully a safe) hash */
-            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__endless.openedTabs[\"%@\"]._location = new __endless.FakeLocation(%@)", [param stringEscapedForJavasacript], loc]];
+            [self webView:_webView callbackWith:[NSString stringWithFormat:@"__tob.openedTabs[\"%@\"]._location = new __tob.FakeLocation(%@)", [param stringEscapedForJavasacript], loc]];
         }
         
         /* actions */
@@ -673,7 +672,7 @@ AppDelegate *appDelegate;
 
 - (void)webView:(UIWebView *)__webView callbackWith:(NSString *)callback
 {
-    NSString *finalcb = [NSString stringWithFormat:@"(function() { %@; __endless.ipcDone = (new Date()).getTime(); })();", callback];
+    NSString *finalcb = [NSString stringWithFormat:@"(function() { %@; __tob.ipcDone = (new Date()).getTime(); })();", callback];
     
 #ifdef TRACE_IPC
     NSLog(@"[Javascript IPC]: calling back with: %@", finalcb);
@@ -889,64 +888,12 @@ AppDelegate *appDelegate;
 
 - (void)swipeRightAction:(UISwipeGestureRecognizer *)gesture
 {
-    NSLog(@"goBack");
 	[self goBack];
 }
 
 - (void)swipeLeftAction:(UISwipeGestureRecognizer *)gesture
 {
-    NSLog(@"goForward");
 	[self goForward];
-}
-
-- (void)handleLeftEdgePan:(UIScreenEdgePanGestureRecognizer *)gesture {
-    if (!appDelegate.appWebView.showingTabs) {
-        switch (gesture.state) {
-            case UIGestureRecognizerStateBegan: {
-                NSLog(@"Began");
-            }
-                
-            case UIGestureRecognizerStateCancelled: {
-                NSLog(@"Cancelled");
-            }
-                
-            case UIGestureRecognizerStateFailed: {
-                NSLog(@"Failed");
-            }
-                
-            case UIGestureRecognizerStateEnded: {
-                NSLog(@"Ended");
-            }
-                
-            default:
-                break;
-        }
-    }
-}
-
-- (void)handleRightEdgePan:(UIScreenEdgePanGestureRecognizer *)gesture {
-    if (!appDelegate.appWebView.showingTabs) {
-        switch (gesture.state) {
-            case UIGestureRecognizerStateBegan: {
-                NSLog(@"Began");
-            }
-                
-            case UIGestureRecognizerStateCancelled: {
-                NSLog(@"Cancelled");
-            }
-                
-            case UIGestureRecognizerStateFailed: {
-                NSLog(@"Failed");
-            }
-                
-            case UIGestureRecognizerStateEnded: {
-                NSLog(@"Ended");
-            }
-                
-            default:
-                break;
-        }
-    }
 }
 
 - (void)webViewTouched:(UIEvent *)event
@@ -1073,9 +1020,7 @@ AppDelegate *appDelegate;
 }
 
 - (void)refresh
-{
-    NSLog(@"Refreshing...");
-    
+{    
 	[self setNeedsRefresh:FALSE];
 	[[self webView] reload];
     

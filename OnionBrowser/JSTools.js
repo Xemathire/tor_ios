@@ -84,6 +84,6 @@ function __TheOnionBrowerGetLinkInfoAtPoint(x,y) {
     
     jsonData.push(link);
     jsonData.push(tag);
-    
+        
     return JSON.stringify(jsonData);
 }

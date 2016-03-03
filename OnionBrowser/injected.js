@@ -5,15 +5,15 @@
  * See LICENSE file for redistribution terms.
  */
 
-if (typeof __endless == "undefined") {
-var __endless = {
+if (typeof __tob == "undefined") {
+var __tob = {
 	openedTabs: {},
 
 	ipcTimeoutMS: 2000,
 
 	ipc: function(url) {
 		var iframe = document.createElement("iframe");
-		iframe.setAttribute("src", "endlessipc://" + url);
+		iframe.setAttribute("src", "tobipc://" + url);
 		iframe.setAttribute("height", "1px");
 		iframe.setAttribute("width", "1px");
 		document.documentElement.appendChild(iframe);
@@ -85,7 +85,7 @@ var __endless = {
 		if (document && document.body)
 			document.body.style.webkitTouchCallout = "none";
 		
-		__endless.hookIntoBlankAs();
+		__tob.hookIntoBlankAs();
 	},
 
 	FakeLocation: function(real) {
@@ -117,59 +117,59 @@ var __endless = {
 (function () {
 	"use strict";
 
-	__endless.FakeLocation.prototype = {
-		constructor: __endless.FakeLocation,
+	__tob.FakeLocation.prototype = {
+		constructor: __tob.FakeLocation,
 	};
 
 	[ "hash", "hostname", "href", "pathname", "port", "protocol", "search",
 	"username", "password", "origin" ].forEach(function(property) {
-		Object.defineProperty(__endless.FakeLocation.prototype, property, {
+		Object.defineProperty(__tob.FakeLocation.prototype, property, {
 			set: function(v) {
 				eval("this._" + property + " = null;");
-				__endless.ipcAndWaitForReply("fakeWindow.setLocationParam/" +
+				__tob.ipcAndWaitForReply("fakeWindow.setLocationParam/" +
 					this.id + "/" + property + "?" + encodeURIComponent(v));
 			},
 			get: function() {
 				eval("this._" + property + " = null;");
-				__endless.ipcAndWaitForReply("fakeWindow.getLocationParam/" +
+				__tob.ipcAndWaitForReply("fakeWindow.getLocationParam/" +
 					this.id + "/" + property + "?" + encodeURIComponent(v));
 			},
 		});
 	});
 
-	__endless.FakeWindow.prototype = {
-		constructor: __endless.FakeWindow,
+	__tob.FakeWindow.prototype = {
+		constructor: __tob.FakeWindow,
 
 		set location(loc) {
-			this._location = new __endless.FakeLocation();
-			__endless.ipcAndWaitForReply("fakeWindow.setLocation/" + this.id +
+			this._location = new __tob.FakeLocation();
+			__tob.ipcAndWaitForReply("fakeWindow.setLocation/" + this.id +
 				"?" + encodeURIComponent(loc));
 			this._location.id = this.id;
 		},
 		set name(n) {
 			this._name = null;
-			__endless.ipcAndWaitForReply("fakeWindow.setName/" + this.id + "?" +
+			__tob.ipcAndWaitForReply("fakeWindow.setName/" + this.id + "?" +
 				encodeURIComponent(n));
 		},
 		set opener(o) {
 		},
 
 		get location() {
-			this._location = new __endless.FakeLocation();
-			__endless.ipcAndWaitForReply("fakeWindow.getLocation/" + this.id);
+			this._location = new __tob.FakeLocation();
+			__tob.ipcAndWaitForReply("fakeWindow.getLocation/" + this.id);
 			this._location.id = this.id;
 			return this._location;
 		},
 		get name() {
 			this._name = null;
-			__endless.ipcAndWaitForReply("fakeWindow.getName/" + this.id);
+			__tob.ipcAndWaitForReply("fakeWindow.getName/" + this.id);
 			return this._name;
 		},
 		get opener() {
 		},
 
 		close: function() {
-			__endless.ipcAndWaitForReply("fakeWindow.close/" + this.id);
+			__tob.ipcAndWaitForReply("fakeWindow.close/" + this.id);
 		},
 	};
 
@@ -178,42 +178,42 @@ var __endless = {
 	}
 
 	window.open = function (url, name, specs, replace) {
-		var id = __endless.randID();
+		var id = __tob.randID();
 
-		__endless.openedTabs[id] = new __endless.FakeWindow(id);
+		__tob.openedTabs[id] = new __tob.FakeWindow(id);
 
 		/* fake a mouse event clicking on a link, so that our webview sees the
 		 * navigation type as a mouse event; this prevents popup spam since
 		 * dispatchEvent() won't do anything if we're not in a mouse event
 		 * already */
 		var l = document.createElement("a");
-		l.setAttribute("href", "endlessipc://window.open/" + id);
+		l.setAttribute("href", "tobipc://window.open/" + id);
 		l.setAttribute("target", "_blank");
 		var e = document.createEvent("MouseEvents");
 		e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false,
 			false, false, false, 0, null);
 		l.dispatchEvent(e);
 
-		__endless.ipcAndWaitForReply("noop");
+		__tob.ipcAndWaitForReply("noop");
 
-		if (!__endless.openedTabs[id].opened) {
+		if (!__tob.openedTabs[id].opened) {
 			console.error("window failed to open");
 			/* TODO: send url to ipc anyway to show popup blocker notice */
 			return null;
 		}
 
 		if (name !== undefined && name != '')
-			__endless.openedTabs[id].name = name;
+			__tob.openedTabs[id].name = name;
 		if (url !== undefined && url != '')
-			__endless.openedTabs[id].location = __endless.absoluteURL(url);
+			__tob.openedTabs[id].location = __tob.absoluteURL(url);
 
 		window.event.preventDefault();
 
-		return __endless.openedTabs[id];
+		return __tob.openedTabs[id];
 	};
 
 	window.close = function () {
-		__endless.ipcAndWaitForReply("window.close");
+		__tob.ipcAndWaitForReply("window.close");
 	};
 
 	/* pipe back to app */
@@ -222,7 +222,7 @@ var __endless = {
 			if (args.length == 1)
 				args = args[0];
 
-			__endless.ipc("console.log/" + urg + "?" +
+			__tob.ipc("console.log/" + urg + "?" +
 				encodeURIComponent(JSON.stringify(args)));
 		},
 	};
@@ -233,8 +233,8 @@ var __endless = {
 	console.error = function() { console._log("error", arguments); };
 
 	if (document.readyState == "complete" || document.readyState == "interactive")
-		__endless.onLoad();
+		__tob.onLoad();
 	else
-		document.addEventListener("DOMContentLoaded", __endless.onLoad, false);
+		document.addEventListener("DOMContentLoaded", __tob.onLoad, false);
 }());
 }

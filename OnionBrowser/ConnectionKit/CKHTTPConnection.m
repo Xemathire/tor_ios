@@ -150,11 +150,12 @@
         if ([min_tls_version isEqualToString:@"1.1"] || [min_tls_version isEqualToString:@"1.0"]) {
             CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, kCFStreamSocketSecurityLevelTLSv1);
             setSSLOption = YES;
-        } else if ([min_tls_version isEqualToString:@"1.2"] || [min_tls_version isEqualToString:@"auto"]) {
+        } else if ([min_tls_version isEqualToString:@"1.2"]) {
             CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, CFSTR("kCFStreamSocketSecurityLevelTLSv1_2"));
             setSSLOption = YES;
         } else {
-            //CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, kCFStreamSocketSecurityLevelNegotiatedSSL);
+            // [min_tls_version isEqualToString:@"auto"]
+            CFDictionarySetValue(sslOptions, kCFStreamSSLLevel, kCFStreamSocketSecurityLevelNegotiatedSSL);
         }
         
         // Ignore SSL errors for domains if user has explicitly said to "continue anyway"
@@ -424,6 +425,7 @@ process:
 
 @implementation NSURLRequest (CKHTTPURLRequest)
 
+/*
 - (CFHTTPMessageRef)makeHTTPMessage
 {
     CFHTTPMessageRef result = CFHTTPMessageCreateRequest(NULL, (__bridge CFStringRef)[self HTTPMethod], (__bridge CFURLRef)[self URL], kCFHTTPVersion1_1);
@@ -442,6 +444,84 @@ process:
         CFHTTPMessageSetBody(result, (__bridge_retained CFDataRef)body);
     
     return result;
+}
+ */
+
+- (CFHTTPMessageRef)makeHTTPMessage
+{
+    CFHTTPMessageRef result = CFHTTPMessageCreateRequest(NULL,
+                                                         (__bridge CFStringRef)[self HTTPMethod],
+                                                         (__bridge CFURLRef)[self URL],
+                                                         kCFHTTPVersion1_1);
+    //[NSMakeCollectable(result) autorelease];
+    
+    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    NSMutableDictionary *settings = appDelegate.getSettings;
+    
+    Byte spoofUserAgent = [[settings valueForKey:@"uaspoof"] integerValue];
+    
+    
+    NSDictionary *HTTPHeaderFields = [self allHTTPHeaderFields];
+    NSEnumerator *HTTPHeaderFieldsEnumerator = [HTTPHeaderFields keyEnumerator];
+    NSString *aHTTPHeaderField;
+    while (aHTTPHeaderField = [HTTPHeaderFieldsEnumerator nextObject])
+    {
+        if (([aHTTPHeaderField isEqualToString:@"User-Agent"])&& (spoofUserAgent != UA_SPOOF_NO)){
+#ifdef DEBUG
+            NSLog(@"Spoofing User-Agent");
+#endif
+            CFHTTPMessageSetHeaderFieldValue(result,
+                                             (__bridge CFStringRef)aHTTPHeaderField,
+                                             (__bridge CFStringRef)appDelegate.customUserAgent);
+            continue;
+        }
+        CFHTTPMessageSetHeaderFieldValue(result,
+                                         (__bridge CFStringRef)aHTTPHeaderField,
+                                         (__bridge CFStringRef)[HTTPHeaderFields objectForKey:aHTTPHeaderField]);
+    }
+    /* Do not track (DNT) header */
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    BOOL send_dnt = [userDefaults boolForKey:@"send_dnt"];
+    
+    if (send_dnt) {
+        // DNT_HEADER_CANTRACK is 0 and DNT_HEADER_NOTRACK is 1,
+        // so we can pass that value in as the "DNT: X" value
+        CFHTTPMessageSetHeaderFieldValue(result,
+                                         (__bridge CFStringRef)@"DNT",
+                                         (__bridge CFStringRef)[NSString stringWithFormat:@"%d",
+                                                                1]);
+        #if DEBUG
+        NSLog(@"Sending 'DNT: %d' header", dntValue);
+        #endif
+    }
+    
+    // Send cookies we have (in sharedHTTPCookieStorage) that are valid for this URL
+    NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[self URL]];
+    if ([cookies count] > 0) {
+        NSDictionary *cookieHeaders = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
+        for (NSString *headerKey in cookieHeaders) {
+            CFHTTPMessageSetHeaderFieldValue(result,
+                                             (__bridge CFStringRef)headerKey,
+                                             (__bridge CFStringRef)[cookieHeaders objectForKey:headerKey]);
+#if DEBUG
+            NSLog(@"Sent cookie header --- %@: %@", headerKey, [cookieHeaders objectForKey:headerKey]);
+#endif
+            
+        }
+    }
+    
+    CFHTTPMessageSetHeaderFieldValue(result,
+                                     (__bridge CFStringRef)@"Accept-Encoding",
+                                     (__bridge CFStringRef)@"gzip");
+    
+    NSData *body = [self HTTPBody];
+    if (body)
+    {
+        CFHTTPMessageSetBody(result, (__bridge_retained CFDataRef)body);
+    }
+    
+    return result;  // NOT autoreleased/collectable
 }
 
 @end
