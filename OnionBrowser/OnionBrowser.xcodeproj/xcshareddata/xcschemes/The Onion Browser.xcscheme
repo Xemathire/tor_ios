@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "696EBD7214F7877900B81BC9"
                BuildableName = "The Onion Browser.app"
-               BlueprintName = "OnionBrowser"
+               BlueprintName = "The Onion Browser"
                ReferencedContainer = "container:OnionBrowser.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "697AB1071866567400A6F3EE"
-               BuildableName = "OnionBrowserTests.xctest"
-               BlueprintName = "OnionBrowserTests"
+               BuildableName = "The Onion Browser Tests.xctest"
+               BlueprintName = "The Onion Browser Tests"
                ReferencedContainer = "container:OnionBrowser.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -44,7 +44,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "696EBD7214F7877900B81BC9"
             BuildableName = "The Onion Browser.app"
-            BlueprintName = "OnionBrowser"
+            BlueprintName = "The Onion Browser"
             ReferencedContainer = "container:OnionBrowser.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -52,7 +52,7 @@
       </AdditionalOptions>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "TestBuilds"
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -67,7 +67,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "696EBD7214F7877900B81BC9"
             BuildableName = "The Onion Browser.app"
-            BlueprintName = "OnionBrowser"
+            BlueprintName = "The Onion Browser"
             ReferencedContainer = "container:OnionBrowser.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -86,7 +86,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "696EBD7214F7877900B81BC9"
             BuildableName = "The Onion Browser.app"
-            BlueprintName = "OnionBrowser"
+            BlueprintName = "The Onion Browser"
             ReferencedContainer = "container:OnionBrowser.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

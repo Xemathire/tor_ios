@@ -17,7 +17,7 @@
 }
 
 #define STATUS_CHECK_TIMEOUT 3.0f
-#define MAX_FAILED_ATTEMPTS 5
+#define MAX_FAILED_ATTEMPTS 20
 
 @synthesize
 didFirstConnect,
@@ -80,20 +80,13 @@ connectionStatus = _connectionStatus
 }
 
 - (void)stopTor {
-    // [_mSocket writeString:@"QUIT\n" encoding:NSUTF8StringEncoding]; // try SHUTDOWN?
-    [_mSocket writeString:@"SIGNAL SHUTDOWN\n" encoding:NSUTF8StringEncoding];
+    // [_mSocket writeString:@"SIGNAL SIGINT\n" encoding:NSUTF8StringEncoding];
+    // [_mSocket writeString:@"SIGNAL SHUTDOWN\n" encoding:NSUTF8StringEncoding];
     // [_mSocket writeString:@"SIGNAL HALT\n" encoding:NSUTF8StringEncoding];
-    // [_mSocket writeString:@"killall tor\n" encoding:NSUTF8StringEncoding];
-    // [_mSocket writeString:@"QUIT\n" encoding:NSUTF8StringEncoding];
-    // [_mSocket writeString:@"EXIT\n" encoding:NSUTF8StringEncoding];
-    
-    // kill(@"tor", SIGKILL);
-    // [self performSelector:@selector(rebootTor) withObject:nil afterDelay:1.0];
 }
 
 - (void)rebootTor {
     if (_torThread != nil) {
-        [_torThread exitThread];  // Cleanup
         [_torThread cancel];
         _torThread = nil;
     }
@@ -110,9 +103,9 @@ connectionStatus = _connectionStatus
         [_torStatusTimeoutTimer invalidate];
     }
     
-    // nbrFailedAttempts = 0;
+    nbrFailedAttempts = 0;
     
-    // [self startTor];
+    [self startTor];
     [self performSelector:@selector(startTor) withObject:nil afterDelay:1.0];
 }
 
@@ -154,6 +147,9 @@ connectionStatus = _connectionStatus
     }
 }
 
+- (void)appWillEnterBackground {
+    [self stopTor];
+}
 
 - (void)appDidEnterBackground {
     [self disableTorCheckLoop];
@@ -265,7 +261,8 @@ connectionStatus = _connectionStatus
     if (nbrFailedAttempts <= MAX_FAILED_ATTEMPTS) {
         [self disableTorCheckLoop];
         [self activateTorCheckLoop];
-        nbrFailedAttempts += 1;
+
+        nbrFailedAttempts += didFirstConnect; // If didn't first connect, will remain at 0
     } else {
         //nbrFailedAttempts = 0;
         [self performSelectorOnMainThread:@selector(stopTor) withObject:nil waitUntilDone:YES];

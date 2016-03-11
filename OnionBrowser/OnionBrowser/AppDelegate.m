@@ -226,7 +226,6 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 }
 
 - (void) restartTor {
-    /*
     [appWebView animateAllTabsRemoval];
     [self wipeAppData];
     _tor = nil;
@@ -245,17 +244,13 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     
     // Start the spinner for the "connecting..." phase
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    */
     
-    /*******************/
-    /*
     // Clear non-whitelisted cookies
     [[self cookieJar] clearAllOldNonWhitelistedData];
     
     [self updateTorrc];
-    // _tor = [[TorController alloc] init];
-    // [_tor startTor];
-     */
+    _tor = [[TorController alloc] init];
+    [_tor startTor];
 }
 
 #pragma mark - Core Data stack
@@ -373,7 +368,8 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     [_window bringSubviewToFront:windowOverlay];
      */
     
-    [_tor disableTorCheckLoop];
+    [_tor appWillEnterBackground];
+    // [_tor disableTorCheckLoop];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {

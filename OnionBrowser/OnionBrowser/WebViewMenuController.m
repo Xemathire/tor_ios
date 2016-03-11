@@ -279,9 +279,6 @@ NSString * const LABEL = @"L";
 }
 
 - (void)menuNewIdentity {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-    [appDelegate.tor requestNewTorIdentity];
-    
     [appDelegate wipeAppData];
     
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil
@@ -290,7 +287,15 @@ NSString * const LABEL = @"L";
                                           cancelButtonTitle:@"OK"
                                           otherButtonTitles:nil];
     [alert show];
-    [self goHome];
+
+    // All tabs need to be refreshed
+    for (WebViewTab *tab in [[appDelegate appWebView] webViewTabs]) {
+        [tab setNeedsRefresh:YES];
+    }
+    
+    // Refresh the current tab
+    [[[appDelegate appWebView] curWebViewTab] setNeedsRefresh:NO];
+    [[[appDelegate appWebView] curWebViewTab] refresh];
 }
 
 - (NSString *)settingsFile {

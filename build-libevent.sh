@@ -23,9 +23,9 @@
 # Choose your libevent version and your currently-installed iOS SDK version:
 #
 VERSION="2.0.22-stable"
-USERSDKVERSION="9.1"
+USERSDKVERSION="9.2"
 MINIOSVERSION="8.0"
-VERIFYGPG=false
+VERIFYGPG=true
 
 ###########################################################################
 #
@@ -52,7 +52,7 @@ fi
 if [[ ! -z "$TRAVIS" && $TRAVIS ]]; then
 	# Travis CI highest available version
 	echo "==================== TRAVIS CI ===================="
-	SDKVERSION="9.0"
+	SDKVERSION="9.2"
 else
 	SDKVERSION="$USERSDKVERSION"
 fi
@@ -84,8 +84,7 @@ set -e
 
 if [ ! -e "${SRCDIR}/libevent-${VERSION}.tar.gz" ]; then
 	echo "Downloading libevent-${VERSION}.tar.gz"
-	#curl -LO https://github.com/downloads/libevent/libevent/libevent-${VERSION}.tar.gz
-	curl -LO https://sourceforge.net/projects/levent/files/libevent/libevent-2.0/libevent-${VERSION}.tar.gz
+	curl -LO https://github.com/libevent/libevent/releases/download/release-${VERSION}/libevent-${VERSION}.tar.gz
 fi
 echo "Using libevent-${VERSION}.tar.gz"
 
@@ -93,8 +92,7 @@ echo "Using libevent-${VERSION}.tar.gz"
 # may have to import from link on http://www.wangafu.net/~nickm/ or http://www.citi.umich.edu/u/provos/
 if $VERIFYGPG; then
 	if [ ! -e "${SRCDIR}/libevent-${VERSION}.tar.gz.asc" ]; then
-		#curl -LO https://github.com/downloads/libevent/libevent/libevent-${VERSION}.tar.gz.asc
-		curl -LO https://sourceforge.net/projects/levent/files/libevent/libevent-2.0/libevent-${VERSION}.tar.gz.asc
+		curl -LO https://github.com/libevent/libevent/releases/download/release-${VERSION}/libevent-${VERSION}.tar.gz.asc
 	fi
 	echo "Using libevent-${VERSION}.tar.gz.asc"
 	if out=$(gpg --status-fd 1 --verify "libevent-${VERSION}.tar.gz.asc" "libevent-${VERSION}.tar.gz" 2>/dev/null) &&
@@ -143,13 +141,13 @@ do
 	./configure --disable-shared --enable-static --disable-debug-mode ${EXTRA_CONFIG} \
 	--prefix="${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" \
 	LDFLAGS="$LDFLAGS -L${OUTPUTDIR}/lib" \
-	CFLAGS="$CFLAGS -O2 -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
+	CFLAGS="$CFLAGS -Os -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
 	CPPFLAGS="$CPPFLAGS -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk"
 
 	# Build the application and install it to the fake SDK intermediary dir
 	# we have set up. Make sure to clean up afterward because we will re-use
 	# this source tree to cross-compile other targets.
-	make -j4
+	make -j$(sysctl hw.ncpu | awk '{print $2}')
 	make install
 	make clean
 done

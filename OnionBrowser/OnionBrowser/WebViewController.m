@@ -383,7 +383,7 @@
 - (void)viewIsVisible
 {
     if (webViewTabs.count == 0) {
-        NSString *startingString = [NSString stringWithFormat:@"<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Starting Tor</title><style>div{position: fixed;width: 98%%;top: 15%%;left: 1%%;right: 1%%;margin: 10px;}p {text-align: center;font-family: sans-serif;font-size: 5vw;font-style: normal;}.title {font-size: 6vw;}</style></head><body><div><p class=\"title\">Starting Tor</p><p>The Onion Browser will be redirected shortly, please wait up to 10 seconds…</p></div></body></html>"];
+        NSString *startingString = [NSString stringWithFormat:@"<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Starting Tor</title><style>div{position: fixed;width: 98%%;top: 15%%;left: 1%%;right: 1%%;margin: 10px;}p {text-align: center;font-family: sans-serif;font-size: 5vw;font-style: normal;}.title {font-size: 6vw;}</style></head><body><div><p class=\"title\">Starting Tor</p><p>The Onion Browser will be redirected shortly, please wait…<br/>After 20 seconds, please force quit the app and relaunch.</p></div></body></html>"];
         
         [self addNewTabForURL:nil];
         [self.curWebViewTab.webView loadHTMLString:startingString baseURL:[NSURL URLWithString:@"Starting..."]];
@@ -1376,6 +1376,10 @@
 }
 
 - (void)showTutorial {
+    // Change orientation to portrait, the tutorial doesn't nicelly support landscape
+    NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationPortrait];
+    [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
+    
     // Compute the image views' frame
     CGRect frame = appDelegate.appWebView.view.bounds;
     frame.size.height -= 100;
@@ -1402,7 +1406,7 @@
     
     // Initialize all the pages with their content
     EAIntroPage *page1 = [EAIntroPage page];
-    [page1 setDesc:@"Swipe up with one finger to close a tab."];
+    [page1 setDesc:@"Use two fingers and drag from the edge of the screen to change tab."];
     [page1 setDescColor:[UIColor blackColor]];
     [page1 setDescFont:[UIFont systemFontOfSize:16]];
     [page1 setBgColor:[UIColor whiteColor]];
@@ -1411,7 +1415,7 @@
     [page1 setTitleIconPositionY:20];
     
     EAIntroPage *page2 = [EAIntroPage page];
-    [page2 setDesc:@"Use two fingers and drag from the edge of the screen to change tab."];
+    [page2 setDesc:@"Swipe up with one finger to close a tab from the tabs selection view."];
     [page2 setDescColor:[UIColor blackColor]];
     [page2 setDescFont:[UIFont systemFontOfSize:16]];
     [page2 setBgColor:[UIColor whiteColor]];
@@ -1420,7 +1424,7 @@
     [page2 setTitleIconPositionY:20];
     
     EAIntroPage *page3 = [EAIntroPage page];
-    [page3 setDesc:@"Added HTTPS Everywhere, which makes your browsing more secure by encrypting your communications."];
+    [page3 setDesc:@"Added \"HTTPS Everywhere\", which makes your browsing more secure by encrypting your communications."];
     [page3 setDescColor:[UIColor blackColor]];
     [page3 setDescFont:[UIFont systemFontOfSize:15]];
     [page3 setBgColor:[UIColor whiteColor]];

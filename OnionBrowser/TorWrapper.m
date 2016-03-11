@@ -72,10 +72,4 @@
     tor_main(13, argv);
 }
 
-- (void)exitThread {
-    // int postfork = 1; // If postfork, we are a worker process and we want to free only the parts of memory that we won't touch. If !postfork, Tor is shutting down and we should free everything.
-    // tor_free_all(postfork);
-    // tor_cleanup();
-}
-
 @end

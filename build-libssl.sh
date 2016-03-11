@@ -1,31 +1,31 @@
 #!/bin/bash
-#  Builds openssl for all five current iPhone targets: iPhoneSimulator-i386,
-#  iPhoneSimulator-x86_64, iPhoneOS-armv7, iPhoneOS-armv7s, iPhoneOS-arm64.
+# Builds openssl for all five current iPhone targets: iPhoneSimulator-i386,
+# iPhoneSimulator-x86_64, iPhoneOS-armv7, iPhoneOS-armv7s, iPhoneOS-arm64.
 #
-#  Copyright 2012 Mike Tigas <mike@tig.as>
+# Copyright 2012 Mike Tigas <mike@tig.as>
 #
-#  Based on work by Felix Schulze on 16.12.10.
-#  Copyright 2010 Felix Schulze. All rights reserved.
+# Based on work by Felix Schulze on 16.12.10.
+# Copyright 2010 Felix Schulze. All rights reserved.
 #
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-#  http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 ###########################################################################
-#  Choose your openssl version and your currently-installed iOS SDK version:
+# Choose your openssl version and your currently-installed iOS SDK version:
 #
-VERSION="1.0.2d"
-USERSDKVERSION="9.1"
+VERSION="1.0.2e"
+USERSDKVERSION="9.2"
 MINIOSVERSION="8.0"
-VERIFYGPG=false
+VERIFYGPG=true
 
 ###########################################################################
 #
@@ -36,6 +36,10 @@ VERIFYGPG=false
 # No need to change this since xcode build will only compile in the
 # necessary bits from the libraries we create
 ARCHS="i386 x86_64 armv7 arm64"
+
+#SSL_DIST_URL="http://www.openssl.org/source/openssl-${VERSION}.tar.gz"
+# use this for non-latest versions:
+SSL_DIST_URL="https://www.openssl.org/source/old/1.0.2/openssl-${VERSION}.tar.gz"
 
 DEVELOPER=`xcode-select -print-path`
 #DEVELOPER="/Applications/Xcode.app/Contents/Developer"
@@ -52,7 +56,7 @@ fi
 if [[ ! -z "$TRAVIS" && $TRAVIS ]]; then
 	# Travis CI highest available version
 	echo "==================== TRAVIS CI ===================="
-	SDKVERSION="9.0"
+	SDKVERSION="9.2"
 else
 	SDKVERSION="$USERSDKVERSION"
 fi
@@ -83,7 +87,7 @@ set -e
 
 if [ ! -e "${SRCDIR}/openssl-${VERSION}.tar.gz" ]; then
 	echo "Downloading openssl-${VERSION}.tar.gz"
-	curl -O http://www.openssl.org/source/openssl-${VERSION}.tar.gz
+	curl -O $SSL_DIST_URL
 fi
 echo "Using openssl-${VERSION}.tar.gz"
 

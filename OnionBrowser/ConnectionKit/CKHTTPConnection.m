@@ -491,9 +491,6 @@ process:
                                          (__bridge CFStringRef)@"DNT",
                                          (__bridge CFStringRef)[NSString stringWithFormat:@"%d",
                                                                 1]);
-        #if DEBUG
-        NSLog(@"Sending 'DNT: %d' header", dntValue);
-        #endif
     }
     
     // Send cookies we have (in sharedHTTPCookieStorage) that are valid for this URL

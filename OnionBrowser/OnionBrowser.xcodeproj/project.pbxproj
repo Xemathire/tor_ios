@@ -80,6 +80,21 @@
 		332033671C8702CF0095736D /* QuickDialogWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3320332A1C8702CF0095736D /* QuickDialogWebController.m */; };
 		3320336B1C871E770095736D /* NSString+JavascriptEscape.m in Sources */ = {isa = PBXBuildFile; fileRef = 3320336A1C871E770095736D /* NSString+JavascriptEscape.m */; };
 		332033711C872A3E0095736D /* page_3.png in Resources */ = {isa = PBXBuildFile; fileRef = 332033701C872A3E0095736D /* page_3.png */; };
+		33438D571C8B2E040049C82B /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D4B1C8B2E040049C82B /* libcrypto.a */; };
+		33438D581C8B2E040049C82B /* libcurve25519_donna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D4C1C8B2E040049C82B /* libcurve25519_donna.a */; };
+		33438D591C8B2E040049C82B /* libevent_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D4D1C8B2E040049C82B /* libevent_core.a */; };
+		33438D5A1C8B2E040049C82B /* libevent_extra.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D4E1C8B2E040049C82B /* libevent_extra.a */; };
+		33438D5B1C8B2E040049C82B /* libevent_openssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D4F1C8B2E040049C82B /* libevent_openssl.a */; };
+		33438D5C1C8B2E040049C82B /* libevent_pthreads.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D501C8B2E040049C82B /* libevent_pthreads.a */; };
+		33438D5D1C8B2E040049C82B /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D511C8B2E040049C82B /* libevent.a */; };
+		33438D5E1C8B2E040049C82B /* libor-crypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D521C8B2E040049C82B /* libor-crypto.a */; };
+		33438D5F1C8B2E040049C82B /* libor-event.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D531C8B2E040049C82B /* libor-event.a */; };
+		33438D601C8B2E040049C82B /* libor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D541C8B2E040049C82B /* libor.a */; };
+		33438D611C8B2E040049C82B /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D551C8B2E040049C82B /* libssl.a */; };
+		33438D621C8B2E040049C82B /* libtor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D561C8B2E040049C82B /* libtor.a */; };
+		334AF9391C8BA16B00458AAF /* libed25519_donna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334AF9381C8BA16B00458AAF /* libed25519_donna.a */; };
+		334AF93B1C8BA17000458AAF /* libed25519_ref10.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334AF93A1C8BA17000458AAF /* libed25519_ref10.a */; };
+		334AF93D1C8BA17500458AAF /* libor-trunnel.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334AF93C1C8BA17500458AAF /* libor-trunnel.a */; };
 		335409AE1C80748800EDD4A5 /* ALToastView.m in Sources */ = {isa = PBXBuildFile; fileRef = 335409AB1C80748800EDD4A5 /* ALToastView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		336AAF4B1C01F4DF00CA19AC /* hsts_preload.plist in Resources */ = {isa = PBXBuildFile; fileRef = 336AAF481C01F4DF00CA19AC /* hsts_preload.plist */; };
 		336AAF4C1C01F4DF00CA19AC /* SearchEngines.plist in Resources */ = {isa = PBXBuildFile; fileRef = 336AAF491C01F4DF00CA19AC /* SearchEngines.plist */; };
@@ -188,7 +203,6 @@
 		69156B6315FD54BC00BC560A /* Bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 69156B6215FD54BC00BC560A /* Bridge.m */; };
 		691958D61536BA67000423A4 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 691958D41536B8AC000423A4 /* Reachability.m */; };
 		6924C29015526343004BE7F9 /* SettingsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6924C28F15526343004BE7F9 /* SettingsTableViewController.m */; };
-		6928942116F6741000C787B2 /* libcurve25519_donna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6928942016F6741000C787B2 /* libcurve25519_donna.a */; };
 		692B86AF153CD4CB000806A9 /* NSData+Conversion.m in Sources */ = {isa = PBXBuildFile; fileRef = 692B86AE153CD4CB000806A9 /* NSData+Conversion.m */; };
 		6940BD1F15F84C0C00FE74CB /* TorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6940BD1E15F84C0C00FE74CB /* TorController.m */; };
 		6940BD2515F8761900FE74CB /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6940BD2415F8761900FE74CB /* CoreData.framework */; };
@@ -214,17 +228,6 @@
 		697ABCD414FA036E00E1678C /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 697ABCD314FA036E00E1678C /* WebViewController.m */; };
 		697ABCD614FA042C00E1678C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 697ABCD514FA042C00E1678C /* SystemConfiguration.framework */; };
 		697ABCD814FA043300E1678C /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 697ABCD714FA043300E1678C /* MobileCoreServices.framework */; };
-		69847C4714F788E100288277 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C3C14F788E100288277 /* libcrypto.a */; };
-		69847C4814F788E100288277 /* libevent_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C3D14F788E100288277 /* libevent_core.a */; };
-		69847C4914F788E100288277 /* libevent_extra.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C3E14F788E100288277 /* libevent_extra.a */; };
-		69847C4A14F788E100288277 /* libevent_openssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C3F14F788E100288277 /* libevent_openssl.a */; };
-		69847C4B14F788E100288277 /* libevent_pthreads.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C4014F788E100288277 /* libevent_pthreads.a */; };
-		69847C4C14F788E100288277 /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C4114F788E100288277 /* libevent.a */; };
-		69847C4D14F788E100288277 /* libor-crypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C4214F788E100288277 /* libor-crypto.a */; };
-		69847C4E14F788E100288277 /* libor-event.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C4314F788E100288277 /* libor-event.a */; };
-		69847C4F14F788E100288277 /* libor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C4414F788E100288277 /* libor.a */; };
-		69847C5014F788E100288277 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C4514F788E100288277 /* libssl.a */; };
-		69847C5114F788E100288277 /* libtor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C4614F788E100288277 /* libtor.a */; };
 		69847C5414F788E900288277 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 69847C5314F788E900288277 /* libz.dylib */; };
 		699CCEBD14FA1939004A2F56 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 699CCEBC14FA1939004A2F56 /* libxml2.dylib */; };
 		69A3758E1AAFF60F00AAE92B /* QRCameraSwitchButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 69A375851AAFF60F00AAE92B /* QRCameraSwitchButton.m */; };
@@ -395,6 +398,21 @@
 		332033691C871E770095736D /* NSString+JavascriptEscape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+JavascriptEscape.h"; sourceTree = "<group>"; };
 		3320336A1C871E770095736D /* NSString+JavascriptEscape.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+JavascriptEscape.m"; sourceTree = "<group>"; };
 		332033701C872A3E0095736D /* page_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = page_3.png; sourceTree = "<group>"; };
+		33438D4B1C8B2E040049C82B /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = ../dependencies/lib/libcrypto.a; sourceTree = "<group>"; };
+		33438D4C1C8B2E040049C82B /* libcurve25519_donna.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurve25519_donna.a; path = ../dependencies/lib/libcurve25519_donna.a; sourceTree = "<group>"; };
+		33438D4D1C8B2E040049C82B /* libevent_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_core.a; path = ../dependencies/lib/libevent_core.a; sourceTree = "<group>"; };
+		33438D4E1C8B2E040049C82B /* libevent_extra.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_extra.a; path = ../dependencies/lib/libevent_extra.a; sourceTree = "<group>"; };
+		33438D4F1C8B2E040049C82B /* libevent_openssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_openssl.a; path = ../dependencies/lib/libevent_openssl.a; sourceTree = "<group>"; };
+		33438D501C8B2E040049C82B /* libevent_pthreads.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_pthreads.a; path = ../dependencies/lib/libevent_pthreads.a; sourceTree = "<group>"; };
+		33438D511C8B2E040049C82B /* libevent.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent.a; path = ../dependencies/lib/libevent.a; sourceTree = "<group>"; };
+		33438D521C8B2E040049C82B /* libor-crypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libor-crypto.a"; path = "../dependencies/lib/libor-crypto.a"; sourceTree = "<group>"; };
+		33438D531C8B2E040049C82B /* libor-event.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libor-event.a"; path = "../dependencies/lib/libor-event.a"; sourceTree = "<group>"; };
+		33438D541C8B2E040049C82B /* libor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libor.a; path = ../dependencies/lib/libor.a; sourceTree = "<group>"; };
+		33438D551C8B2E040049C82B /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = ../dependencies/lib/libssl.a; sourceTree = "<group>"; };
+		33438D561C8B2E040049C82B /* libtor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtor.a; path = ../dependencies/lib/libtor.a; sourceTree = "<group>"; };
+		334AF9381C8BA16B00458AAF /* libed25519_donna.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libed25519_donna.a; path = ../dependencies/lib/libed25519_donna.a; sourceTree = "<group>"; };
+		334AF93A1C8BA17000458AAF /* libed25519_ref10.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libed25519_ref10.a; path = ../dependencies/lib/libed25519_ref10.a; sourceTree = "<group>"; };
+		334AF93C1C8BA17500458AAF /* libor-trunnel.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libor-trunnel.a"; path = "../dependencies/lib/libor-trunnel.a"; sourceTree = "<group>"; };
 		335409AA1C80748800EDD4A5 /* ALToastView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ALToastView.h; sourceTree = "<group>"; };
 		335409AB1C80748800EDD4A5 /* ALToastView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ALToastView.m; sourceTree = "<group>"; };
 		335409AC1C80748800EDD4A5 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
@@ -623,7 +641,6 @@
 		691958D41536B8AC000423A4 /* Reachability.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		6924C28E15526343004BE7F9 /* SettingsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsTableViewController.h; sourceTree = "<group>"; };
 		6924C28F15526343004BE7F9 /* SettingsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsTableViewController.m; sourceTree = "<group>"; };
-		6928942016F6741000C787B2 /* libcurve25519_donna.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurve25519_donna.a; path = ../dependencies/lib/libcurve25519_donna.a; sourceTree = "<group>"; };
 		692B86AD153CD4CB000806A9 /* NSData+Conversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Conversion.h"; sourceTree = "<group>"; };
 		692B86AE153CD4CB000806A9 /* NSData+Conversion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Conversion.m"; sourceTree = "<group>"; };
 		6940BD1D15F84C0C00FE74CB /* TorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TorController.h; sourceTree = "<group>"; };
@@ -651,7 +668,7 @@
 		696F9EB214F8DD6D00BC5FDC /* ULINetSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ULINetSocket.h; sourceTree = "<group>"; };
 		696F9EB314F8DD6D00BC5FDC /* ULINetSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ULINetSocket.m; sourceTree = "<group>"; };
 		696F9EB514F8E21200BC5FDC /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
-		697AB1081866567400A6F3EE /* OnionBrowserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OnionBrowserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		697AB1081866567400A6F3EE /* The Onion Browser Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "The Onion Browser Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		697AB1091866567400A6F3EE /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		697AB10F1866567400A6F3EE /* OnionBrowserTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OnionBrowserTests-Info.plist"; sourceTree = "<group>"; };
 		697AB1111866567400A6F3EE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -661,17 +678,6 @@
 		697ABCD314FA036E00E1678C /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
 		697ABCD514FA042C00E1678C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		697ABCD714FA043300E1678C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
-		69847C3C14F788E100288277 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = ../dependencies/lib/libcrypto.a; sourceTree = "<group>"; };
-		69847C3D14F788E100288277 /* libevent_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_core.a; path = ../dependencies/lib/libevent_core.a; sourceTree = "<group>"; };
-		69847C3E14F788E100288277 /* libevent_extra.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_extra.a; path = ../dependencies/lib/libevent_extra.a; sourceTree = "<group>"; };
-		69847C3F14F788E100288277 /* libevent_openssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_openssl.a; path = ../dependencies/lib/libevent_openssl.a; sourceTree = "<group>"; };
-		69847C4014F788E100288277 /* libevent_pthreads.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_pthreads.a; path = ../dependencies/lib/libevent_pthreads.a; sourceTree = "<group>"; };
-		69847C4114F788E100288277 /* libevent.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent.a; path = ../dependencies/lib/libevent.a; sourceTree = "<group>"; };
-		69847C4214F788E100288277 /* libor-crypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libor-crypto.a"; path = "../dependencies/lib/libor-crypto.a"; sourceTree = "<group>"; };
-		69847C4314F788E100288277 /* libor-event.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libor-event.a"; path = "../dependencies/lib/libor-event.a"; sourceTree = "<group>"; };
-		69847C4414F788E100288277 /* libor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libor.a; path = ../dependencies/lib/libor.a; sourceTree = "<group>"; };
-		69847C4514F788E100288277 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = ../dependencies/lib/libssl.a; sourceTree = "<group>"; };
-		69847C4614F788E100288277 /* libtor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtor.a; path = ../dependencies/lib/libtor.a; sourceTree = "<group>"; };
 		69847C5314F788E900288277 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		699CCEBC14FA1939004A2F56 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		69A375841AAFF60F00AAE92B /* QRCameraSwitchButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QRCameraSwitchButton.h; sourceTree = "<group>"; };
@@ -699,27 +705,30 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6940BD2515F8761900FE74CB /* CoreData.framework in Frameworks */,
 				699CCEBD14FA1939004A2F56 /* libxml2.dylib in Frameworks */,
+				69847C5414F788E900288277 /* libz.dylib in Frameworks */,
+				6940BD2515F8761900FE74CB /* CoreData.framework in Frameworks */,
 				697ABCD814FA043300E1678C /* MobileCoreServices.framework in Frameworks */,
 				697ABCD614FA042C00E1678C /* SystemConfiguration.framework in Frameworks */,
 				696EBD7814F7877900B81BC9 /* UIKit.framework in Frameworks */,
 				696EBD7A14F7877900B81BC9 /* Foundation.framework in Frameworks */,
 				696EBD7C14F7877900B81BC9 /* CoreGraphics.framework in Frameworks */,
 				696F9EB614F8E21200BC5FDC /* CFNetwork.framework in Frameworks */,
-				69847C5414F788E900288277 /* libz.dylib in Frameworks */,
-				69847C4714F788E100288277 /* libcrypto.a in Frameworks */,
-				69847C4814F788E100288277 /* libevent_core.a in Frameworks */,
-				69847C4914F788E100288277 /* libevent_extra.a in Frameworks */,
-				69847C4A14F788E100288277 /* libevent_openssl.a in Frameworks */,
-				69847C4B14F788E100288277 /* libevent_pthreads.a in Frameworks */,
-				69847C4C14F788E100288277 /* libevent.a in Frameworks */,
-				69847C4D14F788E100288277 /* libor-crypto.a in Frameworks */,
-				69847C4E14F788E100288277 /* libor-event.a in Frameworks */,
-				69847C4F14F788E100288277 /* libor.a in Frameworks */,
-				69847C5014F788E100288277 /* libssl.a in Frameworks */,
-				69847C5114F788E100288277 /* libtor.a in Frameworks */,
-				6928942116F6741000C787B2 /* libcurve25519_donna.a in Frameworks */,
+				33438D571C8B2E040049C82B /* libcrypto.a in Frameworks */,
+				33438D591C8B2E040049C82B /* libevent_core.a in Frameworks */,
+				33438D5A1C8B2E040049C82B /* libevent_extra.a in Frameworks */,
+				33438D5B1C8B2E040049C82B /* libevent_openssl.a in Frameworks */,
+				33438D5C1C8B2E040049C82B /* libevent_pthreads.a in Frameworks */,
+				33438D5D1C8B2E040049C82B /* libevent.a in Frameworks */,
+				33438D5E1C8B2E040049C82B /* libor-crypto.a in Frameworks */,
+				33438D5F1C8B2E040049C82B /* libor-event.a in Frameworks */,
+				33438D601C8B2E040049C82B /* libor.a in Frameworks */,
+				33438D611C8B2E040049C82B /* libssl.a in Frameworks */,
+				33438D621C8B2E040049C82B /* libtor.a in Frameworks */,
+				33438D581C8B2E040049C82B /* libcurve25519_donna.a in Frameworks */,
+				334AF9391C8BA16B00458AAF /* libed25519_donna.a in Frameworks */,
+				334AF93B1C8BA17000458AAF /* libed25519_ref10.a in Frameworks */,
+				334AF93D1C8BA17500458AAF /* libor-trunnel.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1356,7 +1365,6 @@
 		696EBD6814F7877900B81BC9 = {
 			isa = PBXGroup;
 			children = (
-				6940BD2415F8761900FE74CB /* CoreData.framework */,
 				696F9EB114F8DD5300BC5FDC /* ThirdParty */,
 				69BB0A4C14F8D31800E7E909 /* Tor */,
 				696EBD7D14F7877900B81BC9 /* OnionBrowser */,
@@ -1371,7 +1379,7 @@
 			isa = PBXGroup;
 			children = (
 				696EBD7314F7877900B81BC9 /* The Onion Browser.app */,
-				697AB1081866567400A6F3EE /* OnionBrowserTests.xctest */,
+				697AB1081866567400A6F3EE /* The Onion Browser Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1388,6 +1396,7 @@
 				696EBD7914F7877900B81BC9 /* Foundation.framework */,
 				696EBD7B14F7877900B81BC9 /* CoreGraphics.framework */,
 				696F9EB514F8E21200BC5FDC /* CFNetwork.framework */,
+				6940BD2415F8761900FE74CB /* CoreData.framework */,
 				697AB1091866567400A6F3EE /* XCTest.framework */,
 			);
 			name = Frameworks;
@@ -1514,18 +1523,21 @@
 		69847C5514F788F600288277 /* External */ = {
 			isa = PBXGroup;
 			children = (
-				69847C3C14F788E100288277 /* libcrypto.a */,
-				69847C3D14F788E100288277 /* libevent_core.a */,
-				69847C3E14F788E100288277 /* libevent_extra.a */,
-				69847C3F14F788E100288277 /* libevent_openssl.a */,
-				69847C4014F788E100288277 /* libevent_pthreads.a */,
-				69847C4114F788E100288277 /* libevent.a */,
-				69847C4214F788E100288277 /* libor-crypto.a */,
-				69847C4314F788E100288277 /* libor-event.a */,
-				6928942016F6741000C787B2 /* libcurve25519_donna.a */,
-				69847C4414F788E100288277 /* libor.a */,
-				69847C4514F788E100288277 /* libssl.a */,
-				69847C4614F788E100288277 /* libtor.a */,
+				334AF93C1C8BA17500458AAF /* libor-trunnel.a */,
+				334AF93A1C8BA17000458AAF /* libed25519_ref10.a */,
+				334AF9381C8BA16B00458AAF /* libed25519_donna.a */,
+				33438D4B1C8B2E040049C82B /* libcrypto.a */,
+				33438D4C1C8B2E040049C82B /* libcurve25519_donna.a */,
+				33438D4D1C8B2E040049C82B /* libevent_core.a */,
+				33438D4E1C8B2E040049C82B /* libevent_extra.a */,
+				33438D4F1C8B2E040049C82B /* libevent_openssl.a */,
+				33438D501C8B2E040049C82B /* libevent_pthreads.a */,
+				33438D511C8B2E040049C82B /* libevent.a */,
+				33438D521C8B2E040049C82B /* libor-crypto.a */,
+				33438D531C8B2E040049C82B /* libor-event.a */,
+				33438D541C8B2E040049C82B /* libor.a */,
+				33438D551C8B2E040049C82B /* libssl.a */,
+				33438D561C8B2E040049C82B /* libtor.a */,
 			);
 			name = External;
 			sourceTree = "<group>";
@@ -1574,9 +1586,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		696EBD7214F7877900B81BC9 /* OnionBrowser */ = {
+		696EBD7214F7877900B81BC9 /* The Onion Browser */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 696EBD8B14F7877900B81BC9 /* Build configuration list for PBXNativeTarget "OnionBrowser" */;
+			buildConfigurationList = 696EBD8B14F7877900B81BC9 /* Build configuration list for PBXNativeTarget "The Onion Browser" */;
 			buildPhases = (
 				696EBD6F14F7877900B81BC9 /* Sources */,
 				696EBD7014F7877900B81BC9 /* Frameworks */,
@@ -1586,14 +1598,14 @@
 			);
 			dependencies = (
 			);
-			name = OnionBrowser;
+			name = "The Onion Browser";
 			productName = OnionBrowser;
 			productReference = 696EBD7314F7877900B81BC9 /* The Onion Browser.app */;
 			productType = "com.apple.product-type.application";
 		};
-		697AB1071866567400A6F3EE /* OnionBrowserTests */ = {
+		697AB1071866567400A6F3EE /* The Onion Browser Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 697AB11B1866567400A6F3EE /* Build configuration list for PBXNativeTarget "OnionBrowserTests" */;
+			buildConfigurationList = 697AB11B1866567400A6F3EE /* Build configuration list for PBXNativeTarget "The Onion Browser Tests" */;
 			buildPhases = (
 				697AB1041866567400A6F3EE /* Sources */,
 				697AB1051866567400A6F3EE /* Frameworks */,
@@ -1604,9 +1616,9 @@
 			dependencies = (
 				697AB1171866567400A6F3EE /* PBXTargetDependency */,
 			);
-			name = OnionBrowserTests;
+			name = "The Onion Browser Tests";
 			productName = OnionBrowserTests;
-			productReference = 697AB1081866567400A6F3EE /* OnionBrowserTests.xctest */;
+			productReference = 697AB1081866567400A6F3EE /* The Onion Browser Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -1656,8 +1668,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				696EBD7214F7877900B81BC9 /* OnionBrowser */,
-				697AB1071866567400A6F3EE /* OnionBrowserTests */,
+				696EBD7214F7877900B81BC9 /* The Onion Browser */,
+				697AB1071866567400A6F3EE /* The Onion Browser Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -1667,11 +1679,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				33C2BB9B1C85E3B300FDF357 /* page_1.png in Resources */,
+				33C2BB9D1C85E3B300FDF357 /* page_2.png in Resources */,
 				332033711C872A3E0095736D /* page_3.png in Resources */,
+				33C2BB9C1C85E3B300FDF357 /* page_4.png in Resources */,
 				336AAF4D1C01F4DF00CA19AC /* urlblocker_targets.plist in Resources */,
 				696EBD8214F7877900B81BC9 /* InfoPlist.strings in Resources */,
-				33C2BB9C1C85E3B300FDF357 /* page_4.png in Resources */,
-				33C2BB9B1C85E3B300FDF357 /* page_1.png in Resources */,
 				33B5C16A1C7E4D6D00EA5673 /* JSTools.js in Resources */,
 				336AAF4F1C01FB2F00CA19AC /* InAppSettings.bundle in Resources */,
 				696F9EB014F8DA6900BC5FDC /* torrc in Resources */,
@@ -1679,7 +1692,6 @@
 				332032AC1C86F0620095736D /* https-everywhere_targets.plist in Resources */,
 				33E49E461C01D5100005E25B /* IASKLocalizable.strings in Resources */,
 				332032AB1C86F0620095736D /* https-everywhere_rules.plist in Resources */,
-				33C2BB9D1C85E3B300FDF357 /* page_2.png in Resources */,
 				6959A7A819206E69002F8228 /* Entitlements.plist in Resources */,
 				332032AE1C86F2BB0095736D /* injected.js in Resources */,
 				33B7C1611C020BF8002D0612 /* Launch Screen.xib in Resources */,
@@ -1904,7 +1916,7 @@
 /* Begin PBXTargetDependency section */
 		697AB1171866567400A6F3EE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 696EBD7214F7877900B81BC9 /* OnionBrowser */;
+			target = 696EBD7214F7877900B81BC9 /* The Onion Browser */;
 			targetProxy = 697AB1161866567400A6F3EE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1984,6 +1996,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = ../dependencies/lib;
 				LLVM_LTO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1993,21 +2006,50 @@
 		6945ED4D15FB2E6000DE5EBD /* TestBuilds */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OnionBrowser/OnionBrowser-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					../dependencies/include,
+					../dependencies/include/common,
+					../dependencies/include/or,
+					../dependencies/include/openssl,
+					../dependencies/include/event2,
+					../dependencies/include/tools,
+					"${SDK_DIR}/usr/include/libxml2",
+				);
 				INFOPLIST_FILE = "OnionBrowser/OnionBrowser-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../dependencies/lib\"",
+					"$(PROJECT_DIR)",
+					"$(SRCROOT)/../dependencies/lib",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lcrypto",
+					"-lcurve25519_donna",
+					"-levent_core",
+					"-levent_openssl",
+					"-levent_pthreads",
+					"-levent",
+					"-lor-crypto",
+					"-lor-event",
+					"-lor",
+					"-lssl",
+					"-ltor",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.JustKodding.TheOnionBrowser;
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME)";
 				PRODUCT_NAME = "The Onion Browser";
+				SDKROOT = iphoneos;
+				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;
 			};
 			name = TestBuilds;
@@ -2053,6 +2095,7 @@
 				LINKER_DISPLAYS_MANGLED_NAMES = YES;
 				LLVM_LTO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "$(inherited)";
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2094,6 +2137,7 @@
 				LIBRARY_SEARCH_PATHS = ../dependencies/lib;
 				LLVM_LTO = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				OTHER_LDFLAGS = "$(inherited)";
 				PROVISIONING_PROFILE = "201fe9f3-97dd-4b71-91f5-cef793e93f9c";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2104,21 +2148,53 @@
 		696EBD8C14F7877900B81BC9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OnionBrowser/OnionBrowser-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					../dependencies/include,
+					../dependencies/include/common,
+					../dependencies/include/or,
+					../dependencies/include/openssl,
+					../dependencies/include/event2,
+					../dependencies/include/tools,
+					"${SDK_DIR}/usr/include/libxml2",
+				);
 				INFOPLIST_FILE = "OnionBrowser/OnionBrowser-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../dependencies/lib\"",
+					"$(PROJECT_DIR)",
+					"$(SRCROOT)/../dependencies/lib",
+				);
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lcrypto",
+					"-lcurve25519_donna",
+					"-levent_core",
+					"-levent_openssl",
+					"-levent_pthreads",
+					"-levent",
+					"-lor-crypto",
+					"-lor-event",
+					"-lor",
+					"-lssl",
+					"-ltor",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.JustKodding.TheOnionBrowser;
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME)";
 				PRODUCT_NAME = "The Onion Browser";
+				SDKROOT = iphoneos;
+				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -2126,21 +2202,50 @@
 		696EBD8D14F7877900B81BC9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OnionBrowser/OnionBrowser-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					../dependencies/include,
+					../dependencies/include/common,
+					../dependencies/include/or,
+					../dependencies/include/openssl,
+					../dependencies/include/event2,
+					../dependencies/include/tools,
+					"${SDK_DIR}/usr/include/libxml2",
+				);
 				INFOPLIST_FILE = "OnionBrowser/OnionBrowser-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../dependencies/lib\"",
+					"$(PROJECT_DIR)",
+					"$(SRCROOT)/../dependencies/lib",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lcrypto",
+					"-lcurve25519_donna",
+					"-levent_core",
+					"-levent_openssl",
+					"-levent_pthreads",
+					"-levent",
+					"-lor-crypto",
+					"-lor-event",
+					"-lor",
+					"-lssl",
+					"-ltor",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.JustKodding.TheOnionBrowser;
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME)";
 				PRODUCT_NAME = "The Onion Browser";
+				SDKROOT = iphoneos;
+				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -2245,7 +2350,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		696EBD8B14F7877900B81BC9 /* Build configuration list for PBXNativeTarget "OnionBrowser" */ = {
+		696EBD8B14F7877900B81BC9 /* Build configuration list for PBXNativeTarget "The Onion Browser" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				696EBD8C14F7877900B81BC9 /* Debug */,
@@ -2255,7 +2360,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		697AB11B1866567400A6F3EE /* Build configuration list for PBXNativeTarget "OnionBrowserTests" */ = {
+		697AB11B1866567400A6F3EE /* Build configuration list for PBXNativeTarget "The Onion Browser Tests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				697AB1181866567400A6F3EE /* Debug */,
