@@ -70,6 +70,7 @@ enum {
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    [super viewWillDisappear:animated];
 	[[appDelegate cookieJar] updateWhitelistedHostsWithArray:whitelistHosts];
 	[[appDelegate cookieJar] persist];
 }

@@ -14,7 +14,7 @@
  */
 
 #import "CKHTTPConnection.h"
-#import "HostSettings.h"
+// #import "HostSettings.h"
 #import "SSLCertificate.h"
 #import "AppDelegate.h"
 

@@ -55,6 +55,7 @@ UIBarButtonItem *leftItem;
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    [super viewWillDisappear:animated];
     [Bookmark persistList];
 }
 

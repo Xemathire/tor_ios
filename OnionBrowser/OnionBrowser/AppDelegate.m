@@ -391,6 +391,11 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
             [appWebView saveCurrentState];
         }
         [_tor appDidEnterBackground];
+        
+        if ([userDefaults boolForKey:@"clear_on_background"]) {
+            [[self appWebView] animateAllTabsRemoval];
+            [[self cookieJar] clearAllNonWhitelistedData];
+        }
     }
 }
 

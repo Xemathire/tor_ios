@@ -217,7 +217,43 @@
 				<string>TLS 1.2</string>
 				<string>TLS 1.1</string>
 				<string>TLS 1.0</string>
-				<string>Auto-negotiate</string>
+				<string>Auto</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string></string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>FooterText</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>Key</key>
+			<string>content_policy</string>
+			<key>Title</key>
+			<string>Content policy</string>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>DefaultValue</key>
+			<string>open</string>
+			<key>Values</key>
+			<array>
+				<string>open</string>
+				<string>block_connect</string>
+				<string>strict</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Open (normal browsing mode)</string>
+				<string>No XHR, webSockets or video</string>
+				<string>Strict (no JavaScript, video, etc.)</string>
+			</array>
+			<key>ShortTitles</key>
+			<array>
+				<string>Open</string>
+				<string>Medium</string>
+				<string>Strict</string>
 			</array>
 		</dict>
 		<dict>

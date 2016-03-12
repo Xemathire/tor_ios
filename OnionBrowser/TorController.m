@@ -83,6 +83,7 @@ connectionStatus = _connectionStatus
     // [_mSocket writeString:@"SIGNAL SIGINT\n" encoding:NSUTF8StringEncoding];
     // [_mSocket writeString:@"SIGNAL SHUTDOWN\n" encoding:NSUTF8StringEncoding];
     // [_mSocket writeString:@"SIGNAL HALT\n" encoding:NSUTF8StringEncoding];
+    [_mSocket writeString:@"sudo killall tor\n" encoding:NSUTF8StringEncoding];
 }
 
 - (void)rebootTor {
@@ -312,7 +313,10 @@ connectionStatus = _connectionStatus
             } else {
                 // Otherwise, crash because we don't know the app's current state
                 // (since it hasn't totally initialized yet).
-                exit(0);
+                // exit(0);
+                AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+
+                [ALToastView toastInView:appDelegate.appWebView.view withText:@"Unknown Tor state, you may need to force quit & relaunch the app..." andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3];
             }
         }
     } else if ([newMsgIn rangeOfString:@"-status/bootstrap-phase="].location != NSNotFound) {

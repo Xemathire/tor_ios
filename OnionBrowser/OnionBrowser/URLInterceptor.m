@@ -167,7 +167,9 @@ static NSString *_javascriptToInject;
 				[alertController addAction:cancelAction];
 				[alertController addAction:okAction];
 				
-				[[appDelegate appWebView] presentViewController:alertController animated:YES completion:nil];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[appDelegate appWebView] presentViewController:alertController animated:YES completion:nil];
+                });
 			}
 		}
 		
@@ -337,7 +339,7 @@ static NSString *_javascriptToInject;
 	/* rewrite or inject Content-Security-Policy (and X-Webkit-CSP just in case) headers */
 	NSString *CSPheader;
 	NSString *CSPmode = [self.originHostSettings setting:HOST_SETTINGS_KEY_CSP];
-
+    
 	if ([CSPmode isEqualToString:HOST_SETTINGS_CSP_STRICT])
 		CSPheader = @"script-src 'none'; media-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; sandbox allow-forms allow-top-navigation; style-src 'unsafe-inline' *; report-uri;";
 	else if ([CSPmode isEqualToString:HOST_SETTINGS_CSP_BLOCK_CONNECT])

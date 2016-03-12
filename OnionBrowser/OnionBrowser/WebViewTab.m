@@ -651,13 +651,32 @@ AppDelegate *appDelegate;
     // Disable default long press menu
     [webView stringByEvaluatingJavaScriptFromString:@"document.body.style.webkitTouchCallout='none';"];
     
-    [self.title setText:[_webView stringByEvaluatingJavaScriptFromString:@"document.title"]];
-    self.url = [NSURL URLWithString:[_webView stringByEvaluatingJavaScriptFromString:@"window.location.href"]];
+    NSString *title = [_webView stringByEvaluatingJavaScriptFromString:@"document.title"];
+    if (!title || [title isEqualToString:@""]) {
+        // If fetching the page title failed (javascript disabled), set its title to the URL without the scheme
+        title = [[[[webView request] URL] host] stringByAppendingString:[[[webView request] URL] path]];
+        
+        // If the last character is a /, remove it
+        if ([title length] > 1 && [[title substringFromIndex:[title length] - 1] isEqualToString:@"/"]) {
+            title = [title substringToIndex:[title length] - 1];
+        }
+    }
+    
+    [self.title setText:title];
+
+    NSString *javascriptURL = [_webView stringByEvaluatingJavaScriptFromString:@"window.location.href"];
+    
+    if (javascriptURL != nil && ![javascriptURL isEqualToString:@""]) {
+        // If javascript is disabled, this can fail so we should check if the URL should be updated
+        self.url = [NSURL URLWithString:javascriptURL];
+    } else if ([[self.url absoluteString] isEqualToString:@""]){
+        // Just in case, to prevent blank URLs when possible
+        self.url = [[webView request] URL];
+    }
 }
 
 - (void)webView:(UIWebView *)__webView didFailLoadWithError:(NSError *)error
 {
-    // self.url = self.webView.request.URL;
     [self setProgress:@0];
     
     if ([[error domain] isEqualToString:NSURLErrorDomain] && error.code == NSURLErrorCancelled)

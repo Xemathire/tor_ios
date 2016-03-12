@@ -94,6 +94,7 @@ static NSMutableArray *toasts;
         CGRect rect = [attributedText boundingRectWithSize:(CGSize){self.parentView.bounds.size.width - 2 * leftPadding, self.parentView.bounds.size.height / 2}
                                                    options:NSStringDrawingUsesLineFragmentOrigin
                                                    context:nil];
+        [attributedText release];
         
         // Init and add label
         _textLabel = [[UILabel alloc] initWithFrame:rect];
