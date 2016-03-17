@@ -17,7 +17,7 @@
 }
 
 #define STATUS_CHECK_TIMEOUT 3.0f
-#define MAX_FAILED_ATTEMPTS 20
+#define MAX_FAILED_ATTEMPTS 10
 
 @synthesize
 didFirstConnect,
@@ -35,7 +35,7 @@ connectionStatus = _connectionStatus
     if (self = [super init]) {
         _torControlPort = (arc4random() % (57343-49153)) + 49153;
         _torSocksPort = (arc4random() % (65534-57344)) + 57344;
-        
+                
         _controllerIsAuthenticated = NO;
         _connectionStatus = CONN_STATUS_NONE;
         
@@ -80,10 +80,8 @@ connectionStatus = _connectionStatus
 }
 
 - (void)stopTor {
-    // [_mSocket writeString:@"SIGNAL SIGINT\n" encoding:NSUTF8StringEncoding];
     // [_mSocket writeString:@"SIGNAL SHUTDOWN\n" encoding:NSUTF8StringEncoding];
     // [_mSocket writeString:@"SIGNAL HALT\n" encoding:NSUTF8StringEncoding];
-    [_mSocket writeString:@"sudo killall tor\n" encoding:NSUTF8StringEncoding];
 }
 
 - (void)rebootTor {
@@ -149,7 +147,7 @@ connectionStatus = _connectionStatus
 }
 
 - (void)appWillEnterBackground {
-    [self stopTor];
+    // [self stopTor];
 }
 
 - (void)appDidEnterBackground {
@@ -157,7 +155,7 @@ connectionStatus = _connectionStatus
     nbrFailedAttempts = 0;
 }
 
-- (void)appDidBecomeActive {
+- (void)appDidBecomeActive {    
     _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:0.25f
                                                           target:self
                                                         selector:@selector(activateTorCheckLoop)
@@ -261,8 +259,9 @@ connectionStatus = _connectionStatus
     // Attempt to reconnect the netsocket
     if (nbrFailedAttempts <= MAX_FAILED_ATTEMPTS) {
         [self disableTorCheckLoop];
-        [self activateTorCheckLoop];
-
+        // [self activateTorCheckLoop];
+        [self performSelector:@selector(activateTorCheckLoop) withObject:nil afterDelay:0.5];
+        
         nbrFailedAttempts += didFirstConnect; // If didn't first connect, will remain at 0
     } else {
         //nbrFailedAttempts = 0;
@@ -315,8 +314,13 @@ connectionStatus = _connectionStatus
                 // (since it hasn't totally initialized yet).
                 // exit(0);
                 AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-
-                [ALToastView toastInView:appDelegate.appWebView.view withText:@"Unknown Tor state, you may need to force quit & relaunch the app..." andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3];
+                int position = kToastViewPositionBottom;
+                
+                if ([[appDelegate appWebView] toolbarOnBottom]) {
+                    position = kToastViewPositionTop;
+                }
+                
+                [ALToastView toastInView:appDelegate.appWebView.view withText:@"Unknown Tor state, you may need to force quit & relaunch the app..." andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3 andPosition:position];
             }
         }
     } else if ([newMsgIn rangeOfString:@"-status/bootstrap-phase="].location != NSNotFound) {
@@ -331,7 +335,7 @@ connectionStatus = _connectionStatus
         if (!didFirstConnect) {
             if ([newMsgIn rangeOfString:@"BOOTSTRAP PROGRESS=100"].location != NSNotFound) {
                 NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-
+                
                 // This is our first go-around (haven't loaded page into webView yet)
                 // but we are now at 100%, so go ahead.
                 if (appDelegate.startUrl != nil) {
@@ -339,7 +343,13 @@ connectionStatus = _connectionStatus
                 } else {
                     /* Load saved state */
                     if ([userDefaults boolForKey:@"save_state_on_close"] && [[appDelegate appWebView] restoreFromSavedState]) {
-                        [ALToastView toastInView:appDelegate.appWebView.view withText:@"Saved tabs restored"];
+                        int position = kToastViewPositionBottom;
+                        
+                        if ([[appDelegate appWebView] toolbarOnBottom]) {
+                            position = kToastViewPositionTop;
+                        }
+                        
+                        [ALToastView toastInView:appDelegate.appWebView.view withText:@"Saved tabs restored" andPosition:position];
                     } else {
                         // Didn't launch with a "theonionbrowser://" or "theonionbrowsers://" URL, or failed to restore tabs
                         // so just launch the regular home page.
@@ -362,8 +372,15 @@ connectionStatus = _connectionStatus
                     [userDefaults synchronize];
                     
                     [appDelegate.appWebView showTutorial];
-                } else
-                    [ALToastView toastInView:appDelegate.appWebView.view withText:@"Initializing Tor circuit...\nFirst page load may be slow to start." andDuration:5];
+                } else {
+                    int position = kToastViewPositionBottom;
+                    
+                    if ([[appDelegate appWebView] toolbarOnBottom]) {
+                        position = kToastViewPositionTop;
+                    }
+                    
+                    [ALToastView toastInView:appDelegate.appWebView.view withText:@"Initializing Tor circuit...\nFirst page load may be slow to start." andDuration:5 andPosition:position];
+                }
             } else {
                 // Haven't done initial load yet and still waiting on bootstrap, so
                 // render status.

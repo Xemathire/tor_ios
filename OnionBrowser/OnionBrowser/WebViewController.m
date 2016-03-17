@@ -60,12 +60,15 @@
     
     UIBarButtonItem *tabAddButton;
     UIBarButtonItem *tabDoneButton;
+    UIButton *addButton;
+    UIButton *doneButton;
     
     float lastWebViewScrollOffset;
     CGRect origTabScrollerFrame;
     BOOL webViewScrollIsDecelerating;
     BOOL webViewScrollIsDragging;
     BOOL shouldHideStatusBar;
+    BOOL hasBlur;
     
     WYPopoverController *popover;
     
@@ -106,6 +109,8 @@
     [[self view] addSubview:toolbar];
     
     self.toolbarOnBottom = [userDefaults boolForKey:@"toolbar_on_bottom"];
+    self.darkInterface = [userDefaults boolForKey:@"dark_interface"];
+
     keyboardHeight = 0;
     
     progressBar = [[UIProgressView alloc] init];
@@ -143,13 +148,13 @@
     
     lockIcon = [UIButton buttonWithType:UIButtonTypeCustom];
     [lockIcon setFrame:CGRectMake(0, 0, 24, 16)];
-    [lockIcon setImage:[UIImage imageNamed:@"lock"] forState:UIControlStateNormal];
+    [lockIcon setImage:[[UIImage imageNamed:@"lock"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [[lockIcon imageView] setContentMode:UIViewContentModeScaleAspectFit];
     [lockIcon addTarget:self action:@selector(showSSLCertificate) forControlEvents:UIControlEventTouchUpInside];
     
     brokenLockIcon = [UIButton buttonWithType:UIButtonTypeCustom];
     [brokenLockIcon setFrame:CGRectMake(0, 0, 24, 16)];
-    [brokenLockIcon setImage:[UIImage imageNamed:@"broken_lock"] forState:UIControlStateNormal];
+    [brokenLockIcon setImage:[[UIImage imageNamed:@"broken_lock"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [[brokenLockIcon imageView] setContentMode:UIViewContentModeScaleAspectFit];
     [brokenLockIcon addTarget:self action:@selector(showSSLCertificate) forControlEvents:UIControlEventTouchUpInside];
     
@@ -203,7 +208,8 @@
     [self.view insertSubview:tabToolbar aboveSubview:toolbar];
     
     // Create custom button with + symbol and blur
-    UIButton *addButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.5f, 30.0f, 30.0f)]; // 0.5f because the eye always thinks the cross isn't centered when using integers as position values
+    //addButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.5f, 30.0f, 30.0f)]; // 0.5f because the eye always thinks the cross isn't centered when using integers as position values
+    addButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 30.0f, 30.0f)];
     addButton.titleLabel.font = [UIFont fontWithName:@"Helvetica-Light" size:28.0f];
     [addButton setTitle:@"＋" forState:UIControlStateNormal];
     [addButton setTitleColor:self.view.tintColor forState:UIControlStateNormal];
@@ -211,7 +217,7 @@
     [addButton addTarget:self action:@selector(addNewTabFromToolbar:) forControlEvents:UIControlEventTouchUpInside];
     
     // Create custom done button
-    UIButton *doneButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 35.0f, 30.0f)];
+    doneButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 35.0f, 30.0f)];
     [doneButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:16.0f]];
     [doneButton setTitle:@"OK" forState:UIControlStateNormal];
     [doneButton setTitleColor:self.view.tintColor forState:UIControlStateNormal];
@@ -235,8 +241,16 @@
     [addEffectView addSubview:addButton];
     [doneEffectView addSubview:doneButton];
     
-    tabAddButton = [[UIBarButtonItem alloc] initWithCustomView:addEffectView];
-    tabDoneButton = [[UIBarButtonItem alloc] initWithCustomView:doneEffectView];
+    if (!addEffectView || ! doneEffectView) {
+        // Blur isn't supported or something went wrong: just add the plain buttons.
+        tabAddButton = [[UIBarButtonItem alloc] initWithCustomView:addButton];
+        tabDoneButton = [[UIBarButtonItem alloc] initWithCustomView:doneButton];
+        hasBlur = NO;
+    } else {
+        tabAddButton = [[UIBarButtonItem alloc] initWithCustomView:addEffectView];
+        tabDoneButton = [[UIBarButtonItem alloc] initWithCustomView:doneEffectView];
+        hasBlur = YES;
+    }
     
     tabToolbar.items = [NSArray arrayWithObjects:
                         [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil],
@@ -416,6 +430,7 @@
         }
     } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
         [self adjustLayoutToSize:size];
+        [self updateSearchBarDetails];
     }];
 }
 
@@ -423,11 +438,12 @@
 {
     self.view.frame = CGRectMake(0, 0, size.width, size.height);
     float y = ((TOOLBAR_HEIGHT - TOOLBAR_BUTTON_SIZE) / 2);
+    float statusBarHeight = STATUSBAR_HEIGHT * ![[UIApplication sharedApplication] isStatusBarHidden];
     
     if (self.toolbarOnBottom)
         toolbar.frame = tabToolbar.frame = CGRectMake(0, size.height - TOOLBAR_HEIGHT - keyboardHeight, size.width, TOOLBAR_HEIGHT + keyboardHeight);
     else
-        toolbar.frame = tabToolbar.frame = CGRectMake(0, STATUSBAR_HEIGHT, size.width, TOOLBAR_HEIGHT);
+        toolbar.frame = tabToolbar.frame = CGRectMake(0, statusBarHeight, size.width, TOOLBAR_HEIGHT);
     
     backButton.frame = CGRectMake(TOOLBAR_PADDING_LEFT, y, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE);
     forwardButton.frame = CGRectMake(backButton.frame.origin.x + backButton.frame.size.width + TOOLBAR_PADDING_LEFT, y, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE);
@@ -447,11 +463,65 @@
         tabChooser.frame = CGRectMake(0, size.height - 24, size.width, 24);
     }
     
+    if (self.darkInterface) {
+        [self.view setBackgroundColor:[UIColor darkGrayColor]];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+        
+        [tabScroller setBackgroundColor:[UIColor darkGrayColor]];
+        [tabToolbar setBarTintColor:[UIColor grayColor]];
+        [toolbar setBackgroundColor:[UIColor darkGrayColor]];
+        [urlField setBackgroundColor:[UIColor grayColor]];
+        
+        [doneButton setTitleColor:[UIColor lightTextColor] forState:UIControlStateNormal];
+        [addButton setTitleColor:[UIColor lightTextColor] forState:UIControlStateNormal];
+
+        if (hasBlur) {
+            [doneButton setBackgroundColor:[UIColor grayColor]];
+            [addButton setBackgroundColor:[UIColor grayColor]];
+        }
+        
+        [settingsButton setTintColor:[UIColor lightTextColor]];
+        [backButton setTintColor:[UIColor lightTextColor]];
+        [forwardButton setTintColor:[UIColor lightTextColor]];
+        [tabsButton setTintColor:[UIColor lightTextColor]];
+        [tabCount setTextColor:[UIColor lightTextColor]];
+        [lockIcon setTintColor:[UIColor blackColor]];
+        [brokenLockIcon setTintColor:[UIColor blackColor]];
+        
+        [tabChooser setPageIndicatorTintColor:[UIColor lightGrayColor]];
+        [tabChooser setCurrentPageIndicatorTintColor:[UIColor whiteColor]];
+    }
+    else {
+        [self.view setBackgroundColor:[UIColor groupTableViewBackgroundColor]];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+        
+        [tabScroller setBackgroundColor:[UIColor groupTableViewBackgroundColor]];
+        [tabToolbar setBarTintColor:[UIColor groupTableViewBackgroundColor]];
+        [toolbar setBackgroundColor:[UIColor groupTableViewBackgroundColor]];
+        [urlField setBackgroundColor:[UIColor whiteColor]];
+        
+        [doneButton setTitleColor:[progressBar tintColor] forState:UIControlStateNormal];
+        [doneButton setBackgroundColor:[UIColor clearColor]];
+        [addButton setTitleColor:[progressBar tintColor] forState:UIControlStateNormal];
+        [addButton setBackgroundColor:[UIColor clearColor]];
+        
+        [settingsButton setTintColor:[progressBar tintColor]];
+        [backButton setTintColor:[progressBar tintColor]];
+        [forwardButton setTintColor:[progressBar tintColor]];
+        [tabsButton setTintColor:[progressBar tintColor]];
+        [tabCount setTextColor:[progressBar tintColor]];
+        [lockIcon setTintColor:[UIColor lightGrayColor]];
+        [brokenLockIcon setTintColor:[UIColor lightGrayColor]];
+        
+        [tabChooser setPageIndicatorTintColor:[UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0]];
+        [tabChooser setCurrentPageIndicatorTintColor:[UIColor grayColor]];
+    }
+
     tabScroller.frame = CGRectMake(0, 0, size.width, size.height);
     
     for (int i = 0; i < webViewTabs.count; i++) {
         WebViewTab *wvt = webViewTabs[i];
-        [wvt updateFrame:[self frameForTabIndex:i withSize:CGSizeMake(size.width, size.height - STATUSBAR_HEIGHT)]];
+        [wvt updateFrame:[self frameForTabIndex:i withSize:CGSizeMake(size.width, size.height - statusBarHeight)]];
     }
     
     tabScroller.contentSize = CGSizeMake(size.width * tabChooser.numberOfPages, size.height);
@@ -474,10 +544,12 @@
         screenHeight = [UIScreen mainScreen].applicationFrame.size.height;
     }
     
+    float statusBarHeight = STATUSBAR_HEIGHT * ![[UIApplication sharedApplication] isStatusBarHidden];
+
     if (self.toolbarOnBottom)
-        return CGRectMake((screenWidth * number), STATUSBAR_HEIGHT, screenWidth, screenHeight - TOOLBAR_HEIGHT);
+        return CGRectMake((screenWidth * number), statusBarHeight, screenWidth, screenHeight - TOOLBAR_HEIGHT);
     else
-        return CGRectMake((screenWidth * number), TOOLBAR_HEIGHT + STATUSBAR_HEIGHT, screenWidth, screenHeight - TOOLBAR_HEIGHT);
+        return CGRectMake((screenWidth * number), TOOLBAR_HEIGHT + statusBarHeight, screenWidth, screenHeight - TOOLBAR_HEIGHT);
 }
 
 - (CGRect)frameForUrlField
@@ -768,11 +840,12 @@
         }
     }
     
+    UIColor *tintColor = (self.darkInterface ? [UIColor lightTextColor] : [progressBar tintColor]);
     backButton.enabled = (self.curWebViewTab && self.curWebViewTab.canGoBack);
-    [backButton setTintColor:(backButton.enabled ? [progressBar tintColor] : [UIColor grayColor])];
+    [backButton setTintColor:(backButton.enabled ? tintColor : [UIColor grayColor])];
     
     forwardButton.hidden = !(self.curWebViewTab && self.curWebViewTab.canGoForward);
-    [forwardButton setTintColor:(forwardButton.enabled ? [progressBar tintColor] : [UIColor grayColor])];
+    [forwardButton setTintColor:(forwardButton.enabled ? tintColor : [UIColor grayColor])];
     
     [urlField setFrame:[self frameForUrlField]];
     [self updateProgress];
@@ -841,9 +914,11 @@
         bookmarks = [[BookmarkController alloc] init];
         bookmarks.embedded = true;
         
+        float statusBarHeight = STATUSBAR_HEIGHT * ![[UIApplication sharedApplication] isStatusBarHidden];
+        
         if (self.toolbarOnBottom)
         /* we can't size according to keyboard height because we don't know it yet, so we'll just put it full height below the toolbar */
-            bookmarks.view.frame = CGRectMake(0, STATUSBAR_HEIGHT, self.view.frame.size.width, self.view.frame.size.height);
+            bookmarks.view.frame = CGRectMake(0, statusBarHeight, self.view.frame.size.width, self.view.frame.size.height);
         else
             bookmarks.view.frame = CGRectMake(0, toolbar.frame.size.height + toolbar.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height);
         
@@ -994,10 +1069,17 @@
     [[appDelegate cookieJar] setOldDataSweepTimeout:[NSNumber numberWithInteger:[userDefaults integerForKey:@"old_data_sweep_mins"]]];
     
     BOOL oldtob = self.toolbarOnBottom;
+    BOOL olddark = self.darkInterface;
     self.toolbarOnBottom = [userDefaults boolForKey:@"toolbar_on_bottom"];
+    self.darkInterface = [userDefaults boolForKey:@"dark_interface"];
     
-    if (self.toolbarOnBottom != oldtob)
+    if (self.toolbarOnBottom != oldtob || self.darkInterface != olddark) {
         [self adjustLayoutToSize:CGSizeMake(self.view.bounds.size.width, self.view.bounds.size.height)];
+        [self updateSearchBarDetails];
+    } else if (self.darkInterface) {
+        // Change back the status bar style if necessary (was changed to default when opening the settings)
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    }
 }
 
 - (void)settingsViewController:(IASKAppSettingsViewController *)sender buttonTappedForSpecifier:(IASKSpecifier*)specifier {
@@ -1035,7 +1117,12 @@
             tabToolbar.hidden = false;
             progressBar.alpha = 0.0;
             
-            tabScroller.frame = CGRectMake(tabScroller.frame.origin.x, 0, tabScroller.frame.size.width, tabScroller.frame.size.height);
+            float yOffset = 0;
+            if (self.toolbarOnBottom && UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
+                yOffset -= 20; // To avoid button overlapping is tab selection view
+            }
+            
+            tabScroller.frame = CGRectMake(tabScroller.frame.origin.x, yOffset, tabScroller.frame.size.width, tabScroller.frame.size.height);
         } completion:block];
         
         tabScroller.contentOffset = CGPointMake([self frameForTabIndex:curTabIndex].origin.x, 0);
@@ -1260,7 +1347,7 @@
                     CGRect frame = tabScroller.frame;
                     frame.origin.x = frame.size.width * curTabIndex;
                     frame.origin.y = 0;
-                    
+
                     [tabScroller setContentOffset:CGPointMake(frame.origin.x - xDistance, frame.origin.y) animated:NO];
                     break;
                 };
@@ -1424,7 +1511,7 @@
     [page2 setTitleIconPositionY:20];
     
     EAIntroPage *page3 = [EAIntroPage page];
-    [page3 setDesc:@"Added \"HTTPS Everywhere\", which makes your browsing more secure by encrypting your communications."];
+    [page3 setDesc:@"Added security features: disable javascript, use HTTPS Everywhere to encrypt communications..."];
     [page3 setDescColor:[UIColor blackColor]];
     [page3 setDescFont:[UIFont systemFontOfSize:15]];
     [page3 setBgColor:[UIColor whiteColor]];

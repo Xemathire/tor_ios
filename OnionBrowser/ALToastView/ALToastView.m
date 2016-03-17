@@ -47,11 +47,13 @@ static const int fontSize = 16;
 // Set default padding arround the label
 static const int leftPadding = 10;
 static const int topPadding = 5;
-static const int distanceToBottom = 40;
+static const int distanceToBorder = 40;
 
 // Static toastview queue variable
 static NSMutableArray *toasts;
 
+const int kToastViewPositionTop = 0;
+const int kToastViewPositionBottom = 1;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,6 +62,7 @@ static NSMutableArray *toasts;
 
 @property (nonatomic, readonly) UILabel *textLabel;
 @property (nonatomic) int duration;
+@property (nonatomic) int position;
 @property (nonatomic) UIView *parentView;
 
 - (void)fadeToastOut;
@@ -132,15 +135,32 @@ static NSMutableArray *toasts;
     [ALToastView toastInView:parentView withText:text andBackgroundColor:nil andDuration:kDuration];
 }
 
+
++ (void)toastInView:(UIView *)parentView withText:(NSString *)text andPosition:(int)position {
+    [ALToastView toastInView:parentView withText:text andBackgroundColor:nil andDuration:kDuration andPosition:position];
+}
+
 + (void)toastInView:(UIView *)parentView withText:(NSString *)text andBackgroundColor:(UIColor *)backgroundColor {
     [ALToastView toastInView:parentView withText:text andBackgroundColor:backgroundColor andDuration:kDuration];
+}
+
++ (void)toastInView:(UIView *)parentView withText:(NSString *)text andBackgroundColor:(UIColor *)backgroundColor andPosition:(int)position {
+    [ALToastView toastInView:parentView withText:text andBackgroundColor:backgroundColor andDuration:kDuration andPosition:position];
 }
 
 + (void)toastInView:(UIView *)parentView withText:(NSString *)text andDuration:(int)duration {
     [ALToastView toastInView:parentView withText:text andBackgroundColor:nil andDuration:duration];
 }
 
++ (void)toastInView:(UIView *)parentView withText:(NSString *)text andDuration:(int)duration andPosition:(int)position {
+    [ALToastView toastInView:parentView withText:text andBackgroundColor:nil andDuration:duration andPosition:position];
+}
+
 + (void)toastInView:(UIView *)parentView withText:(NSString *)text andBackgroundColor:(UIColor *)backgroundColor andDuration:(int)duration {
+    [ALToastView toastInView:parentView withText:text andBackgroundColor:backgroundColor andDuration:duration andPosition:kToastViewPositionBottom];
+}
+
++ (void)toastInView:(UIView *)parentView withText:(NSString *)text andBackgroundColor:(UIColor *)backgroundColor andDuration:(int)duration andPosition:(int)position {
     // Add new instance to queue
     ALToastView *view = [[ALToastView alloc] initWithText:text andParentView:parentView];
     
@@ -152,13 +172,20 @@ static NSMutableArray *toasts;
         view.duration = duration;
     }
     
+    view.position = position;
+    
     CGFloat lWidth = view.textLabel.frame.size.width;
     CGFloat lHeight = view.textLabel.frame.size.height;
     CGFloat pWidth = parentView.frame.size.width;
     CGFloat pHeight = parentView.frame.size.height;
     
+    if (position == kToastViewPositionTop) {
+        view.frame = CGRectMake((pWidth - lWidth - 2 * leftPadding) / 2.0, lHeight + distanceToBorder, lWidth + 2 * leftPadding, lHeight + 2 * topPadding);
+    } else {
+        view.frame = CGRectMake((pWidth - lWidth - 2 * leftPadding) / 2.0, pHeight - lHeight - distanceToBorder, lWidth + 2 * leftPadding, lHeight + 2 * topPadding);
+    }
+    
     // Change toastview frame
-    view.frame = CGRectMake((pWidth - lWidth - 2 * leftPadding) / 2., pHeight - lHeight - distanceToBottom, lWidth + 2 * leftPadding, lHeight + 2 * topPadding);
     view.alpha = 0.0f;
     
     if (toasts == nil) {
@@ -184,12 +211,19 @@ static NSMutableArray *toasts;
 - (void) adjustViewsForOrientation:(UIInterfaceOrientation) orientation {
     for (ALToastView *view in toasts) {
         // Update all toast view's frames
-        CGFloat lWidth = view.textLabel.frame.size.width;
-        CGFloat lHeight = view.textLabel.frame.size.height;
-        CGFloat pWidth = view.parentView.frame.size.width;
-        CGFloat pHeight = view.parentView.frame.size.height;
-        
-        view.frame = CGRectMake((pWidth - lWidth - 2 * leftPadding) / 2., pHeight - lHeight - distanceToBottom, lWidth + 2 * leftPadding, lHeight + 2 * topPadding);
+        if (view && view.parentView) {
+            CGFloat lWidth = view.textLabel.frame.size.width;
+            CGFloat lHeight = view.textLabel.frame.size.height;
+            CGFloat pWidth = view.parentView.frame.size.width;
+            CGFloat pHeight = view.parentView.frame.size.height;
+            
+            if (view.position == kToastViewPositionTop) {
+                view.frame = CGRectMake((pWidth - lWidth - 2 * leftPadding) / 2.0, lHeight + distanceToBorder, lWidth + 2 * leftPadding, lHeight + 2 * topPadding);
+            } else {
+                view.frame = CGRectMake((pWidth - lWidth - 2 * leftPadding) / 2., pHeight - lHeight - distanceToBorder, lWidth + 2 * leftPadding, lHeight + 2 * topPadding);
+            }
+            
+        }
     }
 }
 
@@ -209,7 +243,7 @@ static NSMutableArray *toasts;
                              [toasts release];
                              toasts = nil;
                          }
-                         else
+                         else if (parentView)
                              [ALToastView nextToastInView:parentView withDuration:[(ALToastView *)[toasts objectAtIndex:0] duration]];
                      }];
 }

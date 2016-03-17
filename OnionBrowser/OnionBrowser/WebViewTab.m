@@ -30,6 +30,7 @@
 #import "URLInterceptor.h"
 #import "WebViewTab.h"
 #import "ALToastView.h"
+#import "HostSettings.h"
 #import <objc/runtime.h>
 #import "NSString+JavascriptEscape.h"
 
@@ -440,10 +441,12 @@ AppDelegate *appDelegate;
 	
 	NSDictionary *pp = [se objectForKey:@"post_params"];
 	NSString *urls;
+    NSString *key = [[[NSUserDefaults standardUserDefaults] objectForKey:@"content_policy"]  isEqualToString:HOST_SETTINGS_CSP_STRICT] ? @"search_url_no_js" : @"search_url";
+    
 	if (pp == nil)
-		urls = [[NSString stringWithFormat:[se objectForKey:@"search_url"], query] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		urls = [[NSString stringWithFormat:[se objectForKey:key], query] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	else
-		urls = [se objectForKey:@"search_url"];
+		urls = [se objectForKey:key];
 	
 	NSURL *url = [NSURL URLWithString:urls];
 	if (pp == nil) {
@@ -687,6 +690,7 @@ AppDelegate *appDelegate;
         return;
     
     [self informError:error withMessage:@""];
+    [[appDelegate appWebView] updateSearchBarDetails];
 }
 
 - (void)webView:(UIWebView *)__webView callbackWith:(NSString *)callback
@@ -708,7 +712,13 @@ AppDelegate *appDelegate;
     }
     
     if ((([error.domain isEqualToString:(NSString *)@"WebKitErrorDomain"]) && (error.code == 102))) {
-        [ALToastView toastInView:self.viewHolder withText:@"Frame load interrupted, refreshing..." andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1]];
+        int position = kToastViewPositionBottom;
+        
+        if ([[appDelegate appWebView] toolbarOnBottom]) {
+            position = kToastViewPositionTop;
+        }
+        
+        [ALToastView toastInView:self.viewHolder withText:@"Frame load interrupted, refreshing..." andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andPosition:position];
         
         [self forceRefresh];
         
@@ -827,7 +837,13 @@ AppDelegate *appDelegate;
         NSString *hostname = url.host;
         [appDelegate.sslWhitelistedDomains addObject:hostname];
         
-        [ALToastView toastInView:self.viewHolder withText:@"This website's SSL certificate errors will be ignored for the rest of this session." andDuration:5];
+        int position = kToastViewPositionBottom;
+        
+        if ([[appDelegate appWebView] toolbarOnBottom]) {
+            position = kToastViewPositionTop;
+        }
+        
+        [ALToastView toastInView:self.viewHolder withText:@"This website's SSL certificate errors will be ignored for the rest of this session." andDuration:5 andPosition:position];
         
         // Reload (now that we have added host to whitelist)
         [self loadURL:url];
@@ -972,7 +988,13 @@ AppDelegate *appDelegate;
 			UIImage *i = [UIImage imageWithData:imgdata];
 			UIImageWriteToSavedPhotosAlbum(i, self,  @selector(image:didFinishSavingWithError:contextInfo:), nil);
 		} else {
-            [ALToastView toastInView:self.viewHolder withText:@"Failed to download image:\nCouldn't retrieve the image's data" andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3];
+            int position = kToastViewPositionBottom;
+            
+            if ([[appDelegate appWebView] toolbarOnBottom]) {
+                position = kToastViewPositionTop;
+            }
+            
+            [ALToastView toastInView:self.viewHolder withText:@"Failed to download image:\nCouldn't retrieve the image's data" andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3 andPosition:position];
 		}
 	}];
 	
@@ -1154,9 +1176,21 @@ AppDelegate *appDelegate;
 - (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo
 {
     if (error) {
-        [ALToastView toastInView:self.viewHolder withText:[NSString stringWithFormat:@"Failed to download image:\n%@", [error localizedDescription]] andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3];
+        int position = kToastViewPositionBottom;
+        
+        if ([[appDelegate appWebView] toolbarOnBottom]) {
+            position = kToastViewPositionTop;
+        }
+        
+        [ALToastView toastInView:self.viewHolder withText:[NSString stringWithFormat:@"Failed to download image:\n%@", [error localizedDescription]] andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3 andPosition:position];
     } else {
-        [ALToastView toastInView:self.viewHolder withText:@"Successfully saved image"];
+        int position = kToastViewPositionBottom;
+        
+        if ([[appDelegate appWebView] toolbarOnBottom]) {
+            position = kToastViewPositionTop;
+        }
+        
+        [ALToastView toastInView:self.viewHolder withText:@"Successfully saved image" andPosition:position];
     }
 }
 

@@ -65,6 +65,16 @@ NSString * const LABEL = @"L";
 
 	[self.view setBackgroundColor:[UIColor clearColor]];
 	[self.tableView setSeparatorInset:UIEdgeInsetsZero];
+    
+    if ([[appDelegate appWebView] darkInterface]) {
+        [[self tableView] setBackgroundColor:[UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0]];
+        // Change header font color
+        [[UILabel appearanceWhenContainedIn:[UITableViewHeaderFooterView class], nil] setTextColor:[UIColor whiteColor]];
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [[UILabel appearanceWhenContainedIn:[UITableViewHeaderFooterView class], nil] setTextColor:[UIColor blackColor]];
 }
 
 - (CGSize)preferredContentSize
@@ -104,59 +114,86 @@ NSString * const LABEL = @"L";
 	cell.textLabel.text = [button objectForKey:LABEL];
 	cell.detailTextLabel.font = [UIFont systemFontOfSize:11];
     
-    UIImage *cellImage = [UIImage imageNamed:@"bookmark"];
+    UIColor *disabledColor = [UIColor darkGrayColor];
+    UIColor *greenColor = [UIColor colorWithRed:0 green:0.5 blue:0 alpha:1];
+    
+    // Do this before, so that the "X rules in use" is green if this is the HTTPS Everywhere cell
+    if ([[appDelegate appWebView] darkInterface]) {
+        [cell setBackgroundColor:[UIColor clearColor]];
+        [[cell textLabel] setTextColor:[UIColor whiteColor]];
+        [[cell detailTextLabel] setTextColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0]];
+        [cell setTintColor:[UIColor whiteColor]];
+        
+        // Use lighter color to make them more readable on a black background
+        disabledColor = [UIColor lightTextColor];
+        greenColor = [UIColor colorWithRed:176.0f/255.0f green:248.0f/255.0f blue:153.0f/255.0f alpha:1.0f];
+    } else {
+        [cell setTintColor:[UIColor blackColor]];
+    }
+    
+    UIImage *cellImage = [[UIImage imageNamed:@"bookmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 	
 	BOOL haveURL = ([[[appDelegate appWebView] curWebViewTab] url] != nil);
 
 	NSString *func = [button objectForKey:FUNC];
 	if ([func isEqualToString:@"menuAddBookmark"]) {
-        cellImage = [UIImage imageNamed:@"bookmark"];
+        cellImage = [[UIImage imageNamed:@"bookmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
 		if (haveURL) {
 			if ([Bookmark isURLBookmarked:[[[appDelegate appWebView] curWebViewTab] url]]) {
 				cell.textLabel.text = @"Bookmarked";
-				cell.userInteractionEnabled = cell.textLabel.enabled = NO;
+				cell.userInteractionEnabled = NO;
+                [[cell textLabel] setTextColor:disabledColor];
 			}
 		}
-		else
-			cell.userInteractionEnabled = cell.textLabel.enabled = NO;
+        else {
+			cell.userInteractionEnabled = NO;
+            [[cell textLabel] setTextColor:disabledColor];
+        }
 	}
 	else if ([func isEqualToString:@"menuRefresh"]) {
 		cell.userInteractionEnabled = haveURL;
-        cell.textLabel.enabled = haveURL;
-        cellImage = [UIImage imageNamed:@"refreshImage"];
+        // cell.textLabel.enabled = haveURL;
+        if (!haveURL) {
+            [[cell textLabel] setTextColor:disabledColor];
+        }
+        cellImage = [[UIImage imageNamed:@"refreshImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     } else if ([func isEqualToString:@"menuOpenInSafari"]) {
         cell.userInteractionEnabled = haveURL;
-        cell.textLabel.enabled = haveURL;
-        cellImage = [UIImage imageNamed:@"safari"];
+        if (!haveURL) {
+            [[cell textLabel] setTextColor:disabledColor];
+        }
+        cellImage = [[UIImage imageNamed:@"safari"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     }
     else if ([func isEqualToString:@"menuManageBookmarks"])
-        cellImage = [UIImage imageNamed:@"bookmarks"];
+        cellImage = [[UIImage imageNamed:@"bookmarks"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     else if ([func isEqualToString:@"menuSetHomepage"]) {
-        cellImage = [UIImage imageNamed:@"homepage"];
-        if (haveURL) { //[appDelegate homepage]
+        cellImage = [[UIImage imageNamed:@"homepage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        if (haveURL) {
             // cell.userInteractionEnabled = cell.textLabel.enabled = YES;
             if ([[appDelegate homepage] isEqualToString:[NSString stringWithFormat:@"%@", [[[appDelegate appWebView] curWebViewTab] url]]]) {
-                cell.userInteractionEnabled = cell.textLabel.enabled = NO;
+                cell.userInteractionEnabled = NO;
+                [[cell textLabel] setTextColor:disabledColor];
             }
+        } else {
+            cell.userInteractionEnabled = NO;
+            [[cell textLabel] setTextColor:disabledColor];
         }
-        else
-            cell.userInteractionEnabled = cell.textLabel.enabled = NO;
     } else if ([func isEqualToString:@"menuHTTPSEverywhere"] && haveURL) {
-        cellImage = [UIImage imageNamed:@"httpsEverywhere"];
+        cellImage = [[UIImage imageNamed:@"httpsEverywhere"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         long ruleCount = [[[[appDelegate appWebView] curWebViewTab] applicableHTTPSEverywhereRules] count];
         
         if (ruleCount > 0) {
             cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld rule%@ in use", ruleCount, (ruleCount == 1 ? @"" : @"s")];
-            cell.detailTextLabel.textColor = [UIColor colorWithRed:0 green:0.5 blue:0 alpha:1];
+            cell.detailTextLabel.textColor = greenColor;
         }
     }
     else if ([func isEqualToString:@"menuSettings"])
-        cellImage = [UIImage imageNamed:@"settingsImage"];
+        cellImage = [[UIImage imageNamed:@"settingsImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     else if ([func isEqualToString:@"menuOpenBridge"])
-        cellImage = [UIImage imageNamed:@"bridge"];
+        cellImage = [[UIImage imageNamed:@"bridge"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     else if ([func isEqualToString:@"menuNewIdentity"])
-        cellImage = [UIImage imageNamed:@"identity"];
+        cellImage = [[UIImage imageNamed:@"identity"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     
     cell.imageView.image = cellImage;
     
@@ -190,6 +227,8 @@ NSString * const LABEL = @"L";
 	SEL action = NSSelectorFromString([button objectForKey:FUNC]);
     
     if ([self respondsToSelector:action]) {
+        [[UILabel appearanceWhenContainedIn:[UITableViewHeaderFooterView class], nil] setTextColor:[UIColor blackColor]];
+
         IMP imp = [self methodForSelector:action];
         void (*func)(id, SEL) = (void *)imp;
         func(self, action);
@@ -211,9 +250,12 @@ NSString * const LABEL = @"L";
 		appSettingsViewController.showDoneButton = YES;
 		appSettingsViewController.showCreditsFooter = YES;
 	}
-	
+    
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 	UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:appSettingsViewController];
-	[[appDelegate appWebView] presentViewController:navController animated:YES completion:nil];
+    [[appDelegate appWebView] presentViewController:navController animated:YES completion:^{
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+    }];
 }
 
 /*

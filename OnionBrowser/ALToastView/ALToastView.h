@@ -24,7 +24,8 @@
 //
 
 #import <Foundation/Foundation.h>
-
+extern int const kToastViewPositionTop;
+extern int const kToastViewPositionBottom;
 
 @interface ALToastView : UIView {
 @private
@@ -32,8 +33,12 @@
 }
 
 + (void)toastInView:(UIView *)parentView withText:(NSString *)text;
++ (void)toastInView:(UIView *)parentView withText:(NSString *)text andPosition:(int)position;
 + (void)toastInView:(UIView *)parentView withText:(NSString *)text andBackgroundColor:(UIColor *)backgroundColor;
++ (void)toastInView:(UIView *)parentView withText:(NSString *)text andBackgroundColor:(UIColor *)backgroundColor andPosition:(int)position;
 + (void)toastInView:(UIView *)parentView withText:(NSString *)text andDuration:(int)duration;
++ (void)toastInView:(UIView *)parentView withText:(NSString *)text andDuration:(int)duration andPosition:(int)position;
 + (void)toastInView:(UIView *)parentView withText:(NSString *)text andBackgroundColor:(UIColor *)backgroundColor andDuration:(int)duration;
++ (void)toastInView:(UIView *)parentView withText:(NSString *)text andBackgroundColor:(UIColor *)backgroundColor andDuration:(int)duration andPosition:(int)position;
 
 @end

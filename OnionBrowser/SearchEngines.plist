@@ -6,6 +6,8 @@
 	<dict>
 		<key>search_url</key>
 		<string>https://duckduckgo.com/?q=%@</string>
+		<key>search_url_no_js</key>
+		<string>https://duckduckgo.com/html/?q=%@</string>
 		<key>homepage_url</key>
 		<string>https://duckduckgo.com/</string>
 		<key>autocomplete_url</key>
@@ -15,6 +17,8 @@
 	<dict>
 		<key>search_url</key>
 		<string>https://www.google.com/search?q=%@</string>
+		<key>search_url_no_js</key>
+		<string>https://www.google.com/search?q=%@</string>
 		<key>homepage_url</key>
 		<string>https://www.google.com/</string>
 		<key>autocomplete_url</key>
@@ -23,6 +27,8 @@
 	<key>Startpage</key>
 	<dict>
 		<key>search_url</key>
+		<string>https://startpage.com/do/search</string>
+		<key>search_url_no_js</key>
 		<string>https://startpage.com/do/search</string>
 		<key>homepage_url</key>
 		<string>https://startpage.com/</string>

@@ -21,6 +21,16 @@
 			<false/>
 		</dict>
 		<dict>
+			<key>Title</key>
+			<string>Night mode</string>
+			<key>Key</key>
+			<string>dark_interface</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
 			<key>DefaultValue</key>
 			<string>DuckDuckGo</string>
 			<key>Values</key>

@@ -51,12 +51,24 @@ UIBarButtonItem *leftItem;
     lpgr.minimumPressDuration = 0.75f;
     lpgr.delegate = self;
     [[self tableView] addGestureRecognizer:lpgr];
+    
+    if ([[appDelegate appWebView] darkInterface]) {
+        [[self tableView] setBackgroundColor:[UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0]];
+        // Change header font color
+        [[UILabel appearanceWhenContainedIn:[UITableViewHeaderFooterView class], nil] setTextColor:[UIColor whiteColor]];
+    }
+    
+    // To force the table view to take up the whole width on iPads
+    if ([self.tableView respondsToSelector:@selector(setCellLayoutMarginsFollowReadableWidth:)])
+        self.tableView.cellLayoutMarginsFollowReadableWidth = NO;
+        
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
     [Bookmark persistList];
+    [[UILabel appearanceWhenContainedIn:[UITableViewHeaderFooterView class], nil] setTextColor:[UIColor blackColor]];
 }
 
 - (void)didReceiveMemoryWarning
@@ -98,12 +110,12 @@ UIBarButtonItem *leftItem;
         int buttonSize = tableViewHeaderFooterView.frame.size.height - 8;
         
         UIButton *b = [[UIButton alloc] init];
-        //[b setFrame:CGRectMake(tableViewHeaderFooterView.frame.size.width - buttonSize - 6, 3, buttonSize, buttonSize)];
-        [b setFrame:CGRectMake(tableViewHeaderFooterView.frame.size.width - buttonSize * 2 - 6, 3, buttonSize * 2, buttonSize)];
+        [b setFrame:CGRectMake(tableViewHeaderFooterView.frame.size.width - buttonSize - 6, 3, buttonSize, buttonSize)];
+        // [b setFrame:CGRectMake(tableViewHeaderFooterView.frame.size.width - buttonSize * 2 - 6, 3, buttonSize * 2, buttonSize)];
         [b setBackgroundColor:[UIColor lightGrayColor]];
         [b setTitle:@"✕" forState:UIControlStateNormal];
         [[b titleLabel] setFont:[UIFont boldSystemFontOfSize:12]];
-        [[b layer] setCornerRadius:buttonSize/3];
+        [[b layer] setCornerRadius:buttonSize/2];
         [b setClipsToBounds:YES];
         
         [b addTarget:self action:@selector(close) forControlEvents:UIControlEventTouchUpInside];
@@ -130,8 +142,13 @@ UIBarButtonItem *leftItem;
         cell.detailTextLabel.text = [appDelegate homepage];
     }
     
-    
     [cell setShowsReorderControl:YES];
+    
+    if ([[appDelegate appWebView] darkInterface]) {
+        [cell setBackgroundColor:[UIColor clearColor]];
+        [[cell textLabel] setTextColor:[UIColor whiteColor]];
+        [[cell detailTextLabel] setTextColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0]];
+    }
     
     return cell;
 }

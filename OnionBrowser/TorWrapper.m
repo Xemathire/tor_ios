@@ -26,6 +26,7 @@
 }
 
 -(void)main {
+    [self setName:@"Tor thread"];
     test = false;
     
     AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];

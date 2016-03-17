@@ -14,6 +14,7 @@
 #import "BridgeViewController.h"
 #import "Bookmark.h"
 #import "URLInterceptor.h"
+#import "ALToastView.h"
 
 NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 
@@ -25,16 +26,16 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 @implementation AppDelegate
 
 @synthesize
-    sslWhitelistedDomains,
-    startUrl,
-    appWebView,
-    tor = _tor,
-    window = _window,
-    windowOverlay,
-    managedObjectContext = __managedObjectContext,
-    managedObjectModel = __managedObjectModel,
-    persistentStoreCoordinator = __persistentStoreCoordinator,
-    doPrepopulateBookmarks
+sslWhitelistedDomains,
+startUrl,
+appWebView,
+tor = _tor,
+window = _window,
+windowOverlay,
+managedObjectContext = __managedObjectContext,
+managedObjectModel = __managedObjectModel,
+persistentStoreCoordinator = __persistentStoreCoordinator,
+doPrepopulateBookmarks
 ;
 
 - (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -61,37 +62,37 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     return YES;
 }
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     /* Tell iOS to encrypt everything in the app's sandboxed storage. */
     [self updateFileEncryption];
     // Repeat encryption every 15 seconds, to catch new caches, cookies, etc.
     [NSTimer scheduledTimerWithTimeInterval:15.0 target:self selector:@selector(updateFileEncryption) userInfo:nil repeats:YES];
     //[self performSelector:@selector(testEncrypt) withObject:nil afterDelay:8];
-
+    
     /*********** WebKit options **********/
     // http://objectiveself.com/post/84817251648/uiwebviews-hidden-properties
     // https://git.chromium.org/gitweb/?p=external/WebKit_trimmed.git;a=blob;f=Source/WebKit/mac/WebView/WebPreferences.mm;h=2c25b05ef6a73f478df9b0b7d21563f19aa85de4;hb=9756e26ef45303401c378036dff40c447c2f9401
     // Block JS if we are on "Block All" mode.
     /* TODO: disabled for now, since Content-Security-Policy handles this (and this setting
      * requires app restart to take effect)
-    NSInteger blockingSetting = [[settings valueForKey:@"javascript"] integerValue];
-    if (blockingSetting == CONTENTPOLICY_STRICT) {
-        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitJavaScriptEnabled"];
-        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitJavaScriptEnabledPreferenceKey"];
-    } else {
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"WebKitJavaScriptEnabled"];
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"WebKitJavaScriptEnabledPreferenceKey"];
-    }
-    */
+     NSInteger blockingSetting = [[settings valueForKey:@"javascript"] integerValue];
+     if (blockingSetting == CONTENTPOLICY_STRICT) {
+     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitJavaScriptEnabled"];
+     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitJavaScriptEnabledPreferenceKey"];
+     } else {
+     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"WebKitJavaScriptEnabled"];
+     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"WebKitJavaScriptEnabledPreferenceKey"];
+     }
+     */
     // Always disable multimedia (Tor leak)
     // TODO: These don't seem to have any effect on the QuickTime player appearing (and transfering
     //       data outside of Tor). Work-in-progress.
     /*
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitAVFoundationEnabledKey"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitWebAudioEnabled"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitWebAudioEnabledPreferenceKey"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitQTKitEnabled"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitQTKitEnabledPreferenceKey"];
+     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitAVFoundationEnabledKey"];
+     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitWebAudioEnabled"];
+     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitWebAudioEnabledPreferenceKey"];
+     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitQTKitEnabled"];
+     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitQTKitEnabledPreferenceKey"];
      */
     
     // Always disable localstorage & databases
@@ -104,7 +105,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     [[NSUserDefaults standardUserDefaults] setObject:@"/dev/null" forKey:@"WebDatabaseDirectory"];
     [[NSUserDefaults standardUserDefaults] setInteger:2 forKey:@"WebKitStorageBlockingPolicy"];
     [[NSUserDefaults standardUserDefaults] setInteger:2 forKey:@"WebKitStorageBlockingPolicyKey"];
-
+    
     // Always disable caches
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitUsesPageCache"];
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitUsesPageCachePreferenceKey"];
@@ -121,7 +122,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     
     NSString *plistPath = [[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"InAppSettings.bundle"] stringByAppendingPathComponent:@"Root.inApp.plist"];
     NSDictionary *settingsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistPath];
-        
+    
     for (NSDictionary *pref in [settingsDictionary objectForKey:@"PreferenceSpecifiers"]) {
         NSString *key = [pref objectForKey:@"Key"];
         
@@ -130,7 +131,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
         
         if ([userDefaults objectForKey:key] == NULL) {
             NSObject *val = [pref objectForKey:@"DefaultValue"];
-
+            
             if (val == nil)
                 continue;
             
@@ -144,27 +145,38 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     [userDefaults synchronize];
     
     _searchEngines = [NSMutableDictionary dictionaryWithContentsOfFile:[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"SearchEngines.plist"]];
-
-
+    
+    
     // Wipe all non-whitelisted cookies & caches from previous invocations of app (in case we didn't wipe
     // cleanly upon exit last time)
     [self wipeAppData];
-
+    
     _window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     appWebView = [[WebViewController alloc] init];
     [_window setRootViewController:appWebView];
     [_window makeKeyAndVisible];
-
+    
     // OLD IOS SECURITY WARNINGS
     if ([[[UIDevice currentDevice] systemVersion] compare:@"8.2" options:NSNumericSearch] == NSOrderedAscending) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Outdated iOS Warning" message:@"You are running an older version of iOS that may use weak HTTPS encryption (“FREAK exploit”). iOS 8.2 contains a fix for this issue.\n\nUsing Tor cannot protect your data from system-level vulnerabilities.\n\nFor your safety, you should upate to the latest version of iOS so that you receive the latest security fixes." preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-          [self startup2];
-        }]];
-        [_window.rootViewController presentViewController:alert animated:YES completion:NULL];
-    } else {
-      [self startup2];
+         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Outdated iOS Warning" message:@"You are running an older version of iOS that may use weak HTTPS encryption (“FREAK exploit”). iOS 8.2 contains a fix for this issue.\n\nUsing Tor cannot protect your data from system-level vulnerabilities.\n\nFor your safety, you should upate to the latest version of iOS so that you receive the latest security fixes." preferredStyle:UIAlertControllerStyleAlert];
+         [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+         [self startup2];
+         }]];
+        
+        if (alert) {
+            [_window.rootViewController presentViewController:alert animated:YES completion:NULL];
+        } else {
+            int position = kToastViewPositionBottom;
+            
+            if ([[self appWebView] toolbarOnBottom]) {
+                position = kToastViewPositionTop;
+            }
+            
+            [ALToastView toastInView:self.appWebView.view withText:@"You are running a version of iOS that may use weak HTTPS encryption; iOS 8.2 contains a fix for this issue." andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:8 andPosition:position];
+        }
     }
+    
+    [self startup2];
     
     
     /* Used to save app state when the app is crashing */
@@ -183,22 +195,27 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 
 -(void) startup2 {
     if (![self torrcExists]) {
-      UIAlertController *alert2 = [UIAlertController alertControllerWithTitle:@"Welcome to The Onion Browser" message:@"If you are in a location that blocks connections to Tor, you may configure bridges before trying to connect for the first time." preferredStyle:UIAlertControllerStyleAlert];
-
-      [alert2 addAction:[UIAlertAction actionWithTitle:@"Connect to Tor" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-          [self afterFirstRun];
-      }]];
-      [alert2 addAction:[UIAlertAction actionWithTitle:@"Configure Bridges" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-          BridgeViewController *bridgesVC = [[BridgeViewController alloc] init];
-          UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:bridgesVC];
-          navController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-          [_window.rootViewController presentViewController:navController animated:YES completion:nil];
-      }]];
-      [_window.rootViewController presentViewController:alert2 animated:YES completion:NULL];
+        UIAlertController *alert2 = [UIAlertController alertControllerWithTitle:@"Welcome to The Onion Browser" message:@"If you are in a location that blocks connections to Tor, you may configure bridges before trying to connect for the first time." preferredStyle:UIAlertControllerStyleAlert];
+        
+        [alert2 addAction:[UIAlertAction actionWithTitle:@"Connect to Tor" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+            [self afterFirstRun];
+        }]];
+        [alert2 addAction:[UIAlertAction actionWithTitle:@"Configure Bridges" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            BridgeViewController *bridgesVC = [[BridgeViewController alloc] init];
+            UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:bridgesVC];
+            navController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+            [_window.rootViewController presentViewController:navController animated:YES completion:nil];
+        }]];
+        
+        if (alert2) {
+            [_window.rootViewController presentViewController:alert2 animated:YES completion:NULL];
+        } else {
+            [self afterFirstRun];
+        }
     } else {
-      [self afterFirstRun];
+        [self afterFirstRun];
     }
-
+    
     sslWhitelistedDomains = [[NSMutableArray alloc] init];
     
     NSMutableDictionary *settings = self.getSettings;
@@ -213,7 +230,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     
     // Start the spinner for the "connecting..." phase
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-
+    
     /*******************/
     // Clear non-whitelisted cookies
     [[self cookieJar] clearAllOldNonWhitelistedData];
@@ -229,7 +246,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     [appWebView animateAllTabsRemoval];
     [self wipeAppData];
     _tor = nil;
-
+    
     sslWhitelistedDomains = [[NSMutableArray alloc] init];
     
     NSMutableDictionary *settings = self.getSettings;
@@ -319,53 +336,53 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     /*
-    NSString *imgurl;
-
-    struct utsname systemInfo;
-    uname(&systemInfo);
-    NSString *device = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
-
-    // List as of Oct 22 2015
-    if ([device isEqualToString:@"iPhone7,2"] || [device isEqualToString:@"iPhone8,1"]) {
-        // iPhone 6 (1334x750 3x)
-        imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-667h@2x.png" ofType:nil];
-    } else if ([device isEqualToString:@"iPhone7,1"] || [device isEqualToString:@"iPhone8,2"]) {
-        // iPhone 6 Plus (2208x1242 3x)
-        if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
-            imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-Portrait-736h@3x.png" ofType:nil];
-        } else {
-            imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-Landscape-736h@3x.png" ofType:nil];
-        }
-    } else if ([device hasPrefix:@"iPhone5"] || [device hasPrefix:@"iPhone6"] || [device hasPrefix:@"iPod5"] || [device hasPrefix:@"iPod7"]) {
-        // iPhone 5/5S/5C (1136x640 2x)
-        imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-568h@2x.png" ofType:nil];
-    } else if ([device hasPrefix:@"iPhone3"] || [device hasPrefix:@"iPhone4"] || [device hasPrefix:@"iPod4"]) {
-        // iPhone 4/4S (960x640 2x)
-        imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage@2x.png" ofType:nil];
-    } else if ([device hasPrefix:@"iPad1"] || [device hasPrefix:@"iPad2"]) {
-        // OLD IPADS: non-retina
-        if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
-            imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Portrait~ipad.png" ofType:nil];
-        } else {
-            imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Landscape~ipad.png" ofType:nil];
-        }
-    } else if ([device hasPrefix:@"iPad"]) {
-        // ALL OTHER (NEWER) IPADS
-        // iPad 4thGen, iPad Air 5thGen, iPad Mini 2ndGen (2048x1536 2x)
-        if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
-            imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Portrait@2x~ipad.png" ofType:nil];
-        } else {
-            imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Landscape@2x~ipad.png" ofType:nil];
-        }
-    } else {
-        // Fall back to our highest-res, since it's likely this device is new
-        imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-667h@2x.png" ofType:nil];
-    }
-    if (windowOverlay == nil) {
-        windowOverlay = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imgurl]];
-    }
-    [_window addSubview:windowOverlay];
-    [_window bringSubviewToFront:windowOverlay];
+     NSString *imgurl;
+     
+     struct utsname systemInfo;
+     uname(&systemInfo);
+     NSString *device = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+     
+     // List as of Oct 22 2015
+     if ([device isEqualToString:@"iPhone7,2"] || [device isEqualToString:@"iPhone8,1"]) {
+     // iPhone 6 (1334x750 3x)
+     imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-667h@2x.png" ofType:nil];
+     } else if ([device isEqualToString:@"iPhone7,1"] || [device isEqualToString:@"iPhone8,2"]) {
+     // iPhone 6 Plus (2208x1242 3x)
+     if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+     imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-Portrait-736h@3x.png" ofType:nil];
+     } else {
+     imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-Landscape-736h@3x.png" ofType:nil];
+     }
+     } else if ([device hasPrefix:@"iPhone5"] || [device hasPrefix:@"iPhone6"] || [device hasPrefix:@"iPod5"] || [device hasPrefix:@"iPod7"]) {
+     // iPhone 5/5S/5C (1136x640 2x)
+     imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-568h@2x.png" ofType:nil];
+     } else if ([device hasPrefix:@"iPhone3"] || [device hasPrefix:@"iPhone4"] || [device hasPrefix:@"iPod4"]) {
+     // iPhone 4/4S (960x640 2x)
+     imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage@2x.png" ofType:nil];
+     } else if ([device hasPrefix:@"iPad1"] || [device hasPrefix:@"iPad2"]) {
+     // OLD IPADS: non-retina
+     if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+     imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Portrait~ipad.png" ofType:nil];
+     } else {
+     imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Landscape~ipad.png" ofType:nil];
+     }
+     } else if ([device hasPrefix:@"iPad"]) {
+     // ALL OTHER (NEWER) IPADS
+     // iPad 4thGen, iPad Air 5thGen, iPad Mini 2ndGen (2048x1536 2x)
+     if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+     imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Portrait@2x~ipad.png" ofType:nil];
+     } else {
+     imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Landscape@2x~ipad.png" ofType:nil];
+     }
+     } else {
+     // Fall back to our highest-res, since it's likely this device is new
+     imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-667h@2x.png" ofType:nil];
+     }
+     if (windowOverlay == nil) {
+     windowOverlay = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imgurl]];
+     }
+     [_window addSubview:windowOverlay];
+     [_window bringSubviewToFront:windowOverlay];
      */
     
     [_tor appWillEnterBackground];
@@ -380,10 +397,10 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
         // definitely result in a hung Tor client. Quit the app entirely,
         // since this is also a good way to allow user to retry initial
         // connection if it fails.
-        #ifdef DEBUG
-            NSLog(@"Went to BG before initial connection completed: exiting.");
-        #endif
-        exit(0);
+#ifdef DEBUG
+        NSLog(@"Went to BG before initial connection completed: exiting.");
+#endif
+        // exit(0);
     } else {
         // Save state on crash if the user chose to
         NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -400,13 +417,13 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-     if (windowOverlay != nil) {
-         [windowOverlay removeFromSuperview];
-     }
-
+    if (windowOverlay != nil) {
+        [windowOverlay removeFromSuperview];
+    }
+    
     _window.hidden = NO;
     appWebView.view.hidden = NO;
-
+    
     // Don't want to call "activateTorCheckLoop" directly since we
     // want to HUP tor first.
     [_tor appDidBecomeActive];
@@ -426,28 +443,28 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
     NSString *urlStr = [url absoluteString];
     NSURL *newUrl = nil;
-
-    #ifdef DEBUG
-        NSLog(@"Received URL: %@", urlStr);
-    #endif
-
+    
+#ifdef DEBUG
+    NSLog(@"Received URL: %@", urlStr);
+#endif
+    
     NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
     BOOL appIsOnionBrowser = [bundleIdentifier isEqualToString:@"com.JustKodding.TheOnionBrowser"];
     BOOL srcIsOnionBrowser = (appIsOnionBrowser && [sourceApplication isEqualToString:bundleIdentifier]);
-
+    
     if (appIsOnionBrowser && [urlStr hasPrefix:@"theonionbrowser:/"]) {
         // HTTP
         urlStr = [urlStr stringByReplacingCharactersInRange:NSMakeRange(0, 17) withString:@"http:/"];
-        #ifdef DEBUG
-            NSLog(@" -> %@", urlStr);
-        #endif
+#ifdef DEBUG
+        NSLog(@" -> %@", urlStr);
+#endif
         newUrl = [NSURL URLWithString:urlStr];
     } else if (appIsOnionBrowser && [urlStr hasPrefix:@"theonionbrowsers:/"]) {
         // HTTPS
         urlStr = [urlStr stringByReplacingCharactersInRange:NSMakeRange(0, 18) withString:@"https:/"];
-        #ifdef DEBUG
-            NSLog(@" -> %@", urlStr);
-        #endif
+#ifdef DEBUG
+        NSLog(@" -> %@", urlStr);
+#endif
         newUrl = [NSURL URLWithString:urlStr];
     } else {
         return YES;
@@ -455,7 +472,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     if (newUrl == nil) {
         return YES;
     }
-
+    
     if ([_tor didFirstConnect]) {
         if (srcIsOnionBrowser) {
             [appWebView addNewTabForURL:newUrl];
@@ -463,12 +480,12 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
             [appWebView addNewTabForURL:newUrl];
         }
     } else {
-        #ifdef DEBUG
-            NSLog(@" -> have not yet connected to tor, deferring load");
-        #endif
+#ifdef DEBUG
+        NSLog(@" -> have not yet connected to tor, deferring load");
+#endif
         startUrl = newUrl;
     }
-	return YES;
+    return YES;
 }
 
 #pragma mark -
@@ -481,11 +498,11 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     sysctlbyname("hw.machine", machine, &size, NULL, 0);
     NSString *platform = [NSString stringWithUTF8String:machine];
     free(machine);
-
-    #ifdef DEBUG
+    
+#ifdef DEBUG
     NSLog(@"%@", platform);
-    #endif
-
+#endif
+    
     if (([platform rangeOfString:@"iPhone"].location != NSNotFound)||([platform rangeOfString:@"iPod"].location != NSNotFound)) {
         return 0;
     } else if ([platform rangeOfString:@"iPad"].location != NSNotFound) {
@@ -516,25 +533,25 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
             NSLog(@"(Source torrc %@ doesnt exist)", sourceTorrc);
         }
     }
-
+    
     NSFetchRequest *request = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"Bridge" inManagedObjectContext:self.managedObjectContext];
     [request setEntity:entity];
-
+    
     error = nil;
     NSMutableArray *mutableFetchResults = [[self.managedObjectContext executeFetchRequest:request error:&error] mutableCopy];
     if (mutableFetchResults == nil) {
-
+        
     } else if ([mutableFetchResults count] > 0) {
         NSFileHandle *myHandle = [NSFileHandle fileHandleForWritingAtPath:destTorrc];
         [myHandle seekToEndOfFile];
-
+        
         [myHandle writeData:[@"UseBridges 1\n" dataUsingEncoding:NSUTF8StringEncoding]];
         for (Bridge *bridge in mutableFetchResults) {
-          [myHandle writeData:[[NSString stringWithFormat:@"bridge %@\n", bridge.conf] dataUsingEncoding:NSUTF8StringEncoding]];
+            [myHandle writeData:[[NSString stringWithFormat:@"bridge %@\n", bridge.conf] dataUsingEncoding:NSUTF8StringEncoding]];
         }
     }
-
+    
     // Encrypt the new torrc (since this "running" copy of torrc may now contain bridges)
     NSDictionary *f_options = [NSDictionary dictionaryWithObjectsAndKeys:
                                NSFileProtectionCompleteUnlessOpen, NSFileProtectionKey, nil];
@@ -543,14 +560,14 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 
 - (void)wipeAppData {
     /*
-    // This is probably incredibly redundant since we just delete all the files, below
-    NSHTTPCookie *cookie;
-    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    for (cookie in [storage cookies]) {
-        [storage deleteCookie:cookie];
-    }
-    [[NSURLCache sharedURLCache] removeAllCachedResponses];
-    */
+     // This is probably incredibly redundant since we just delete all the files, below
+     NSHTTPCookie *cookie;
+     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+     for (cookie in [storage cookies]) {
+     [storage deleteCookie:cookie];
+     }
+     [[NSURLCache sharedURLCache] removeAllCachedResponses];
+     */
     
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
@@ -565,21 +582,21 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
             [fileManager removeItemAtPath:appFile error:nil];
         }
     }
-
+    
     // Delete all Caches, Cookies, Preferences in app's "Library" data dir. (Connection settings & etc end up in "Documents", not "Library".)
     NSArray *dataPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
     if ((dataPaths != nil) && ([dataPaths count] > 0)) {
         NSString *dataDir = [dataPaths objectAtIndex:0];
         NSFileManager *fm = [NSFileManager defaultManager];
-
+        
         if ((dataDir != nil) && [fm fileExistsAtPath:dataDir isDirectory:nil]){
             /*
-            NSString *cookiesDir = [NSString stringWithFormat:@"%@/Cookies", dataDir];
-            if ([fm fileExistsAtPath:cookiesDir isDirectory:nil]){
-                [fm removeItemAtPath:cookiesDir error:nil];
-            }
+             NSString *cookiesDir = [NSString stringWithFormat:@"%@/Cookies", dataDir];
+             if ([fm fileExistsAtPath:cookiesDir isDirectory:nil]){
+             [fm removeItemAtPath:cookiesDir error:nil];
+             }
              */
-
+            
             NSString *cachesDir = [NSString stringWithFormat:@"%@/Caches", dataDir];
             if ([fm fileExistsAtPath:cachesDir isDirectory:nil]){
                 [fm removeItemAtPath:cachesDir error:nil];
@@ -609,28 +626,28 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 - (NSMutableDictionary *)getSettings {
     NSPropertyListFormat format;
     NSMutableDictionary *d;
-
+    
     NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:self.settingsFile];
     if (plistXML == nil) {
         // We didn't have a settings file, so we'll want to initialize one now.
         d = [NSMutableDictionary dictionary];
     } else {
-       d = (NSMutableDictionary *)[NSPropertyListSerialization propertyListWithData:plistXML options:NSPropertyListMutableContainersAndLeaves format:&format error:nil];
+        d = (NSMutableDictionary *)[NSPropertyListSerialization propertyListWithData:plistXML options:NSPropertyListMutableContainersAndLeaves format:&format error:nil];
     }
-
+    
     // SETTINGS DEFAULTS
     // we do this here in case the user has an old version of the settings file and we've
     // added new keys to settings. (or if they have no settings file and we're initializing
     // from a blank slate.)
     Boolean update = NO;
-    if ([d objectForKey:@"homepage"] == nil || [[d objectForKey:@"homepage"] isEqualToString:@"theonionbrowser:home"]) {        
+    if ([d objectForKey:@"homepage"] == nil || [[d objectForKey:@"homepage"] isEqualToString:@"theonionbrowser:home"]) {
         NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
         NSDictionary *se = [[self searchEngines] objectForKey:[userDefaults stringForKey:@"search_engine"]];
         if (se == nil)
             se = [[self searchEngines] objectForKey:[[[self searchEngines] allKeys] firstObject]];
         
         [d setObject:[se objectForKey:@"homepage_url"] forKey:@"homepage"];
-
+        
         update = YES;
     }
     if ([d objectForKey:@"cookies"] == nil) {
@@ -660,7 +677,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
     if (update)
         [self saveSettings:d];
     // END SETTINGS DEFAULTS
-
+    
     return d;
 }
 
@@ -717,108 +734,108 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
      * all files pertinent to the app.
      */
     NSFileManager *fileManager = [NSFileManager defaultManager];
-
+    
     NSArray *dirs = [NSArray arrayWithObjects:
-      [[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:@".."],
-      [[NSBundle mainBundle] bundleURL],
-      [self applicationDocumentsDirectory],
-      [NSURL URLWithString:NSTemporaryDirectory()],
-      nil
-    ];
-
+                     [[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:@".."],
+                     [[NSBundle mainBundle] bundleURL],
+                     [self applicationDocumentsDirectory],
+                     [NSURL URLWithString:NSTemporaryDirectory()],
+                     nil
+                     ];
+    
     for (NSURL *bundleURL in dirs) {
-
-      NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtURL:bundleURL
-                                            includingPropertiesForKeys:@[NSURLNameKey, NSURLIsDirectoryKey, NSURLIsHiddenKey]
-                                                               options:0
-                                                          errorHandler:^(NSURL *url, NSError *error) {
-                                                            // ignore errors
-                                                            return YES;
-                                                          }];
-
-      // NOTE: doNotEncryptAttribute is only up in here because for some versions of Onion
-      //       Browser we were encrypting even OnionBrowser.app, which possibly caused
-      //       the app to become invisible. so we'll manually set anything inside executable
-      //       app to be unencrypted (because it will never store user data, it's just
-      //       *our* bundle.)
-      NSDictionary *fullEncryptAttribute = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 NSFileProtectionComplete, NSFileProtectionKey, nil];
-      // allow Tor-related files to be read by the app even when in the background. helps
-      // let Tor come back from sleep.
-      NSDictionary *torEncryptAttribute = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 NSFileProtectionCompleteUnlessOpen, NSFileProtectionKey, nil];
-      NSDictionary *doNotEncryptAttribute = [NSDictionary dictionaryWithObjectsAndKeys:
-                                        NSFileProtectionNone, NSFileProtectionKey, nil];
-
-      NSString *appDir = [[[[NSBundle mainBundle] bundleURL] absoluteString] stringByReplacingOccurrencesOfString:@"/private/var/" withString:@"/var/"];
-      NSString *tmpDirStr = [[[NSURL URLWithString:[NSString stringWithFormat:@"file://%@", NSTemporaryDirectory()]] absoluteString] stringByReplacingOccurrencesOfString:@"/private/var/" withString:@"/var/"];
-      #ifdef DEBUG
-      NSLog(@"%@", appDir);
-      #endif
-      
-      for (NSURL *fileURL in enumerator) {
-          NSNumber *isDirectory;
-          NSString *filePath = [[fileURL absoluteString] stringByReplacingOccurrencesOfString:@"/private/var/" withString:@"/var/"];
-          [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
-
-          if (![isDirectory boolValue]) {
-              // Directories can't be set to "encrypt"
-              if ([filePath hasPrefix:appDir]) {
-                  // Don't encrypt the OnionBrowser.app directory, because otherwise
-                  // the system will sometimes lose visibility of the app. (We're re-setting
-                  // the "NSFileProtectionNone" attribute because prev versions of Onion Browser
-                  // may have screwed this up.)
-                  #ifdef DEBUG
-                  NSLog(@"NO: %@", filePath);
-                  #endif
-                  [fileManager setAttributes:doNotEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
-              } else if (
-                [filePath containsString:@"torrc"] ||
-                [filePath hasPrefix:[NSString stringWithFormat:@"%@cached-certs", tmpDirStr]] ||
-                [filePath hasPrefix:[NSString stringWithFormat:@"%@cached-microdesc", tmpDirStr]] ||
-                [filePath hasPrefix:[NSString stringWithFormat:@"%@control_auth_cookie", tmpDirStr]] ||
-                [filePath hasPrefix:[NSString stringWithFormat:@"%@lock", tmpDirStr]] ||
-                [filePath hasPrefix:[NSString stringWithFormat:@"%@state", tmpDirStr]] ||
-                [filePath hasPrefix:[NSString stringWithFormat:@"%@tor", tmpDirStr]]
-              ) {
-                  // Tor related files should be encrypted, but allowed to stay open
-                  // if app was open & device locks.
-                  #ifdef DEBUG
-                  NSLog(@"TOR ENCRYPT: %@", filePath);
-                  #endif
-                  [fileManager setAttributes:torEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
-              } else {
-                  // Full encrypt. This is a file (not a directory) that was generated on the user's device
-                  // (not part of our .app bundle).
-                  #ifdef DEBUG
-                  NSLog(@"FULL ENCRYPT: %@", filePath);
-                  #endif
-                  [fileManager setAttributes:fullEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
-              }
-          }
-      }
+        
+        NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtURL:bundleURL
+                                              includingPropertiesForKeys:@[NSURLNameKey, NSURLIsDirectoryKey, NSURLIsHiddenKey]
+                                                                 options:0
+                                                            errorHandler:^(NSURL *url, NSError *error) {
+                                                                // ignore errors
+                                                                return YES;
+                                                            }];
+        
+        // NOTE: doNotEncryptAttribute is only up in here because for some versions of Onion
+        //       Browser we were encrypting even OnionBrowser.app, which possibly caused
+        //       the app to become invisible. so we'll manually set anything inside executable
+        //       app to be unencrypted (because it will never store user data, it's just
+        //       *our* bundle.)
+        NSDictionary *fullEncryptAttribute = [NSDictionary dictionaryWithObjectsAndKeys:
+                                              NSFileProtectionComplete, NSFileProtectionKey, nil];
+        // allow Tor-related files to be read by the app even when in the background. helps
+        // let Tor come back from sleep.
+        NSDictionary *torEncryptAttribute = [NSDictionary dictionaryWithObjectsAndKeys:
+                                             NSFileProtectionCompleteUnlessOpen, NSFileProtectionKey, nil];
+        NSDictionary *doNotEncryptAttribute = [NSDictionary dictionaryWithObjectsAndKeys:
+                                               NSFileProtectionNone, NSFileProtectionKey, nil];
+        
+        NSString *appDir = [[[[NSBundle mainBundle] bundleURL] absoluteString] stringByReplacingOccurrencesOfString:@"/private/var/" withString:@"/var/"];
+        NSString *tmpDirStr = [[[NSURL URLWithString:[NSString stringWithFormat:@"file://%@", NSTemporaryDirectory()]] absoluteString] stringByReplacingOccurrencesOfString:@"/private/var/" withString:@"/var/"];
+#ifdef DEBUG
+        // NSLog(@"%@", appDir);
+#endif
+        
+        for (NSURL *fileURL in enumerator) {
+            NSNumber *isDirectory;
+            NSString *filePath = [[fileURL absoluteString] stringByReplacingOccurrencesOfString:@"/private/var/" withString:@"/var/"];
+            [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+            
+            if (![isDirectory boolValue]) {
+                // Directories can't be set to "encrypt"
+                if ([filePath hasPrefix:appDir]) {
+                    // Don't encrypt the OnionBrowser.app directory, because otherwise
+                    // the system will sometimes lose visibility of the app. (We're re-setting
+                    // the "NSFileProtectionNone" attribute because prev versions of Onion Browser
+                    // may have screwed this up.)
+#ifdef DEBUG
+                    // NSLog(@"NO: %@", filePath);
+#endif
+                    [fileManager setAttributes:doNotEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
+                } else if (
+                           [filePath rangeOfString:@"torrc"].location != NSNotFound ||
+                           [filePath hasPrefix:[NSString stringWithFormat:@"%@cached-certs", tmpDirStr]] ||
+                           [filePath hasPrefix:[NSString stringWithFormat:@"%@cached-microdesc", tmpDirStr]] ||
+                           [filePath hasPrefix:[NSString stringWithFormat:@"%@control_auth_cookie", tmpDirStr]] ||
+                           [filePath hasPrefix:[NSString stringWithFormat:@"%@lock", tmpDirStr]] ||
+                           [filePath hasPrefix:[NSString stringWithFormat:@"%@state", tmpDirStr]] ||
+                           [filePath hasPrefix:[NSString stringWithFormat:@"%@tor", tmpDirStr]]
+                           ) {
+                    // Tor related files should be encrypted, but allowed to stay open
+                    // if app was open & device locks.
+#ifdef DEBUG
+                    // NSLog(@"TOR ENCRYPT: %@", filePath);
+#endif
+                    [fileManager setAttributes:torEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
+                } else {
+                    // Full encrypt. This is a file (not a directory) that was generated on the user's device
+                    // (not part of our .app bundle).
+#ifdef DEBUG
+                    // NSLog(@"FULL ENCRYPT: %@", filePath);
+#endif
+                    [fileManager setAttributes:fullEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
+                }
+            }
+        }
     }
 }
 /*
-- (void)testEncrypt {
-
-    NSURL *settingsPlist = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"Settings.plist"];
-    //NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"Settings.sqlite"];
-    NSLog(@"protected data available: %@",[[UIApplication sharedApplication] isProtectedDataAvailable] ? @"yes" : @"no");
-
-    NSError *error;
-
-    NSString *test = [NSString stringWithContentsOfFile:[settingsPlist path]
-                                                  encoding:NSUTF8StringEncoding
-                                                     error:NULL];
-    NSLog(@"file contents: %@\nerror: %@", test, error);
-}
-*/
+ - (void)testEncrypt {
+ 
+ NSURL *settingsPlist = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"Settings.plist"];
+ //NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"Settings.sqlite"];
+ NSLog(@"protected data available: %@",[[UIApplication sharedApplication] isProtectedDataAvailable] ? @"yes" : @"no");
+ 
+ NSError *error;
+ 
+ NSString *test = [NSString stringWithContentsOfFile:[settingsPlist path]
+ encoding:NSUTF8StringEncoding
+ error:NULL];
+ NSLog(@"file contents: %@\nerror: %@", test, error);
+ }
+ */
 
 
 - (NSString *)javascriptInjection {
     NSMutableString *str = [[NSMutableString alloc] init];
-
+    
     Byte uaspoof = [[self.getSettings valueForKey:@"uaspoof"] integerValue];
     if (uaspoof == UA_SPOOF_SAFARI_MAC) {
         [str appendString:@"var __originalNavigator = navigator;"];
@@ -858,7 +875,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
         [str appendString:@"navigator.__defineGetter__('platform',function(){return 'iPad';});"];
         [str appendString:@"navigator.__defineGetter__('userAgent',function(){return 'Mozilla/5.0 (iPad; CPU OS 8_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12A405 Safari/600.1.4';});"];
     }
-
+    
     Byte activeContent = [[self.getSettings valueForKey:@"javascript"] integerValue];
     if (activeContent != CONTENTPOLICY_PERMISSIVE) {
         [str appendString:@"function Worker(){};"];
@@ -872,7 +889,7 @@ NSString *const STATE_RESTORE_TRY_KEY = @"state_restore_lock";
 }
 - (NSString *)customUserAgent {
     // Byte uaspoof = [[self.getSettings valueForKey:@"uaspoof"] integerValue];
-
+    
     
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSString *ua_agent = [userDefaults stringForKey:@"ua_agent"];
