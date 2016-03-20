@@ -115,7 +115,7 @@ AppDelegate *appDelegate;
 	[_title setFont:[UIFont boldSystemFontOfSize:16.0]];
 	[_title setLineBreakMode:NSLineBreakByTruncatingTail];
 	[_title setTextAlignment:NSTextAlignmentCenter];
-	[_title setText:@"New Tab"];
+	[_title setText:NSLocalizedString(@"New Tab", nil)];
 	
 	_closer = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
 	[_closer setTextColor:[UIColor whiteColor]];
@@ -333,13 +333,13 @@ AppDelegate *appDelegate;
      * IP address (or other info) that an attack site included when the user
      * was on the attack site outside of Tor.
      */
-    NSString *msg = [NSString stringWithFormat: @"Another app has requested that The Onion Browser load the following link. Because the link is generated outside of Tor, please ensure that you trust the link & that the URL does not contain identifying information. Canceling will open the normal homepage.\n\n%@", navigationURL.absoluteString, nil];
+    NSString *msg = [NSString stringWithFormat:NSLocalizedString(@"Another app has requested that The Onion Browser load the following link. Because the link is generated outside of Tor, please ensure that you trust the link & that the URL does not contain identifying information. Canceling will open the normal homepage.\n\n%@", nil), navigationURL.absoluteString, nil];
     UIAlertView* alertView = [[UIAlertView alloc]
-                              initWithTitle:@"Open This URL?"
+                              initWithTitle:NSLocalizedString(@"Open This URL?", nil)
                               message:msg
                               delegate:nil
-                              cancelButtonTitle:@"Cancel"
-                              otherButtonTitles:@"Open This Link",nil];
+                              cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                              otherButtonTitles:NSLocalizedString(@"Open This Link", nil), nil];
     alertView.delegate = self;
     alertView.tag = ALERTVIEW_INCOMING_URL;
     [alertView show];
@@ -718,7 +718,7 @@ AppDelegate *appDelegate;
             position = kToastViewPositionTop;
         }
         
-        [ALToastView toastInView:self.viewHolder withText:@"Frame load interrupted, refreshing..." andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andPosition:position];
+        [ALToastView toastInView:self.viewHolder withText:NSLocalizedString(@"Frame load interrupted, refreshing...", nil) andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andPosition:position];
         
         [self forceRefresh];
         
@@ -751,11 +751,11 @@ AppDelegate *appDelegate;
         NSURL *url = [error.userInfo objectForKey:NSURLErrorFailingURLErrorKey];
         NSURL *failingURL = [error.userInfo objectForKey:@"NSErrorFailingURLKey"];
         UIAlertView* alertView = [[UIAlertView alloc]
-                                  initWithTitle:@"Cannot Verify Website Identity"
-                                  message:[NSString stringWithFormat:@"Either the SSL certificate for '%@' is self-signed or the certificate was signed by an untrusted authority.\n\nFor normal websites, it is generally unsafe to proceed.\n\nFor .onion websites (or sites using CACert or self-signed certificates), you may proceed if you think you can trust this website's URL.", url.host]
+                                  initWithTitle:NSLocalizedString(@"Cannot Verify Website Identity", nil)
+                                  message:[NSString stringWithFormat:NSLocalizedString(@"Either the SSL certificate for '%@' is self-signed or the certificate was signed by an untrusted authority.\n\nFor normal websites, it is generally unsafe to proceed.\n\nFor .onion websites (or sites using CACert or self-signed certificates), you may proceed if you think you can trust this website's URL.", nil), url.host]
                                   delegate:nil
-                                  cancelButtonTitle:@"Cancel"
-                                  otherButtonTitles:@"Continue",nil];
+                                  cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                                  otherButtonTitles:NSLocalizedString(@"Continue", nil), nil];
         alertView.delegate = self;
         alertView.tag = ALERTVIEW_SSL_WARNING;
         
@@ -843,7 +843,7 @@ AppDelegate *appDelegate;
             position = kToastViewPositionTop;
         }
         
-        [ALToastView toastInView:self.viewHolder withText:@"This website's SSL certificate errors will be ignored for the rest of this session." andDuration:5 andPosition:position];
+        [ALToastView toastInView:self.viewHolder withText:NSLocalizedString(@"This website's SSL certificate errors will be ignored for the rest of this session.", nil) andDuration:5 andPosition:position];
         
         // Reload (now that we have added host to whitelist)
         [self loadURL:url];
@@ -967,19 +967,19 @@ AppDelegate *appDelegate;
     
 	alertController = [UIAlertController alertControllerWithTitle:href message:nil preferredStyle:UIAlertControllerStyleActionSheet];
 	
-	UIAlertAction *openAction = [UIAlertAction actionWithTitle:@"Open" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+	UIAlertAction *openAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Open", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 		[self loadURL:[NSURL URLWithString:href]];
 	}];
 	
-	UIAlertAction *openNewTabAction = [UIAlertAction actionWithTitle:@"Open in a New Tab" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+	UIAlertAction *openNewTabAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Open in a New Tab", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 		[[appDelegate appWebView] addNewTabForURL:[NSURL URLWithString:href]];
 	}];
 	
-	UIAlertAction *openSafariAction = [UIAlertAction actionWithTitle:@"Open in Safari" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+	UIAlertAction *openSafariAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Open in Safari", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:href]];
 	}];
 
-	UIAlertAction *saveImageAction = [UIAlertAction actionWithTitle:@"Save Image" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+	UIAlertAction *saveImageAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save Image", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 		NSURL *imgurl = [NSURL URLWithString:img];
         [URLInterceptor temporarilyAllow:imgurl];
 
@@ -994,11 +994,11 @@ AppDelegate *appDelegate;
                 position = kToastViewPositionTop;
             }
             
-            [ALToastView toastInView:self.viewHolder withText:@"Failed to download image:\nCouldn't retrieve the image's data" andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3 andPosition:position];
+            [ALToastView toastInView:self.viewHolder withText:NSLocalizedString(@"Failed to download image:\nCouldn't retrieve the image's data.", nil) andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3 andPosition:position];
 		}
 	}];
 	
-	UIAlertAction *copyURLAction = [UIAlertAction actionWithTitle:@"Copy URL" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+	UIAlertAction *copyURLAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Copy URL", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 		[[UIPasteboard generalPasteboard] setString:(href ? href : img)];
 	}];
 	
@@ -1182,7 +1182,7 @@ AppDelegate *appDelegate;
             position = kToastViewPositionTop;
         }
         
-        [ALToastView toastInView:self.viewHolder withText:[NSString stringWithFormat:@"Failed to download image:\n%@", [error localizedDescription]] andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3 andPosition:position];
+        [ALToastView toastInView:self.viewHolder withText:[NSString stringWithFormat:NSLocalizedString(@"Failed to download image:\n%@", nil), [error localizedDescription]] andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3 andPosition:position];
     } else {
         int position = kToastViewPositionBottom;
         
@@ -1190,7 +1190,7 @@ AppDelegate *appDelegate;
             position = kToastViewPositionTop;
         }
         
-        [ALToastView toastInView:self.viewHolder withText:@"Successfully saved image" andPosition:position];
+        [ALToastView toastInView:self.viewHolder withText:NSLocalizedString(@"Successfully saved image", nil) andPosition:position];
     }
 }
 

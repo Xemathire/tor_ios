@@ -172,7 +172,7 @@ doPrepopulateBookmarks
                 position = kToastViewPositionTop;
             }
             
-            [ALToastView toastInView:self.appWebView.view withText:@"You are running a version of iOS that may use weak HTTPS encryption; iOS 8.2 contains a fix for this issue." andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:8 andPosition:position];
+            [ALToastView toastInView:self.appWebView.view withText:NSLocalizedString(@"You are running a version of iOS that may use weak HTTPS encryption; iOS 8.2 contains a fix for this issue.", nil) andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:8 andPosition:position];
         }
     }
     

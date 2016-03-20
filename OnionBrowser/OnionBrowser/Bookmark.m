@@ -139,21 +139,21 @@ const int BOOKMARK_FILE_VERSION = 1;
 {
 	WebViewTab *wvt = [[appDelegate appWebView] curWebViewTab];
 
-	UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Add Bookmark" message:@"Enter the details of the URL to bookmark:" preferredStyle:UIAlertControllerStyleAlert];
+	UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Add Bookmark", nil) message:NSLocalizedString(@"Enter the details of the URL to bookmark:", nil) preferredStyle:UIAlertControllerStyleAlert];
 	[alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-		textField.placeholder = @"URL";
+		textField.placeholder = NSLocalizedString(@"URL", nil);
 		
 		if (wvt && [wvt url])
 			textField.text = [[wvt url] absoluteString];
 	}];
 	[alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-		textField.placeholder = @"Page Name (leave blank to use URL)";
+		textField.placeholder = NSLocalizedString(@"Page Name (leave blank to use URL)", nil);
 		
 		if (wvt && [wvt url])
 			textField.text = [[wvt title] text];
 	}];
 	
-	UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"OK action") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+	UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 		UITextField *url = alertController.textFields[0];
 		UITextField *name = alertController.textFields[1];
 		
@@ -165,7 +165,7 @@ const int BOOKMARK_FILE_VERSION = 1;
 		}
 	}];
 	
-	UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Cancel action") style:UIAlertActionStyleCancel handler:nil];
+	UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil];
 	[alertController addAction:cancelAction];
 	[alertController addAction:okAction];
 	

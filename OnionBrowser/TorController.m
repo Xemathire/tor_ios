@@ -319,8 +319,6 @@ connectionStatus = _connectionStatus
                 if ([[appDelegate appWebView] toolbarOnBottom]) {
                     position = kToastViewPositionTop;
                 }
-                
-                [ALToastView toastInView:appDelegate.appWebView.view withText:@"Unknown Tor state, you may need to force quit & relaunch the app..." andBackgroundColor:[UIColor colorWithRed:1 green:0.231 blue:0.188 alpha:1] andDuration:3 andPosition:position];
             }
         }
     } else if ([newMsgIn rangeOfString:@"-status/bootstrap-phase="].location != NSNotFound) {
@@ -349,7 +347,7 @@ connectionStatus = _connectionStatus
                             position = kToastViewPositionTop;
                         }
                         
-                        [ALToastView toastInView:appDelegate.appWebView.view withText:@"Saved tabs restored" andPosition:position];
+                        [ALToastView toastInView:appDelegate.appWebView.view withText:NSLocalizedString(@"Saved tabs restored", nil) andPosition:position];
                     } else {
                         // Didn't launch with a "theonionbrowser://" or "theonionbrowsers://" URL, or failed to restore tabs
                         // so just launch the regular home page.
@@ -379,7 +377,7 @@ connectionStatus = _connectionStatus
                         position = kToastViewPositionTop;
                     }
                     
-                    [ALToastView toastInView:appDelegate.appWebView.view withText:@"Initializing Tor circuit...\nFirst page load may be slow to start." andDuration:5 andPosition:position];
+                    [ALToastView toastInView:appDelegate.appWebView.view withText:NSLocalizedString(@"Initializing Tor circuit...\nFirst page load may be slow to start.", nil) andDuration:5 andPosition:position];
                 }
             } else {
                 // Haven't done initial load yet and still waiting on bootstrap, so

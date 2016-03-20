@@ -79,6 +79,8 @@
     int panGestureRecognizerType; // 0: None, 1: Remove tab, 2: Change page
     
     UIPanGestureRecognizer *tabSelectionPanGestureRecognizer;
+    
+    UIColor *progressBarColor;
 }
 
 @synthesize showingTabs;
@@ -108,6 +110,13 @@
     [toolbar setClipsToBounds:YES];
     [[self view] addSubview:toolbar];
     
+    /* Add a shadow underneath the toolbar (the opacity will be changed depending on the dark interface setting) */
+    [[toolbar layer] setShadowColor:[[UIColor blackColor] CGColor]];
+    [[toolbar layer] setShadowOffset:CGSizeMake(0.0, 1.0)];
+    [[toolbar layer] setShadowRadius:0.25];
+    [[toolbar layer] setShadowOpacity:0.0];
+    [[toolbar layer] setMasksToBounds:NO];
+    
     self.toolbarOnBottom = [userDefaults boolForKey:@"toolbar_on_bottom"];
     self.darkInterface = [userDefaults boolForKey:@"dark_interface"];
 
@@ -116,6 +125,7 @@
     progressBar = [[UIProgressView alloc] init];
     [progressBar setTrackTintColor:[UIColor clearColor]];
     [progressBar setTintColor:self.view.window.tintColor];
+    progressBarColor = [progressBar tintColor];
     [progressBar setProgress:0.0];
     [toolbar addSubview:progressBar];
     
@@ -142,7 +152,7 @@
     [urlField setSpellCheckingType:UITextSpellCheckingTypeNo];
     [urlField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [urlField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
-    [urlField setPlaceholder:@"URL or query"];
+    [urlField setPlaceholder:NSLocalizedString(@"URL or query", nil)];
     [urlField setDelegate:self];
     [toolbar addSubview:urlField];
     
@@ -161,7 +171,7 @@
     tabsButton = [UIButton buttonWithType:UIButtonTypeCustom];
     UIImage *tabsImage = [[UIImage imageNamed:@"tabs"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     [tabsButton setImage:tabsImage forState:UIControlStateNormal];
-    [tabsButton setTintColor:[progressBar tintColor]];
+    [tabsButton setTintColor:progressBarColor];
     [tabsButton addTarget:self action:@selector(showTabs:) forControlEvents:UIControlEventTouchUpInside];
     [toolbar addSubview:tabsButton];
     
@@ -169,13 +179,13 @@
     [tabCount setText:@""];
     [tabCount setTextAlignment:NSTextAlignmentCenter];
     [tabCount setFont:[UIFont systemFontOfSize:11]];
-    [tabCount setTextColor:[progressBar tintColor]];
+    [tabCount setTextColor:progressBarColor];
     [toolbar addSubview:tabCount];
     
     settingsButton = [UIButton buttonWithType:UIButtonTypeCustom];
     UIImage *settingsImage = [[UIImage imageNamed:@"settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     [settingsButton setImage:settingsImage forState:UIControlStateNormal];
-    [settingsButton setTintColor:[progressBar tintColor]];
+    [settingsButton setTintColor:progressBarColor];
     [settingsButton addTarget:self action:@selector(showPopover:) forControlEvents:UIControlEventTouchUpInside];
     [toolbar addSubview:settingsButton];
     
@@ -219,7 +229,7 @@
     // Create custom done button
     doneButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 35.0f, 30.0f)];
     [doneButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:16.0f]];
-    [doneButton setTitle:@"OK" forState:UIControlStateNormal];
+    [doneButton setTitle:NSLocalizedString(@"OK", nil) forState:UIControlStateNormal];
     [doneButton setTitleColor:self.view.tintColor forState:UIControlStateNormal];
     [doneButton setTitleColor:[UIColor colorWithRed:190.0/255 green:215.0/255 blue:243.0/255 alpha:1.0] forState:UIControlStateHighlighted];
     [doneButton addTarget:self action:@selector(doneWithTabsButton:) forControlEvents:UIControlEventTouchUpInside];
@@ -424,14 +434,13 @@
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
     
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-        if (showingTabs) {
-            /* not sure why, but the transition looks nicer to do these linearly rather than adjusting layout in a completion block to ending tab showing */
+        if (showingTabs)
             [self showTabsWithCompletionBlock:nil];
-        }
-    } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-        [self adjustLayoutToSize:size];
+        
         [self updateSearchBarDetails];
-    }];
+        [self dismissPopover];
+        [self adjustLayoutToSize:size];
+    } completion:nil];
 }
 
 - (void)adjustLayoutToSize:(CGSize)size
@@ -480,6 +489,9 @@
             [addButton setBackgroundColor:[UIColor grayColor]];
         }
         
+        [progressBar setTintColor:[UIColor whiteColor]];
+        [[toolbar layer] setShadowOpacity:0.5];
+        
         [settingsButton setTintColor:[UIColor lightTextColor]];
         [backButton setTintColor:[UIColor lightTextColor]];
         [forwardButton setTintColor:[UIColor lightTextColor]];
@@ -500,16 +512,19 @@
         [toolbar setBackgroundColor:[UIColor groupTableViewBackgroundColor]];
         [urlField setBackgroundColor:[UIColor whiteColor]];
         
-        [doneButton setTitleColor:[progressBar tintColor] forState:UIControlStateNormal];
+        [doneButton setTitleColor:progressBarColor forState:UIControlStateNormal];
         [doneButton setBackgroundColor:[UIColor clearColor]];
-        [addButton setTitleColor:[progressBar tintColor] forState:UIControlStateNormal];
+        [addButton setTitleColor:progressBarColor forState:UIControlStateNormal];
         [addButton setBackgroundColor:[UIColor clearColor]];
         
-        [settingsButton setTintColor:[progressBar tintColor]];
-        [backButton setTintColor:[progressBar tintColor]];
-        [forwardButton setTintColor:[progressBar tintColor]];
-        [tabsButton setTintColor:[progressBar tintColor]];
-        [tabCount setTextColor:[progressBar tintColor]];
+        [progressBar setTintColor:progressBarColor];
+        [[toolbar layer] setShadowOpacity:0.0];
+
+        [settingsButton setTintColor:progressBarColor];
+        [backButton setTintColor:progressBarColor];
+        [forwardButton setTintColor:progressBarColor];
+        [tabsButton setTintColor:progressBarColor];
+        [tabCount setTextColor:progressBarColor];
         [lockIcon setTintColor:[UIColor lightGrayColor]];
         [brokenLockIcon setTintColor:[UIColor lightGrayColor]];
         
@@ -840,7 +855,7 @@
         }
     }
     
-    UIColor *tintColor = (self.darkInterface ? [UIColor lightTextColor] : [progressBar tintColor]);
+    UIColor *tintColor = (self.darkInterface ? [UIColor lightTextColor] : progressBarColor);
     backButton.enabled = (self.curWebViewTab && self.curWebViewTab.canGoBack);
     [backButton setTintColor:(backButton.enabled ? tintColor : [UIColor grayColor])];
     
@@ -1493,7 +1508,7 @@
     
     // Initialize all the pages with their content
     EAIntroPage *page1 = [EAIntroPage page];
-    [page1 setDesc:@"Use two fingers and drag from the edge of the screen to change tab."];
+    [page1 setDesc:NSLocalizedString(@"Use two fingers and drag from the edge of the screen to change tab.", nil)];
     [page1 setDescColor:[UIColor blackColor]];
     [page1 setDescFont:[UIFont systemFontOfSize:16]];
     [page1 setBgColor:[UIColor whiteColor]];
@@ -1502,7 +1517,7 @@
     [page1 setTitleIconPositionY:20];
     
     EAIntroPage *page2 = [EAIntroPage page];
-    [page2 setDesc:@"Swipe up with one finger to close a tab from the tabs selection view."];
+    [page2 setDesc:NSLocalizedString(@"Swipe up with one finger to close a tab from the tabs selection view.", nil)];
     [page2 setDescColor:[UIColor blackColor]];
     [page2 setDescFont:[UIFont systemFontOfSize:16]];
     [page2 setBgColor:[UIColor whiteColor]];
@@ -1511,7 +1526,7 @@
     [page2 setTitleIconPositionY:20];
     
     EAIntroPage *page3 = [EAIntroPage page];
-    [page3 setDesc:@"Added security features: disable javascript, use HTTPS Everywhere to encrypt communications..."];
+    [page3 setDesc:NSLocalizedString(@"Added security features: disable javascript, use HTTPS Everywhere to encrypt communications...", nil)];
     [page3 setDescColor:[UIColor blackColor]];
     [page3 setDescFont:[UIFont systemFontOfSize:15]];
     [page3 setBgColor:[UIColor whiteColor]];
@@ -1520,7 +1535,7 @@
     [page3 setTitleIconPositionY:20];
     
     EAIntroPage *page4 = [EAIntroPage page];
-    [page4 setDesc:@"A new tabs restoration feature reopens your tabs each time you launch the app."];
+    [page4 setDesc:NSLocalizedString(@"A new tabs restoration feature reopens your tabs each time you launch the app.", nil)];
     [page4 setDescColor:[UIColor blackColor]];
     [page4 setDescFont:[UIFont systemFontOfSize:16]];
     [page4 setBgColor:[UIColor whiteColor]];

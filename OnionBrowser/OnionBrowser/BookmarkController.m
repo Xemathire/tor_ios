@@ -43,9 +43,9 @@ UIBarButtonItem *leftItem;
     
     appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    self.title = @"Bookmarks";
+    self.title = NSLocalizedString(@"Bookmarks", nil);
     self.navigationItem.rightBarButtonItem = addItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addItem:)];
-    self.navigationItem.leftBarButtonItem = leftItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:self.navigationController action:@selector(dismissModalViewControllerAnimated:)];
+    self.navigationItem.leftBarButtonItem = leftItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil) style:UIBarButtonItemStyleDone target:self.navigationController action:@selector(dismissModalViewControllerAnimated:)];
     
     UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(didLongPress:)];
     lpgr.minimumPressDuration = 0.75f;
@@ -98,7 +98,7 @@ UIBarButtonItem *leftItem;
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
     if (self.embedded && section == 1)
-        return @"Bookmarks";
+        return NSLocalizedString(@"Bookmarks", nil);
     else
         return nil;
 }
@@ -137,7 +137,7 @@ UIBarButtonItem *leftItem;
             cell.detailTextLabel.text = b.urlString;
         }
     } else {
-        cell.textLabel.text = @"Homepage";
+        cell.textLabel.text = NSLocalizedString(@"Homepage", nil);
         appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         cell.detailTextLabel.text = [appDelegate homepage];
     }
@@ -167,13 +167,13 @@ UIBarButtonItem *leftItem;
         
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
         
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Edit Bookmark" message:@"Enter the details of the URL to bookmark:" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Edit Bookmark", nil) message:NSLocalizedString(@"Enter the details of the URL to bookmark:", nil) preferredStyle:UIAlertControllerStyleAlert];
         [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-            textField.placeholder = @"URL";
+            textField.placeholder = NSLocalizedString(@"URL", nil);
             textField.text = bookmark.urlString;
         }];
         [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-            textField.placeholder = @"Page Name (leave blank to use URL)";
+            textField.placeholder = NSLocalizedString(@"Page Name (leave blank to use URL)", nil);
             textField.text = bookmark.name;
         }];
         

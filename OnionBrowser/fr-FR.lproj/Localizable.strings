@@ -1,0 +1,96 @@
+/* 
+  Localizable.strings
+  The Onion Browser
+
+  Created by Jean-Romain on 20/03/2016.
+
+*/
+
+// NOTE:
+// Settings view's strings are located inside the InAppSettings.bundle file
+
+/* Generic strings */
+"Done" = "Terminé";
+"Cancel" = "Annuler";
+"OK" = "OK";
+"Continue" = "Continuer";
+"Error" = "Erreur";
+"URL" = "URL";
+
+/* Tutorial strings */
+"Use two fingers and drag from the edge of the screen to change tab." = "Utilisez 2 doigts et glissez depuis le bord de l'écran pour changer d'onglet.";
+"Swipe up with one finger to close a tab from the tabs selection view." = "Glissez vers le haut avec 1 doigt pour fermer un onglet dans la page de sélection des onglets.";
+"Added security features: disable javascript, use HTTPS Everywhere to encrypt communications..." = "Navigateur sécurisé : désactivez le javascript, connections sécurisées avec HTTPS Everywhere...";
+"A new tabs restoration feature reopens your tabs each time you launch the app." = "Conserver vos onglets entre chaque utilisation de l'application.";
+
+/* Web view strings */
+"New Tab" = "Nouvel onglet";
+"URL or query" = "URL ou recherche";
+
+/* Long press menu strings */
+"Open" = "Ouvrir";
+"Open in a New Tab" = "Ouvrir dans un nouvel onglet";
+"Open in Safari" = "Ouvrir dans Safari";
+"Save Image" = "Enregistrer l'image";
+"Copy URL" = "Copier l'URL";
+
+/* WebViewMenuController strings */
+"Refresh" = "Rafraîchir";
+"Add Bookmark" = "Ajouter un signet";
+"Bookmarked" = "Ajouté comme signet";
+"Set Homepage" = "Choisir comme page d'accueil";
+"Current homepage" = "Page d'accueil actuelle";
+"Open in Safari" = "Ouvrir dans Safari";
+"Cannot open link in safari: unsupported URL." = "Impossible d'ouvir le lien dans safari : URL non compatible.";
+"Manage Bookmarks" = "Gérer les signets";
+"Settings" = "Réglages";
+"Add Tor bridge" = "Ajouter un bridge Tor";
+"Bridge Configuration" = "Configuration de bridges Tor";
+"You can configure bridges here if your ISP normally blocks access to Tor.\n\nIf you did not mean to access the Bridge configuration, press \"Cancel\", then \"Restart App\", and then re-launch The Onion Browser." = "Vous pouvez configurer les \"bridges\" ici si votre fournisseur d'accès internet bloque l'accès à Tor.\n\nSi vous ne voulliez pas accéder à cettepage, sélectionnez \"annuler\", puis \"Relancer l'application\", et relancez The Onion Browser.";
+"HTTPS Everywhere" = "HTTPS Everywhere";
+"%ld rule%@ in use" = "%ld règle%@ pour cette page";
+"New identity" = "Nouvelle identité";
+"Requesting a new IP address from Tor. Cache, non-whitelisted cookies, and browser history cleared.\n\nDue to an iOS limitation, visisted links still get the ':visited' CSS highlight state." = "Demande d'une nouvelle adresse IP à Tor. Le cache et les cookies non white-listés seront effacés.\n\À cause d'une limitation de iOS, les liens visités gardent l'état ':visited' en CSS.";
+
+/* Bookmark strings */
+"Homepage" = "Page d'accueil";
+"Bookmarks" = "Signets";
+"Edit Bookmark" = "Modifier les signets";
+"Enter the details of the URL to bookmark:" = "Entrer les détails de l'URL à ajouter comme signet :";
+"Page Name (leave blank to use URL)" = "Nom du signet (laisser vide pour utiliser l'URL)";
+
+/* Bridges strings */
+"Bridges" = "Bridges";
+"Visit https://bridges.torproject.org/ and Get Bridges. Tap the 'camera' icon above to scan the QR code, or manually copy-and-paste the \"bridge lines\" here:\n\ni.e.:\n172.0.0.1:1234 912ec803b2ce49e4a541068d495ab570912ec803\n172.0.0.2:4567 098f6bcd4621d373cade4e832627b4f6098f6bcd\n172.0.0.3:7890 a541068d495ab570912ec803a541068d495ab570\n\nPlease note that The Onion Browser does NOT currently support bridges using Pluggable Transports (obfs3, scramblesuit, obfs4, etc.)\n\nIf you are in a location that uses more sophisticated methods to block Tor, you might have trouble getting a connection in The Onion Browser until Pluggable Transports are supported." = "Visitez https://bridges.torproject.org/ et sélectionnez un \"bridge\". L'icône 'camera' permet de scanner un QR code. Vous pouvez également copier puis coller les \"bridge lines\" ici :\n\ni.e. :\n172.0.0.1:1234 912ec803b2ce49e4a541068d495ab570912ec803\n172.0.0.2:4567 098f6bcd4621d373cade4e832627b4f6098f6bcd\n172.0.0.3:7890 a541068d495ab570912ec803a541068d495ab570\n\nVeuillez noter que The Onion Browser n'est pas compatible avec les \"bridges\" utilisant Pluggable Transports (obfs3, scramblesuit, obfs4, etc.)\n\nSi vous êtes dans un pays qui utilise des méthodes sophistiquées pour bloquer Tor, vous risquez d'avoir du mal à naviguer avec The Onion Browser.";
+"Visit https://bridges.torproject.org/ and Get Bridges. Then copy-and-paste the \"bridge lines\" here:\n\ni.e.:\n172.0.0.1:1234 912ec803b2ce49e4a541068d495ab570912ec803\n172.0.0.2:4567 098f6bcd4621d373cade4e832627b4f6098f6bcd\n172.0.0.3:7890 a541068d495ab570912ec803a541068d495ab570\n\nPlease note that The Onion Browser does NOT currently support bridges using Pluggable Transports (obfs3, scramblesuit, obfs4, etc.)\n\nIf you are in a location that uses more sophisticated methods to block Tor, you might have trouble getting a connection in The Onion Browser until Pluggable Transports are supported." = "Visitez https://bridges.torproject.org/ et sélectionnez un \"bridge\" et copiez puis collez les \"bridge lines\" ici :\n\ni.e. :\n172.0.0.1:1234 912ec803b2ce49e4a541068d495ab570912ec803\n172.0.0.2:4567 098f6bcd4621d373cade4e832627b4f6098f6bcd\n172.0.0.3:7890 a541068d495ab570912ec803a541068d495ab570\n\nVeuillez noter que The Onion Browser n'est pas compatible avec les \"bridges\" utilisant Pluggable Transports (obfs3, scramblesuit, obfs4, etc.)\n\nSi vous êtes dans un pays qui utilise des méthodes sophistiquées pour bloquer Tor, vous risquez d'avoir du mal à naviguer avec The Onion Browser.";
+"Camera access was not granted or QRCode scanning is not supported by your device." = "L'accès à la caméra a été refusé ou votre appareils n'est pas compatible avec la technologie utilisée pour scanner les QRCode.";
+"Pluggable Transports Not Supported" = "Pluggable Transports incompatible";
+"At least one bridge line you scanned contains a pluggable transport, such as 'obfs3', 'obfs4', or 'scramblesuit'.\n\nOnion Browser does not currently support these bridges, due to an incompatibility in iOS. Please select 'none' for 'Do you need a Pluggable Transport?' when getting bridges on the Tor bridge site." = "Au moins une \"bridge line\" que vous avez scanné contient  un \"pluggable transport\", tel que 'obfs3', 'obfs4', ou 'scramblesuit'.\n\nThe Onion Browser est incompatible avec ces \"bridges\" pour le moment à cause d'une incompatibilité dans iOS. Veuillez sélectionner 'none' pour 'Do you need a Pluggable Transport?' en sélectionnant un \"bridge\" sur le site de Tor.";
+"Bridges Scanned" = "Bridges Scannés";
+"Successfully scanned bridges. Please press 'Save' and restart the app for these changes to take effect." = "Les bridges ont été scanné avec succès. Veuillez sélectionner 'Sauvegarder' puis relancer l'application.";
+"Please Restart App" = "Veuillez relancer l'application";
+"The Onion Browser will now close. Please start the app again to retry the Tor connection with the newly-configured bridges.\n\n(If you restart and the app stays stuck at \"Connecting...\", please come back and double-check your bridge configuration or remove your bridges.)" = "The Onion Browser va maintenant quitter. Veuillez relancer l'application pour réessayer de se connecter avec les nouveaux \"bridges\".\n\n(Si vous relancer et que l'application reste bloquée dans la phase \"Connecting...\", veuillez vérifier votre configuration our enlever vos \"bridges\".)";
+" is" = " est";
+"s are" = "s sont";
+"%ld bridge%@ configured.You may need to quit the app and restart it to change the connection method.\n\n(If you restart and the app stays stuck at \"Connecting...\", please come back and double-check your bridge configuration or remove your bridges.)" = "%ld bridge%@ configurés. Vous risquez de devoir relancer l'application pour changer la méthode de connection.\n\n(Si vous relancer et que l'application reste bloquée dans la phase \"Connecting...\", veuillez vérifier votre configuration our enlever vos \"bridges\".)";
+"Continue anyway" = "Tout de même continuer";
+"Restart app" = "Relancer l'application";
+"Bridges Disabled" = "Bridges désactivés";
+"No bridges are configured, so bridge connection mode is disabled. If you previously had bridges, you may need to quit the app and restart it to change the connection method.\n\n(If you restart and the app stays stuck at \"Connecting...\", please come back and double-check your bridge configuration or remove your bridges.)" = "Aucun \"bridges\" n'est configuré. Si vous aviez des \"bridges\", vous risquez de devoir relancer l'application pour changer la méthode de connection..\n\n(Si vous relancer et que l'application reste bloquée dans la phase \"Connecting...\", veuillez vérifier votre configuration our enlever vos \"bridges\".)";
+
+/* Toast view messages' strings*/
+"You are running a version of iOS that may use weak HTTPS encryption; iOS 8.2 contains a fix for this issue." = "Vous utilisez une version de iOS utilsant une encryption HTTPS failble : iOS 8.2 répare ce problème.";
+"Saved tabs restored" = "Onglets sauvegardés restorés";
+"Initializing Tor circuit...\nFirst page load may be slow to start." = "Initialisation du circuit Tor...\nLe chargement de la première page peut mettre du temps à commencer.";
+"Frame load interrupted, refreshing..." = "Chargement du cadre interrompu, rafraîchissement automatique en cours...";
+"This website's SSL certificate errors will be ignored for the rest of this session." = "Les erreurs de certificat SSL pour ce site seront ignorés pour le reste de cette session.";
+"Failed to download image:\nCouldn't retrieve the image's data." = "Erreur lors du téléchargement de l'image :\nImpossible d'accéder aux données de l'image.";
+"Failed to download image:" = "Erreur lors du téléchargement de l'image :";
+"Successfully saved image" = "Image sauvegardée.";
+
+/* Alert view messages' strings */
+"Another app has requested that The Onion Browser load the following link. Because the link is generated outside of Tor, please ensure that you trust the link & that the URL does not contain identifying information. Canceling will open the normal homepage.\n\n%@" = "Une autre application a demandé à The Onion Browser d'ouvrir le lien suivant. Veuillez vérifier que vous faites confiance à ce site & que l'URL ne contient aucune information ne vous identifiant. Annuler ouvrira votre page d'accueil habituelle.\n\n%@";
+"Open This URL?" = "Charger cette URL ?";
+"Open This Link" = "Ouvrir ce lien";
+"Cannot Verify Website Identity" = "Impossible de vérifier l'identité du site internet";
+"Either the SSL certificate for '%@' is self-signed or the certificate was signed by an untrusted authority.\n\nFor normal websites, it is generally unsafe to proceed.\n\nFor .onion websites (or sites using CACert or self-signed certificates), you may proceed if you think you can trust this website's URL." = "Soit le certificat SSL pour '%@' est auto-signé, soit le certificat a été signé par une source non-fiable.\n\nPour les sites normaux, il est generallement risqué de continuer.\n\nPour les sites .onion, vous pouvez continuer si vous pensez pouvoir faire confiance à ce site.";

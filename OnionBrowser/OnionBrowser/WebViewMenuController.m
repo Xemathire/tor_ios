@@ -53,15 +53,15 @@ NSString * const LABEL = @"L";
 
 	buttons = [[NSMutableArray alloc] initWithCapacity:10];
 	
-	[buttons addObject:@{ FUNC : @"menuRefresh", LABEL : @"Refresh" }];
-	[buttons addObject:@{ FUNC : @"menuAddBookmark", LABEL : @"Add Bookmark" }];
-    [buttons addObject:@{ FUNC : @"menuSetHomepage", LABEL : @"Set Homepage" }];
-	[buttons addObject:@{ FUNC : @"menuOpenInSafari", LABEL : @"Open in Safari" }];
-	[buttons addObject:@{ FUNC : @"menuManageBookmarks", LABEL : @"Manage Bookmarks" }];
-	[buttons addObject:@{ FUNC : @"menuSettings", LABEL : @"Settings" }];
-    [buttons addObject:@{ FUNC : @"menuOpenBridge", LABEL : @"Add Tor bridge" }];
-    [buttons addObject:@{ FUNC : @"menuHTTPSEverywhere", LABEL : @"HTTPS Everywhere" }];
-    [buttons addObject:@{ FUNC : @"menuNewIdentity", LABEL : @"New identity" }];
+	[buttons addObject:@{ FUNC : @"menuRefresh", LABEL : NSLocalizedString(@"Refresh", nil) }];
+	[buttons addObject:@{ FUNC : @"menuAddBookmark", LABEL : NSLocalizedString(@"Add Bookmark", nil) }];
+    [buttons addObject:@{ FUNC : @"menuSetHomepage", LABEL : NSLocalizedString(@"Set Homepage", nil) }];
+	[buttons addObject:@{ FUNC : @"menuOpenInSafari", LABEL : NSLocalizedString(@"Open in Safari", nil) }];
+	[buttons addObject:@{ FUNC : @"menuManageBookmarks", LABEL : NSLocalizedString(@"Manage Bookmarks", nil) }];
+	[buttons addObject:@{ FUNC : @"menuSettings", LABEL : NSLocalizedString(@"Settings", nil) }];
+    [buttons addObject:@{ FUNC : @"menuOpenBridge", LABEL : NSLocalizedString(@"Add Tor bridge", nil) }];
+    [buttons addObject:@{ FUNC : @"menuHTTPSEverywhere", LABEL : NSLocalizedString(@"HTTPS Everywhere", nil) }];
+    [buttons addObject:@{ FUNC : @"menuNewIdentity", LABEL : NSLocalizedString(@"New identity", nil) }];
 
 	[self.view setBackgroundColor:[UIColor clearColor]];
 	[self.tableView setSeparatorInset:UIEdgeInsetsZero];
@@ -114,6 +114,10 @@ NSString * const LABEL = @"L";
 	cell.textLabel.text = [button objectForKey:LABEL];
 	cell.detailTextLabel.font = [UIFont systemFontOfSize:11];
     
+    UIImage *cellImage = [[UIImage imageNamed:@"httpsEverywhere"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    BOOL haveURL = ([[[appDelegate appWebView] curWebViewTab] url] != nil);
+    NSString *func = [button objectForKey:FUNC];
+
     UIColor *disabledColor = [UIColor darkGrayColor];
     UIColor *greenColor = [UIColor colorWithRed:0 green:0.5 blue:0 alpha:1];
     
@@ -130,39 +134,25 @@ NSString * const LABEL = @"L";
     } else {
         [cell setTintColor:[UIColor blackColor]];
     }
-    
-    UIImage *cellImage = [[UIImage imageNamed:@"bookmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-	
-	BOOL haveURL = ([[[appDelegate appWebView] curWebViewTab] url] != nil);
 
-	NSString *func = [button objectForKey:FUNC];
 	if ([func isEqualToString:@"menuAddBookmark"]) {
         cellImage = [[UIImage imageNamed:@"bookmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
 		if (haveURL) {
 			if ([Bookmark isURLBookmarked:[[[appDelegate appWebView] curWebViewTab] url]]) {
-				cell.textLabel.text = @"Bookmarked";
+				cell.textLabel.text = NSLocalizedString(@"Bookmarked", nil);
 				cell.userInteractionEnabled = NO;
-                [[cell textLabel] setTextColor:disabledColor];
 			}
 		}
-        else {
+        else
 			cell.userInteractionEnabled = NO;
-            [[cell textLabel] setTextColor:disabledColor];
-        }
 	}
 	else if ([func isEqualToString:@"menuRefresh"]) {
 		cell.userInteractionEnabled = haveURL;
-        // cell.textLabel.enabled = haveURL;
-        if (!haveURL) {
-            [[cell textLabel] setTextColor:disabledColor];
-        }
         cellImage = [[UIImage imageNamed:@"refreshImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    } else if ([func isEqualToString:@"menuOpenInSafari"]) {
+    }
+    else if ([func isEqualToString:@"menuOpenInSafari"]) {
         cell.userInteractionEnabled = haveURL;
-        if (!haveURL) {
-            [[cell textLabel] setTextColor:disabledColor];
-        }
         cellImage = [[UIImage imageNamed:@"safari"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     }
     else if ([func isEqualToString:@"menuManageBookmarks"])
@@ -173,18 +163,17 @@ NSString * const LABEL = @"L";
             // cell.userInteractionEnabled = cell.textLabel.enabled = YES;
             if ([[appDelegate homepage] isEqualToString:[NSString stringWithFormat:@"%@", [[[appDelegate appWebView] curWebViewTab] url]]]) {
                 cell.userInteractionEnabled = NO;
-                [[cell textLabel] setTextColor:disabledColor];
+                cell.textLabel.text = NSLocalizedString(@"Current homepage", nil);
             }
-        } else {
+        } else
             cell.userInteractionEnabled = NO;
-            [[cell textLabel] setTextColor:disabledColor];
-        }
-    } else if ([func isEqualToString:@"menuHTTPSEverywhere"] && haveURL) {
+    }
+    else if ([func isEqualToString:@"menuHTTPSEverywhere"] && haveURL) {
         cellImage = [[UIImage imageNamed:@"httpsEverywhere"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         long ruleCount = [[[[appDelegate appWebView] curWebViewTab] applicableHTTPSEverywhereRules] count];
         
         if (ruleCount > 0) {
-            cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld rule%@ in use", ruleCount, (ruleCount == 1 ? @"" : @"s")];
+            cell.detailTextLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld rule%@ in use", nil), ruleCount, (ruleCount == 1 ? @"" : @"s")];
             cell.detailTextLabel.textColor = greenColor;
         }
     }
@@ -196,6 +185,11 @@ NSString * const LABEL = @"L";
         cellImage = [[UIImage imageNamed:@"identity"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     
     cell.imageView.image = cellImage;
+    
+    if (!cell.userInteractionEnabled) {
+        [[cell textLabel] setTextColor:disabledColor];
+        cell.imageView.tintColor = disabledColor;
+    }
     
     CGFloat widthScale = 22 / cellImage.size.width;
     CGFloat heightScale = 22 / cellImage.size.height;
@@ -299,18 +293,18 @@ NSString * const LABEL = @"L";
     if (wvt && [wvt url] && [[UIApplication sharedApplication] canOpenURL:[wvt url]])
 		[[UIApplication sharedApplication] openURL:[wvt url]];
     else {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Error" message:@"Cannot open link in safari: unsupported URL." preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Error", nil) message:NSLocalizedString(@"Cannot open link in safari: unsupported URL.", nil) preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleCancel handler:nil]];
         [[appDelegate appWebView] presentViewController:alert animated:YES completion:nil];
     }
 }
 
 - (void)menuOpenBridge {
     AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Bridge Configuration"
-                                                    message:@"You can configure bridges here if your ISP normally blocks access to Tor.\n\nIf you did not mean to access the Bridge configuration, press \"Cancel\", then \"Restart App\", and then re-launch The Onion Browser."
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Bridge Configuration", nil)
+                                                    message:NSLocalizedString(@"You can configure bridges here if your ISP normally blocks access to Tor.\n\nIf you did not mean to access the Bridge configuration, press \"Cancel\", then \"Restart App\", and then re-launch The Onion Browser.", nil)
                                                    delegate:nil
-                                          cancelButtonTitle:@"OK"
+                                          cancelButtonTitle:NSLocalizedString(@"OK", nil)
                                           otherButtonTitles:nil];
     [alert show];
     
@@ -324,9 +318,9 @@ NSString * const LABEL = @"L";
     [appDelegate wipeAppData];
     
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil
-                                                    message:@"Requesting a new IP address from Tor. Cache, non-whitelisted cookies, and browser history cleared.\n\nDue to an iOS limitation, visisted links still get the ':visited' CSS highlight state."
+                                                    message:NSLocalizedString(@"Requesting a new IP address from Tor. Cache, non-whitelisted cookies, and browser history cleared.\n\nDue to an iOS limitation, visisted links still get the ':visited' CSS highlight state.", nil)
                                                    delegate:nil
-                                          cancelButtonTitle:@"OK"
+                                          cancelButtonTitle:NSLocalizedString(@"OK", nil)
                                           otherButtonTitles:nil];
     [alert show];
 

@@ -27,6 +27,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 #import "IASKAppSettingsViewController.h"
 #import "WebViewTab.h"
 #import "WYPopoverController.h"

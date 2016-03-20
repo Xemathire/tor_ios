@@ -80,6 +80,7 @@
 		332033671C8702CF0095736D /* QuickDialogWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3320332A1C8702CF0095736D /* QuickDialogWebController.m */; };
 		3320336B1C871E770095736D /* NSString+JavascriptEscape.m in Sources */ = {isa = PBXBuildFile; fileRef = 3320336A1C871E770095736D /* NSString+JavascriptEscape.m */; };
 		332033711C872A3E0095736D /* page_3.png in Resources */ = {isa = PBXBuildFile; fileRef = 332033701C872A3E0095736D /* page_3.png */; };
+		333FC0D91C9EAA14008EE2A0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 333FC0DB1C9EAA14008EE2A0 /* Localizable.strings */; };
 		33438D571C8B2E040049C82B /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D4B1C8B2E040049C82B /* libcrypto.a */; };
 		33438D581C8B2E040049C82B /* libcurve25519_donna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D4C1C8B2E040049C82B /* libcurve25519_donna.a */; };
 		33438D591C8B2E040049C82B /* libevent_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33438D4D1C8B2E040049C82B /* libevent_core.a */; };
@@ -398,6 +399,8 @@
 		332033691C871E770095736D /* NSString+JavascriptEscape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+JavascriptEscape.h"; sourceTree = "<group>"; };
 		3320336A1C871E770095736D /* NSString+JavascriptEscape.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+JavascriptEscape.m"; sourceTree = "<group>"; };
 		332033701C872A3E0095736D /* page_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = page_3.png; sourceTree = "<group>"; };
+		333FC0DC1C9EAA25008EE2A0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		333FC0DD1C9ECBA2008EE2A0 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		33438D4B1C8B2E040049C82B /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = ../dependencies/lib/libcrypto.a; sourceTree = "<group>"; };
 		33438D4C1C8B2E040049C82B /* libcurve25519_donna.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurve25519_donna.a; path = ../dependencies/lib/libcurve25519_donna.a; sourceTree = "<group>"; };
 		33438D4D1C8B2E040049C82B /* libevent_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_core.a; path = ../dependencies/lib/libevent_core.a; sourceTree = "<group>"; };
@@ -1489,6 +1492,7 @@
 				332032A91C86F0620095736D /* https-everywhere_rules.plist */,
 				332032AA1C86F0620095736D /* https-everywhere_targets.plist */,
 				6962EAAC19D534DF00FDD0A7 /* Images.xcassets */,
+				333FC0DB1C9EAA14008EE2A0 /* Localizable.strings */,
 				695BF044189444FF00C27BC1 /* LICENSE */,
 				33C2BB981C85E3B300FDF357 /* page_1.png */,
 				33C2BB9A1C85E3B300FDF357 /* page_2.png */,
@@ -1689,6 +1693,7 @@
 				336AAF4F1C01FB2F00CA19AC /* InAppSettings.bundle in Resources */,
 				696F9EB014F8DA6900BC5FDC /* torrc in Resources */,
 				69F88FCC1500A9D900C7BE98 /* geoip in Resources */,
+				333FC0D91C9EAA14008EE2A0 /* Localizable.strings in Resources */,
 				332032AC1C86F0620095736D /* https-everywhere_targets.plist in Resources */,
 				33E49E461C01D5100005E25B /* IASKLocalizable.strings in Resources */,
 				332032AB1C86F0620095736D /* https-everywhere_rules.plist in Resources */,
@@ -1922,6 +1927,15 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		333FC0DB1C9EAA14008EE2A0 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				333FC0DC1C9EAA25008EE2A0 /* en */,
+				333FC0DD1C9ECBA2008EE2A0 /* fr */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		33E49E201C01D5100005E25B /* IASKLocalizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (

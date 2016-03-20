@@ -94,7 +94,8 @@ const int kToastViewPositionBottom = 1;
         
         // Compute the label's size
         NSAttributedString *attributedText = [[NSAttributedString alloc] initWithString:text attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:fontSize]}];
-        CGRect rect = [attributedText boundingRectWithSize:(CGSize){self.parentView.bounds.size.width - 2 * leftPadding, self.parentView.bounds.size.height / 2}
+        // 3 * leftPadding: twice for the padding for the view, and once for the padding for the border of the screen
+        CGRect rect = [attributedText boundingRectWithSize:(CGSize){self.parentView.bounds.size.width - 3 * leftPadding, self.parentView.bounds.size.height / 2}
                                                    options:NSStringDrawingUsesLineFragmentOrigin
                                                    context:nil];
         [attributedText release];

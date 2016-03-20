@@ -1,0 +1,43 @@
+/* A single strings file, whose title is specified in your preferences schema. The strings files provide the localized content to display to the user for each of your preferences. */
+
+// In order of appearance
+"User Interface" = "Interface";
+"Toolbar on bottom" = "Barre d'outils en bas";
+"Night mode" = "Mode nuit";
+"Search Engine" = "Moteur de recherche";
+
+"Privacy" = "Vie privée";
+"Cookies and local storage data from non-whitelisted hosts will be cleared after not being accessed by any tabs for this many minutes" = "Les cookies et données locales non-whitelistées seront effacés après tant de minutes d'inactivité.";
+"Cookies" = "Cookies";
+"Cookie auto-sweep interval" = "Suppression des cookies";
+"When switching to another app, close all tabs and non-whitelisted cookies" = "Supprime les cookies et fermer les onglets en changeant d'application";
+"Clear all when backgrounded" = "Suppression en arrière-plan";
+"When quitting the app, save all open links and reopen them in the next session. Navigation history and cookies are not saved." = "Rouvre les onglets lorsque vous relancez l'application. L'historique et les cookies ne sont pas conservés.";
+"Save tabs when exiting app" = "Rouvrir les onglets";
+"Send Do-Not-Track" = "Do-Not-Track";
+
+"Security" = "Sécurité";
+"Resources loaded from the Internet will be blocked from loading page elements or making requests to LAN hosts (192.168.0.0/16, 172.16.0.0/12, etc.)" = "Les données chargées depuis Internet ne peuvent charger d'élements locaux (192.168.0.0/16, 172.16.0.0/12, etc.)";
+"Block external LAN requests" = "Bloquer les requêtes locales";
+"String used to identificate the user's browser" = "Chaîne de caractères utilisée pour identifier votre navigateur";
+"User-agent spoofing" = "Agent d'utilisateur";
+"Minimum version of SSL/TLS required for HTTPS connections; may require force closing the app to take effect" = "Version minimale de SSL/TLS pour les connections HTTPS. Relancer l'application peut s'avérer nécessaire pour appliquer les modifications.";
+"Minimum SSL/TLS version" = "Version SSL/TLS minimale";
+"TLS 1.2 only (no SSL)" = "TLS 1.2 seulement (pas de SSL)";
+"TLS 1.1 or 1.2 (no SSL)" = "TLS 1.1 ou 1.2 (pas de SSL)";
+"TLS 1.0, 1.1, or 1.2 (no SSL)" = "TLS 1.0, 1.1, ou 1.2 (pas de SSL)";
+"Auto-negotiate (SSL v2/v3, TLS 1.0/1.1/1.2)" = "Gestion automatique (SSL v2/v3, TLS 1.0/1.1/1.2)";
+"Auto" = "Auto";
+"Content policy" = "Politique d'origine du contenu";
+"Open (normal browsing mode)" = "Relachée (navigation normal)";
+"No XHR, webSockets or video" = "Pas de XHR, webSockets ou video";
+"Strict (no JavaScript, video, etc.)" = "Stricte (pas de JavaScript, video...)";
+"Open" = "Relachée";
+"Medium" = "Moyenne";
+"Strict" = "Stricte";
+
+"Miscellaneous" = "Divers";
+"Rate on App Store" = "Noter sur l'App Store";
+"About" = "À propos";
+"About The Onion Browser" = "The Onion Browser";
+"Show tutorial" = "Montrer le tutoriel à nouveau";
