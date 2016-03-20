@@ -227,9 +227,6 @@ AppDelegate *appDelegate;
 }
 
 - (void)renderTorStatus: (NSArray *)statusArray {
-    //UIWebView *loadingStatus = (UIWebView *)[self.view viewWithTag:kLoadingStatusTag];
-    UIWebView *loadingStatus = (UIWebView *)self.webView;
-    
     NSString *statusLine = statusArray[0];
     
     _torStatus = [NSString stringWithFormat:@"%@\n%@",
@@ -323,7 +320,7 @@ AppDelegate *appDelegate;
                         progress_str,
                         summary_str];
         
-    [loadingStatus loadHTMLString:[status description] baseURL:nil];
+    [self.webView loadHTMLString:[status description] baseURL:nil];
 }
 
 -(void)askToLoadURL: (NSURL *)navigationURL {

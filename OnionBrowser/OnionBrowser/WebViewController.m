@@ -67,7 +67,6 @@
     CGRect origTabScrollerFrame;
     BOOL webViewScrollIsDecelerating;
     BOOL webViewScrollIsDragging;
-    BOOL shouldHideStatusBar;
     BOOL hasBlur;
     
     WYPopoverController *popover;
@@ -110,12 +109,13 @@
     [toolbar setClipsToBounds:YES];
     [[self view] addSubview:toolbar];
     
-    /* Add a shadow underneath the toolbar (the opacity will be changed depending on the dark interface setting) */
+    /* Add a shadow underneath the toolbar (the opacity will be changed depending on the dark interface setting)
     [[toolbar layer] setShadowColor:[[UIColor blackColor] CGColor]];
     [[toolbar layer] setShadowOffset:CGSizeMake(0.0, 1.0)];
     [[toolbar layer] setShadowRadius:0.25];
     [[toolbar layer] setShadowOpacity:0.0];
     [[toolbar layer] setMasksToBounds:NO];
+     */
     
     self.toolbarOnBottom = [userDefaults boolForKey:@"toolbar_on_bottom"];
     self.darkInterface = [userDefaults boolForKey:@"dark_interface"];
@@ -187,6 +187,9 @@
     [settingsButton setImage:settingsImage forState:UIControlStateNormal];
     [settingsButton setTintColor:progressBarColor];
     [settingsButton addTarget:self action:@selector(showPopover:) forControlEvents:UIControlEventTouchUpInside];
+    // Make the button easier to hit, because it's a bit small
+    [settingsButton setFrame: CGRectMake(settingsButton.frame.origin.x, settingsButton.frame.origin.y, settingsButton.frame.size.width + 5, settingsButton.frame.size.height + 5)];
+    
     [toolbar addSubview:settingsButton];
     
     [tabScroller setAutoresizingMask:(UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight)];
@@ -277,7 +280,7 @@
     [self updateSearchBarDetails];
     
     panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_NONE;
-    shouldHideStatusBar = NO; // Only hide it when closing a tab
+    [[UIApplication sharedApplication] setStatusBarHidden:NO]; // Only hide it when closing a tab
     
     [self.view.window makeKeyAndVisible];
 }
@@ -285,11 +288,6 @@
 - (id)settingsButton
 {
     return settingsButton;
-}
-
-- (BOOL)prefersStatusBarHidden
-{
-    return shouldHideStatusBar;
 }
 
 - (void)didReceiveMemoryWarning
@@ -401,6 +399,20 @@
     [userDefaults synchronize];
     
     [self viewIsVisible];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    if (self.darkInterface) {
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
+    } else {
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:NO];
+    }
+    
+    [self updateSearchBarDetails];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
 }
 
 /* called when we've become visible (possibly again, from app delegate applicationDidBecomeActive) */
@@ -1111,7 +1123,7 @@
 
 - (void)showTabsWithCompletionBlock:(void(^)(BOOL))block
 {
-    shouldHideStatusBar = NO; // Just in case
+    [[UIApplication sharedApplication] setStatusBarHidden:NO]; // Just in case
     [self setNeedsStatusBarAppearanceUpdate];
 
     if (showingTabs == false) {
@@ -1351,6 +1363,8 @@
                 // We only care about speed < 0 because the user needs to swipe up to close the tab
                 /* User is trying to remove a tab */
                 panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_UP;
+                originalPoint = [[(WebViewTab *)webViewTabs[curTabIndex] viewHolder] center];
+                [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
             }
         }
         
@@ -1397,15 +1411,6 @@
             UIView *tabView = [(WebViewTab *)webViewTabs[curTabIndex] viewHolder];
             
             switch (gesture.state) {
-                case UIGestureRecognizerStateBegan: {
-                    originalPoint = [tabView center];
-                    [UIView animateWithDuration:0.2 animations:^{
-                        shouldHideStatusBar = YES;
-                        [self setNeedsStatusBarAppearanceUpdate];
-                    }];
-                    
-                    break;
-                };
                 case UIGestureRecognizerStateChanged: {
                     if (yDistance <= 0) {
                         tabView.center = CGPointMake(originalPoint.x, originalPoint.y + yDistance);
@@ -1427,10 +1432,7 @@
                         }];
                     }
                     
-                    [UIView animateWithDuration:0.2 animations:^{
-                        shouldHideStatusBar = NO;
-                        [self setNeedsStatusBarAppearanceUpdate];
-                    }];
+                    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
                     panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_NONE;
                     
                     break;
@@ -1479,8 +1481,8 @@
 
 - (void)showTutorial {
     // Change orientation to portrait, the tutorial doesn't nicelly support landscape
-    NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationPortrait];
-    [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
+    // NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationPortrait];
+    // [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
     
     // Compute the image views' frame
     CGRect frame = appDelegate.appWebView.view.bounds;

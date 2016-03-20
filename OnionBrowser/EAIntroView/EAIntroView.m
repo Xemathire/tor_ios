@@ -155,7 +155,6 @@
     _currentPageIndex = newPageIndex;
     
     if (self.currentPageIndex == (_pages.count)) {
-        
         //if run here, it means you can't  call _pages[self.currentPageIndex],
         //to be safe, set to the biggest index
         _currentPageIndex = _pages.count - 1;
@@ -209,6 +208,7 @@
         _scrollView.accessibilityIdentifier = @"intro_scroll";
         _scrollView.pagingEnabled = YES;
         _scrollView.alwaysBounceHorizontal = YES;
+        _scrollView.alwaysBounceVertical = NO;
         _scrollView.showsHorizontalScrollIndicator = NO;
         _scrollView.showsVerticalScrollIndicator = NO;
         _scrollView.delegate = self;

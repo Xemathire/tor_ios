@@ -245,11 +245,8 @@ NSString * const LABEL = @"L";
 		appSettingsViewController.showCreditsFooter = YES;
 	}
     
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 	UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:appSettingsViewController];
-    [[appDelegate appWebView] presentViewController:navController animated:YES completion:^{
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
-    }];
+    [[appDelegate appWebView] presentViewController:navController animated:YES completion:nil];
 }
 
 /*

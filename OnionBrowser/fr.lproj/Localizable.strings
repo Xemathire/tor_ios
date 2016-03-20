@@ -73,7 +73,7 @@
 " is" = " est";
 "s are" = "s sont";
 "%ld bridge%@ configured.You may need to quit the app and restart it to change the connection method.\n\n(If you restart and the app stays stuck at \"Connecting...\", please come back and double-check your bridge configuration or remove your bridges.)" = "%ld bridge%@ configurés. Vous risquez de devoir relancer l'application pour changer la méthode de connection.\n\n(Si vous relancer et que l'application reste bloquée dans la phase \"Connecting...\", veuillez vérifier votre configuration our enlever vos \"bridges\".)";
-"Continue anyway" = "Tout de même continuer";
+"Continue anyway" = "Annuler";
 "Restart app" = "Relancer l'application";
 "Bridges Disabled" = "Bridges désactivés";
 "No bridges are configured, so bridge connection mode is disabled. If you previously had bridges, you may need to quit the app and restart it to change the connection method.\n\n(If you restart and the app stays stuck at \"Connecting...\", please come back and double-check your bridge configuration or remove your bridges.)" = "Aucun \"bridges\" n'est configuré. Si vous aviez des \"bridges\", vous risquez de devoir relancer l'application pour changer la méthode de connection..\n\n(Si vous relancer et que l'application reste bloquée dans la phase \"Connecting...\", veuillez vérifier votre configuration our enlever vos \"bridges\".)";

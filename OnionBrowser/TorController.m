@@ -313,12 +313,8 @@ connectionStatus = _connectionStatus
                 // Otherwise, crash because we don't know the app's current state
                 // (since it hasn't totally initialized yet).
                 // exit(0);
-                AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-                int position = kToastViewPositionBottom;
                 
-                if ([[appDelegate appWebView] toolbarOnBottom]) {
-                    position = kToastViewPositionTop;
-                }
+                // Do nothing
             }
         }
     } else if ([newMsgIn rangeOfString:@"-status/bootstrap-phase="].location != NSNotFound) {
@@ -388,7 +384,7 @@ connectionStatus = _connectionStatus
                 
                 [wvc renderTorStatus:@[newMsgIn, _msgIn]];
                 _msgIn = newMsgIn;
-                _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:0.15f
+                _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:1.0f
                                                                       target:self
                                                                     selector:@selector(checkTor)
                                                                     userInfo:nil

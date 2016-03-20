@@ -31,6 +31,7 @@
 #import "IASKAppSettingsViewController.h"
 #import "WebViewTab.h"
 #import "WYPopoverController.h"
+#import "EAIntroView.h"
 
 #define PAN_GESTURE_RECOGNIZER_NONE 0
 #define PAN_GESTURE_RECOGNIZER_UP 1
@@ -43,7 +44,7 @@
 #define TOOLBAR_PADDING_RIGHT 10
 #define TOOLBAR_BUTTON_SIZE 30
 
-@interface WebViewController : UIViewController <UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate, IASKSettingsDelegate, WYPopoverControllerDelegate>
+@interface WebViewController : UIViewController <UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate, IASKSettingsDelegate, WYPopoverControllerDelegate, EAIntroDelegate>
 
 @property BOOL toolbarOnBottom;
 @property BOOL darkInterface;
