@@ -17,4 +17,4 @@ Features:
 NOTE:
 Web browsing is slower than through a normal web browser due to relaying through the Tor anonymization network.
 
-![snapshots](resources/snapshots.png "Snapshots")
+![snapshots](Resources/snapshots.png "Snapshots")

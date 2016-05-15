@@ -741,17 +741,58 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     NSArray *urlEndings = @[@".com",@".co",@".net",@".io",@".org",@".edu",@".to",@".ly",@".gov",@".eu",@".cn",@".mil",@".gl",@".info"];
     NSString *workingInput = @"";
     
-    if ([userInput hasPrefix:@"http://"] || [userInput hasPrefix:@"https://"]) {
-        workingInput = userInput;
-    } else if ([userInput hasPrefix:@"www."]) {
-        workingInput = [@"http://" stringByAppendingString:userInput];
-    } else if ([userInput hasPrefix:@"m."]) {
-        workingInput = [@"http://" stringByAppendingString:userInput];
-    } else if ([userInput hasPrefix:@"mobile."]) {
-        workingInput = [@"http://" stringByAppendingString:userInput];
-    } else {
-        workingInput = [@"http://www." stringByAppendingString:userInput];
+    // Check if it's escaped
+    if (![[userInput stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] isEqualToString:userInput])
+        return nil;
+    
+    // Check if it's an IP address
+    BOOL isIP = YES;
+    NSString *ipString = [userInput stringByReplacingOccurrencesOfString:@"http://" withString:@""];
+    ipString = [ipString stringByReplacingOccurrencesOfString:@"http://" withString:@""];
+    
+    if ([ipString rangeOfString: @"/"].location != NSNotFound)
+        ipString = [ipString substringWithRange:NSMakeRange(0, [ipString rangeOfString: @"/"].location)];
+    if ([ipString rangeOfString: @":"].location != NSNotFound)
+        ipString = [ipString substringWithRange:NSMakeRange(0, [ipString rangeOfString: @":"].location)];
+    
+    NSArray *components = [ipString componentsSeparatedByString:@"."];
+    if (components.count != 4)
+        isIP = NO;
+
+    NSCharacterSet *unwantedCharacters = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789."] invertedSet];
+    if ([ipString rangeOfCharacterFromSet:unwantedCharacters].location != NSNotFound)
+        isIP = NO;
+
+    for (NSString *string in components) {
+        if ((string.length < 1) || (string.length > 3 )) {
+            isIP = NO;
+        }
+        if (string.intValue > 255) {
+            isIP = NO;
+        }
     }
+    if  ([[components objectAtIndex:0]intValue]==0){
+        isIP = NO;
+    }
+    
+    if (isIP) {
+        if (![userInput hasPrefix:@"http://"] && ![userInput hasPrefix:@"https://"])
+            userInput = [@"http://" stringByAppendingString:userInput];
+            
+        return userInput;
+    }
+    
+    // Check if it's another type of URL
+    if ([userInput hasPrefix:@"http://"] || [userInput hasPrefix:@"https://"])
+        workingInput = userInput;
+    else if ([userInput hasPrefix:@"www."])
+        workingInput = [@"http://" stringByAppendingString:userInput];
+    else if ([userInput hasPrefix:@"m."])
+        workingInput = [@"http://" stringByAppendingString:userInput];
+    else if ([userInput hasPrefix:@"mobile."])
+        workingInput = [@"http://" stringByAppendingString:userInput];
+    else
+        workingInput = [@"http://www." stringByAppendingString:userInput];
     
     NSURL *url = [NSURL URLWithString:workingInput];
     for (NSString *extension in urlEndings) {
@@ -896,6 +937,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     // Don't load the tabs in the background
     for (int i = 0; i < [[self subtitles] count]; i++) {
         [[[self contentViews] objectAtIndex:i] setNeedsForceRefresh:YES];
+        [[[self contentViews] objectAtIndex:i] setUrl:[NSURL URLWithString:[self.titles objectAtIndex:i]]];
     }
     
     // Load the current tab

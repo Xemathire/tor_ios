@@ -15,6 +15,7 @@
 #import "BridgeViewController.h"
 #import "JFMinimalNotification.h"
 #import "iRate.h"
+#include <arpa/inet.h>
 
 @interface AppDelegate ()
 - (Boolean)torrcExists;
@@ -42,8 +43,8 @@ doPrepopulateBookmarks
     [iRate sharedInstance].daysUntilPrompt = 5;
     
     // Set these values because of the different bundle ID for this version
-    [iRate sharedInstance].appStoreID = 1063151782;
-    [iRate sharedInstance].applicationBundleID = @"com.JustKodding.TheOnionBrowser";
+    // [iRate sharedInstance].appStoreID = 1063151782;
+    // [iRate sharedInstance].applicationBundleID = @"com.JustKodding.TheOnionBrowser";
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -541,7 +542,7 @@ void HandleSignal(int signal) {
         update = YES;
     }
     if ([d objectForKey:@"dnt"] == nil || [userDefaults objectForKey:@"send_dnt"]) {
-        if ([[userDefaults objectForKey:@"send_dnt"] boolValue]  == false)
+        if ([userDefaults objectForKey:@"send_dnt"] && [[userDefaults objectForKey:@"send_dnt"] boolValue]  == false)
             [d setObject:[NSNumber numberWithInteger:DNT_HEADER_CANTRACK] forKey:@"dnt"];
         else
             [d setObject:[NSNumber numberWithInteger:DNT_HEADER_NOTRACK] forKey:@"dnt"];
@@ -568,7 +569,7 @@ void HandleSignal(int signal) {
         update = YES;
     }
     if ([d objectForKey:@"save-app-state"] == nil || [userDefaults objectForKey:@"save_state_on_close"]) {
-        if ([[userDefaults objectForKey:@"save_state_on_close"] boolValue] == false)
+        if ([userDefaults objectForKey:@"save_state_on_close"] && [[userDefaults objectForKey:@"save_state_on_close"] boolValue] == false)
             [d setObject:[NSNumber numberWithBool:false] forKey:@"save-app-state"];
         else
             [d setObject:[NSNumber numberWithBool:true] forKey:@"save-app-state"];
@@ -582,7 +583,7 @@ void HandleSignal(int signal) {
         update = YES;
     }
     if ([d objectForKey:@"night-mode"] == nil || [userDefaults objectForKey:@"dark_interface"]) {
-        if ([[userDefaults objectForKey:@"dark_interface"] boolValue]== true)
+        if ([userDefaults objectForKey:@"dark_interface"] && [[userDefaults objectForKey:@"dark_interface"] boolValue]== true)
             [d setObject:[NSNumber numberWithBool:true] forKey:@"night-mode"];
         else
             [d setObject:[NSNumber numberWithBool:false] forKey:@"night-mode"];

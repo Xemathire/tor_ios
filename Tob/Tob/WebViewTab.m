@@ -408,6 +408,7 @@ static char SSLWarningKey;
     [self informError:error];
     
     if (_index == _parent.tabView.currentIndex) {
+        #warning Error here when tab is being closed and object is being replace
         [_parent.progressValues replaceObjectAtIndex:_index withObject:[NSNumber numberWithFloat:1.0f]];
         _progress = 1.0f;
         [_parent updateProgress:1.0f animated:YES];
