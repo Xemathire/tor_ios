@@ -1,0 +1,156 @@
+/*
+  Localizable.strings
+  Tob
+  
+  Created by Jean-Romain on 06/05/2016.
+  Copyright © 2016 JustKodding. All rights reserved.
+*/
+
+/* Generic strings */
+"Done" = "Terminé";
+"Back" = "Retour";
+"Error" = "Erreur";
+"OK" = "OK";
+"Cancel" = "Annuler";
+"Save" = "Enregistrer";
+"Open" = "Ouvrir";
+"Continue" = "Continuer";
+
+/* Long press menu strings */
+"Open" = "Ouvrir";
+"Open in a New Tab" = "Ouvrir dans un nouvel onglet";
+"Open in Safari" = "Ouvrir dans Safari";
+"Save Image" = "Enregistrer l'image";
+"Copy URL" = "Copier l'URL";
+
+/* Notifications, alerts and error strings */
+"Outdated iOS Warning" = "Avertissement de version obsolète";
+"You are running a version of iOS that may use weak HTTPS encryption; iOS 8.2 contains a fix for this issue." = "Vous utilisez une version de iOS avec une encryption HTTPS faible : iOS 8.2 répare ce problème.";
+"Welcome to Tob" = "Bienvenu sur Tob";
+"If you are in a location that blocks connections to Tor, you may configure bridges before trying to connect for the first time." = "Si vous vous trouvez dans un pays bloquant les connections à Tor, vous pouvez configurer des \"bridges\" avant votre première connexion.";
+"Connect to Tor" = "Se connecter à Tor";
+"Configure Bridges" = "Configurer des \"bridges\"";
+"Initializing Tor circuit…" = "Initialisation du circuit Tor…";
+"First page load may be slow to start." = "Le chargement de la première page peut être long à commencer.";
+"Frame load interrupted" = "Chargement du cadre interrompu";
+"Refreshing tab n°%ld." = "Rafraîchissement automatique de l'onglet n°%ld.";
+"The page in tab n°%d couldn't load properly" = "La page dans l'onglet n°%d n'a pas pu charger correctement.";
+"Tor connection failure" = "Échec de la connexion au réseau Tor.";
+"Tob lost connection to the Tor anonymity network and is unable to reconnect. This may occur if Tob went to the background or if device went to sleep while Tob was active.\n\nPlease quit the app and try again." = "Tob a perdu la connexion au réseau Tor. Ceci est susceptible d'arriver lorsque Tob se trouve en arrière plan ou que votre appareil se met en veille.\n\nVeuillez quitter et relancer Tob.";
+"Cannot Verify Website Identity" = "Impossible de vérifier l'identité du site internet.";
+"Either the SSL certificate for '%@' is self-signed or the certificate was signed by an untrusted authority.\n\nFor normal websites, it is generally unsafe to proceed.\n\nFor .onion websites (or sites using CACert or self-signed certificates), you may proceed if you think you can trust this website's URL." = "Soit le certificat SSL pour '%@' est auto-signé, soit le certificat a été signé par une source non-fiable.\n\nPour les sites normaux, il est generallement risqué de continuer.\n\nPour les sites .onion, vous pouvez continuer si vous pensez pouvoir faire confiance à ce site.";
+"HTTPS Connection Failed" = "Échec de la connexion HTTPS.";
+"A secure connection to '%@' could not be made.\nThe site might be down, there could be a Tor network outage, or your 'minimum SSL/TLS' setting might want stronger security than the website provides.\n\nFull error: '%@'" = "Une connexion sécurisée à '%@' n'a pas pu être établie.\nLe site pourraît être inaccessible, il pourraît y avoir une interruption du résau Tor, ou votre choix de version SSL/TLS pourraît être trop élevé.\n\nErreur complète : '%@'";
+"This website is stuck in a redirect loop. The web page you tried to access redirected you to another web page, which, in turn, is redirecting you (and so on).\n\nPlease contact the site operator to fix this problem." = "Ce site internet est bloqué dans une boucle de redirection. La page à laquelle vous essayez d'accéder vous redirige vers une autre page, elle-même vous redirigeant à nouveau etc.\n\nVeuillez contacter l'opérateur de ce site pour résoudre le problème.";
+"The website you tried to access could not be found." = "Le site internet auquel vous essayez d'accéder est introuvable.";
+"The web page you tried to access is currently unavailable." = "Cette page est actuellement indisponible.";
+"Tob cannot display this type of content." = "Tob ne peut afficher ce type de contenu.";
+"Could not connect to the server. Either the domain name is incorrect, the server is inaccessible, or the Tor circuit was broken." = "Impossible de se connecter au serveur. Soit le nom de domaine est incorrect, soit le serveur est inaccessible, soit le circuit Tor est brisé.";
+"The website you tried to access could not be found." = "Cette page n'a pu être trouvée.";
+"Cannot Open Page" = "Impossible d'ouvrir cette page.";
+"An error occurred: %@\n(Error \"%@: %li)\"" = "Une erreur esy survenue : %@\n(Erreur \"%@: %li)\"";
+"Failed to download image" = "Échec du téléchargement de l'image";
+"Couldn't retrieve the image's data" = "Impossible de télécharger les données de l'image.";
+"Saved image" = "Image enregistrée";
+"Added the image to the camera roll" = "L'image a été ajoutée à votre pellicule.";
+"Whitelisted Domain" = "Domaine ajouté à la liste blanche.";
+"SSL certificate errors for '%@' will be ignored for the rest of this session." = "Les erreurs de certificat SSL/TLS pour '%@' seront ignorés durant cette session.";
+"Google is known to display captchas before each search to Tor users.\nSome users have experienced captcha loops. If this occurs, either change search engine or request a new identity in the Tor panel." = "Google est connu pour afficher des captchas avant chaque recherche aux utilisateurs de Tor.\nIl est également possible d'expérimenter des 'boucles' de captcha. Pour en sortir, veuillez changer de moteur de recherche ou demander une nouvelle identité dans le tableau de bord Tor.";
+
+/* Settings strings */
+"Settings" = "Réglages";
+"User Interface" = "Interface";
+"Privacy" = "Vie privée";
+"Security" = "Sécurité";
+"Miscellaneous" = "Divers";
+"Search engine" = "Moteur de recherche";
+"Reopen tabs" = "Rouvrir les onglets";
+"Night mode" = "Mode nuit";
+"Bookmark current URL" = "Ajouter un signet";
+"Edit bookmarks" = "Modifer les signets";
+"Cookies" = "Cookies";
+"Allow all" = "Bloquer aucun";
+"Block third-party" = "Bloquer les cookies tiers";
+"Block all" = "Bloquer tout";
+"User-Agent" = "Agent d'utilisateur";
+"Standard" = "Standard";
+"iPhone" = "iPhone";
+"Normalized iPhone (iOS Safari)" = "iPhone normalisé (iOS Safari)";
+"iPad" = "iPad";
+"Normalized iPad (iOS Safari)" = "iPad normalisé (iOS Safari)";
+"Windows 7" = "Windows 7";
+"Windows 7 (NT 6.1), Firefox 24" = "Windows 7 (NT 6.1), Firefox 24";
+"Mac OS X" = "Mac OS X";
+"Mac OS X 10.9.2, Safari 7.0.3" = "Mac OS X 10.9.2, Safari 7.0.3";
+"Do-not-track" = "Do-not-track";
+"Active content" = "Contenu actif";
+"Block Ajax" = "Bloquer Ajax";
+"Block Ajax/Media/WebSockets" = "Bloquer Ajax/Media/WebSockets";
+"Block all active content" = "Bloquer tout le contenu actif";
+"Disable javascript" = "Désactiver JavaScript";
+"TLS/SSL" = "TLS/SSL";
+"SSL v3" = "SSL v3";
+"TLS 1.0+" = "TLS 1.0+";
+"TLS 1.2" = "TLS 1.2";
+"Add Tor bridge" = "Ajouter un bridge Tor";
+"%ld bridges configured" = "%ld bridges configurés";
+"Rate on the App Store" = "Noter sur l'App Store";
+"License" = "License";
+"Leave blank to use default Tob home page." = "Laisser vide pour utiliser la page par défaut.";
+"Security Warning" = "Avertissement de sécurité";
+"The 'Allow All' setting is UNSAFE and only recommended if a trusted site requires Ajax or WebSockets.\n\nWebSocket requests happen outside of Tor and will unmask your real IP address." = "Le réglage 'Bloquer aucun' est peut sûr et uniquement recommendé pour les sites fiables.\n\n Les requêtes WebSocket ne peuvent être exécutées à travers Tor, votre adresse IP risque donc d'être démasquée.";
+"Experimental Feature" = "Fonction expérimentale";
+"Blocking all active content is an expérimental feature.\n\nDisabling active content makes it harder for websites to identify your device, but websites will be able to tell that you are blocking scripts. This may be identifying information if you are the only user that blocks scripts.\n\nSome websites may not work if active content is blocked.\n\nBlocking may cause Tob to crash when loading script-heavy websites." = "Bloquer tout le contenu actif est expérimental.\n\nIl permet de mieux protéger votre identité, mais les sites seront en mesure de savoir que vous bloquez les scripts. Cela pourraît permettre de vous distinguer si peu de personnes utilisent cette fonctionnalité.\n\nCertains sites pourraient ne pas fonctionner si le contenu actif est bloqué.\n\nTob risque de fermer inopinément, notamment lorsque vous visitez des sites utilisant de nombreux scripts.";
+"Minimum SSL/TLS protocol" = "Protocole SSL/TLS";
+"SSL v3 (INSECURE)" = "SSL v3 (peu sûr)";
+"TLS 1.2 only" = "TLS 1.2 uniquement";
+"Cookies allow the server to deliver a page tailored to a particular user, or the page itself can contain some script which is aware of the data in the cookie and so is able to carry information from one visit to the website (or related site) to the next.\nThird party cookies are stored by another website than the one you are visiting. Disabling those usually doesn't have any adverse effect on your browsing expérience.\n\nDefault: block third-party." = "Les cookies permettent au serveur d'afficher une page adaptée à chaque utilisateur, ou la page peut contenir un script lisant les informations stockées et pouvant les transmettre d'un site à un autre.\nLes cookies tiers sont stockés par un autre site que celui que vous visitez. Les désactiver n'a souvent aucun effet néfaste pour l'utilisateur.\n\nValeur par défaut : Bloquer les cookies tiers.";
+"The user-agent is a string used to identificate the user's browser. Normalized user-agents show your browser without any specific information related to your device (%@, iOS %@).\n\nDefault: Normalized %@." = "L'agent d'utilisateur est une chaîne de caractères utilisée pour identifier votre navigateur. Les valeurs normalisées cachent les informations spécifiques à votre appareil (%@, iOS %@).\n\nValeur par défaut : %@ normalisé.";
+"Active content is a type of interactive or dynamic website content that includes programs like Internet polls, JavaScript applications, animated images, video and audio…\nActive content contains programs that trigger automatic actions on a Web page without the user's knowledge or consent.\n\nDefault: Block Ajax/Media/WebSockets." = "Le contenu actif est un type de contenu interactif, comme un sondage internet, les applications JavaScript, les images animées, les vidéos et l'audio…\nLe contenu actif contient des programmes qui s'executent automatiquement sans que l'utilisateur le sache.\n\nValeur par défaut : Bloquer Ajax/Media/WebSockets.";
+"Minimum version of SSL/TLS required for HTTPS connections.\nNewer TLS protocols are more secure, but might not be supported by all sites.\n\nDefault : TLS 1.0+" = "Version minimale du protocole de sécurité SSL/TLS pour les connections HTTPS.\nLes nouvelles versions sont plus sécurisées, mais ne sont pas pris en charges par tous les sites.\n\nValeur par défault : TLS 1.0+.";
+
+/* Tabs view controller */
+"Search or enter an address" = "Rechercher ou saisir un site";
+"Initializing Tor…" = "Initialisation de Tor…";
+"New tab" = "Nouvel onglet";
+"Tob cannot load a '%@' link, but another app you have installed can.\n\nNote that the other app will not load data over Tor, which could leak identifying information.\n\nDo you wish to proceed?" = "Tob ne peut ouvrir de liens '%@', mais une autre application installée le peut.\n\nVeuillez noter que l'autre application ne vous protègera pas avec Tor, ce qui risque de révéler votre identié.\n\nContinuer ?";
+"Open Other App?" = "Ouvrir l'autre application ?";
+"Another app has requested that Tob load the following link. Because the link is generated outside of Tor, please ensure that you trust the link & that the URL does not contain identifying information. Canceling will open the normal homepage.\n\n%@" = "Une autre application a demandé à Tob d'ouvrir le lien suivant. Veuillez vérifier que vous faites confiance à ce site et que l'URL ne contient aucune information vous identifiant. Annuler ouvrira votre page d'accueil habituelle.\n\n%@";
+"Open This URL?" = "Charger cette URL ?";
+"Open This Link" = "Charger cette URL";
+"Tor panel" = "Tableau de bord Tor";
+"IP: %@" = "IP : %@";
+"IP: Loading…" = "IP : Chargement…";
+"New identity" = "Nouvelle identité";
+"Add bridge" = "Ajouter un bridge";
+"IP: Error, trying again…" = "IP : Erreur, nouvel essai en cours…";
+"Bridge Configuration" = "Configuration des \"bridge\"";
+"You can configure bridges here if your ISP normally blocks access to Tor.\n\nIf you did not mean to access the Bridge configuration, press \"Cancel\", then \"Restart App\", and then re-launch Tob." = "Vous pouvez configurer les \"bridges\" ici si votre fournisseur d'accès internet bloque l'accès à Tor.\n\nSi vous ne vouliez pas accéder à cettepage, sélectionnez \"annuler\", puis \"Relancer l'application\", et relancez Tob.";
+
+/* Bookmarks strings */
+"Bookmark Title" = "Titre du signet";
+"Bookmark URL" = "URL du signet";
+"Bookmarks" = "Signets";
+"Homepage" = "Page d'accueil";
+"Search: DuckDuckGo" = "Recherche : DuckDuckGo";
+"Search: DuckDuckGo (Plain HTTPS)" = "Recherche : DuckDuckGo (via HTTPS)";
+"IP Address Check" = "Test d'adresse IP";
+
+/* Bridges strings */
+"Bridges" = "Bridges";
+"Visit https://bridges.torproject.org/ and Get Bridges. Tap the 'camera' icon above to scan the QR code, or manually copy-and-paste the \"bridge lines\" here:\n\ni.e.:\n172.0.0.1:1234 912ec803b2ce49e4a541068d495ab570912ec803\n172.0.0.2:4567 098f6bcd4621d373cade4e832627b4f6098f6bcd\n172.0.0.3:7890 a541068d495ab570912ec803a541068d495ab570\n\nPlease note that Tob does NOT currently support bridges using Pluggable Transports (obfs3, scramblesuit, obfs4, etc.)\n\nIf you are in a location that uses more sophisticated methods to block Tor, you might have trouble getting a connection in Tob until Pluggable Transports are supported." = "Visitez https://bridges.torproject.org/ et sélectionnez un \"bridge\". L'icône 'caméra' permet de scanner un QR code. Vous pouvez également copier puis coller les \"bridge lines\" ici :\n\ni.e. :\n172.0.0.1:1234 912ec803b2ce49e4a541068d495ab570912ec803\n172.0.0.2:4567 098f6bcd4621d373cade4e832627b4f6098f6bcd\n172.0.0.3:7890 a541068d495ab570912ec803a541068d495ab570\n\nVeuillez noter que Tob n'est pas compatible avec les \"bridges\" utilisant Pluggable Transports (obfs3, scramblesuit, obfs4, etc.)\n\nSi vous êtes dans un pays qui utilise des méthodes sophistiquées pour bloquer Tor, vous risquez d'avoir du mal à naviguer avec Tob.";
+"Visit https://bridges.torproject.org/ and Get Bridges. Then copy-and-paste the \"bridge lines\" here:\n\ni.e.:\n172.0.0.1:1234 912ec803b2ce49e4a541068d495ab570912ec803\n172.0.0.2:4567 098f6bcd4621d373cade4e832627b4f6098f6bcd\n172.0.0.3:7890 a541068d495ab570912ec803a541068d495ab570\n\nPlease note that Tob does NOT currently support bridges using Pluggable Transports (obfs3, scramblesuit, obfs4, etc.)\n\nIf you are in a location that uses more sophisticated methods to block Tor, you might have trouble getting a connection in Tob until Pluggable Transports are supported." = "Visitez https://bridges.torproject.org/ et sélectionnez un \"bridge\" et copiez puis collez les \"bridge lines\" ici :\n\ni.e. :\n172.0.0.1:1234 912ec803b2ce49e4a541068d495ab570912ec803\n172.0.0.2:4567 098f6bcd4621d373cade4e832627b4f6098f6bcd\n172.0.0.3:7890 a541068d495ab570912ec803a541068d495ab570\n\nVeuillez noter que Tob n'est pas compatible avec les \"bridges\" utilisant Pluggable Transports (obfs3, scramblesuit, obfs4, etc.)\n\nSi vous êtes dans un pays qui utilise des méthodes sophistiquées pour bloquer Tor, vous risquez d'avoir du mal à naviguer avec Tob.";
+"Camera access was not granted or QRCode scanning is not supported by your device." = "L'accès à la caméra a été refusé ou votre appareil n'est pas compatible avec la technologie utilisée pour scanner les QRCode.";
+"Pluggable Transports Not Supported" = "Pluggable Transports incompatible";
+"At least one bridge line you scanned contains a pluggable transport, such as 'obfs3', 'obfs4', or 'scramblesuit'.\n\nTob does not currently support these bridges, due to an incompatibility in iOS. Please select 'none' for 'Do you need a Pluggable Transport?' when getting bridges on the Tor bridge site." = "Au moins une \"bridge line\" que vous avez scanné contient  un \"pluggable transport\", tel que 'obfs3', 'obfs4', ou 'scramblesuit'.\n\nTob est incompatible avec ces \"bridges\" pour le moment à cause d'une incompatibilité dans iOS. Veuillez sélectionner 'none' pour 'Do you need a Pluggable Transport?' en sélectionnant un \"bridge\" sur le site de Tor.";
+"Bridges Scanned" = "Bridges scannés";
+"Successfully scanned bridges. Please press 'Save' and restart the app for these changes to take effect." = "Les bridges ont été scannés avec succès. Veuillez sélectionner 'Sauvegarder' puis relancer l'application.";
+"Please Restart App" = "Veuillez relancer l'application";
+"Tob will now close. Please start the app again to retry the Tor connection with the newly-configured bridges.\n\n(If you restart and the app stays stuck at \"Connecting...\", please come back and double-check your bridge configuration or remove your bridges.)" = "Tob va maintenant quitter. Veuillez relancer l'application pour réessayer de se connecter avec les nouveaux \"bridges\".\n\n(Si vous relancez et que l'application reste bloquée dans la phase \"Connecting...\", veuillez vérifier votre configuration our enlever vos \"bridges\".)";
+"%ld bridge%@ configured.You may need to quit the app and restart it to change the connection method.\n\n(If you restart and the app stays stuck at \"Connecting...\", please come back and double-check your bridge configuration or remove your bridges.)" = "%ld bridge%@ configurés. Vous risquez de devoir relancer l'application pour changer la méthode de connexion.\n\n(Si vous relancez et que l'application reste bloquée dans la phase \"Connecting...\", veuillez vérifier votre configuration ou enlever vos \"bridges\".)";
+" is" = " est";
+"s are" = "s sont";
+"Continue anyway" = "Annuler";
+"Restart app" = "Relancer l'application";
+"Bridges Disabled" = "Bridges désactivés";
+"No bridges are configured, so bridge connection mode is disabled. If you previously had bridges, you may need to quit the app and restart it to change the connection method.\n\n(If you restart and the app stays stuck at \"Connecting...\", please come back and double-check your bridge configuration or remove your bridges.)" = "Aucun \"bridge\" n'est configuré. Si vous ajoutez des \"bridges\", vous devez relancer l'application pour changer la méthode de connexion..\n\n(Si vous relancez et que l'application reste bloquée dans la phase \"Connecting...\", veuillez vérifier votre configuration ou enlever vos \"bridges\".)";

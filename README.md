@@ -1,9 +1,9 @@
 <p align="center">
 	<img src="resources/icon.png?raw=true">
-	<h1 align="center">The Onion Browser</h1>
+	<h1 align="center">Tob</h1>
 </p>
 
-The Onion Browser is a free, open-source and ad-less web browser that uses Tor to protect your privacy.
+Tob is a free, open-source and ad-less web browser that uses Tor to protect your privacy.
 
 Features:
 - Anonymously browse the internet without websites knowing your real IP address.

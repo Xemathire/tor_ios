@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DuckDuckGo</key>
+	<dict>
+		<key>search</key>
+		<string>https://duckduckgo.com/?q=%@</string>
+		<key>search_no_js</key>
+		<string>https://duckduckgo.com/html/?q=%@</string>
+	</dict>
+	<key>Bing</key>
+	<dict>
+		<key>search</key>
+		<string>https://www.bing.com/search?q=%@</string>
+		<key>search_no_js</key>
+		<string>https://www.bing.com/search?q=%@</string>
+	</dict>
+	<key>Yahoo</key>
+	<dict>
+		<key>search</key>
+		<string>https://search.yahoo.com/search?p=%@</string>
+		<key>search_no_js</key>
+		<string>https://search.yahoo.com/search?p=%@&amp;nojs=1</string>
+	</dict>
+	<key>Google</key>
+	<dict>
+		<key>search</key>
+		<string>https://www.google.com/search?q=%@</string>
+		<key>search_no_js</key>
+		<string>https://www.google.com/search?q=%@</string>
+	</dict>
+</dict>
+</plist>
