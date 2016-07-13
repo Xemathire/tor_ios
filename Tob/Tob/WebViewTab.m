@@ -51,6 +51,18 @@ static char SSLWarningKey;
     return self;
 }
 
+- (void) setFrame:(CGRect)frame {
+    [super setFrame:frame];
+    
+    CGRect openPDFViewFrame = frame;
+    openPDFViewFrame.size.height = 30;
+    openPDFViewFrame.size.width = 300;
+    openPDFViewFrame.origin.y = frame.size.height - 40;
+    openPDFViewFrame.origin.x = (frame.size.width - openPDFViewFrame.size.width) / 2;
+    [_openPdfView setFrame:openPDFViewFrame];
+    [_openPDFButton setFrame:CGRectMake(0, 0, openPDFViewFrame.size.width, openPDFViewFrame.size.height)];
+}
+
 - (NSMutableDictionary *)progressDictionary {
     if (!_progressDictionary) {
         _progressDictionary = [[NSMutableDictionary alloc] initWithObjects:@[@0, @0] forKeys:@[@"requestCount", @"doneCount"]];
@@ -402,6 +414,11 @@ static char SSLWarningKey;
     
     // Increment the rating counter, but don't show the notification as it will interrupt the browsing experience
     [[iRate sharedInstance] logEvent:YES];
+    
+    // If the webview contains a PDF, add an option to open it in another app
+    if ([self isPDFContentLoadedInWebView:webView]) {
+        [self displayOpenPDFView];
+    }
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
@@ -452,6 +469,10 @@ static char SSLWarningKey;
         // We no longer are refreshing the page to "fix" a frame load interrupted error, so reset the counter
         _frameLoadInterruptedCount = 0;
     }
+    
+    [_openPdfView removeFromSuperview];
+    _openPdfView = nil;
+    _openPDFButton = nil;
         
     return YES;
 }
@@ -535,6 +556,85 @@ static char SSLWarningKey;
     return NO;
 }
 
+#pragma mark -  PDF management
 
+- (void)displayOpenPDFView {
+    _openPdfView = [[UIView alloc] init];
+    CGRect openPDFViewFrame = self.frame;
+    openPDFViewFrame.size.height = 30;
+    openPDFViewFrame.size.width = 300;
+    openPDFViewFrame.origin.y = self.frame.size.height - 40;
+    openPDFViewFrame.origin.x = (self.frame.size.width - openPDFViewFrame.size.width) / 2;
+    
+    [_openPdfView setFrame:openPDFViewFrame];
+    [_openPdfView setBackgroundColor:[UIColor whiteColor]];
+    [_openPdfView setAlpha:0.95];
+    [_openPdfView.layer setCornerRadius:5];
+    [_openPdfView.layer setMasksToBounds:NO];
+    [_openPdfView.layer setShadowOffset:CGSizeMake(-5, 5)];
+    [_openPdfView.layer setShadowRadius:5];
+    [_openPdfView.layer setShadowOpacity:0.3];
+
+
+    _openPDFButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, openPDFViewFrame.size.width, openPDFViewFrame.size.height)];
+    [_openPDFButton setTitle:NSLocalizedString(@"Open in...", nil) forState:UIControlStateNormal];
+    [_openPDFButton setTitleColor:self.tintColor forState:UIControlStateNormal];
+    [_openPDFButton addTarget:self action:@selector(openPDFAction) forControlEvents:UIControlEventTouchUpInside];
+    [_openPdfView addSubview:_openPDFButton];
+    
+    [self addSubview:_openPdfView];
+}
+
+- (BOOL)isPDFContentLoadedInWebView:(UIWebView *)webView {
+    return [[[webView.request.URL pathExtension] lowercaseString] isEqualToString:@"pdf"];
+}
+
+- (void)openPDFAction {
+    [self openPDFFromURL:[[self request] URL] inWebView:self];
+}
+
+- (void)openPDFFromURL:(NSURL *)pdfURL inWebView:(UIWebView *)webView {
+    // Create file path in cache directory
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *directory = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+    
+    NSString *fileName = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
+    
+    if ([fileName isEqualToString:@""])
+        fileName = [pdfURL host];
+        fileName = [fileName stringByReplacingOccurrencesOfString:@"www." withString:@""];
+    
+    // Add the pdf extension if need be
+    if (![[fileName substringFromIndex:[fileName length] - 4] isEqualToString:@".pdf"])
+        fileName = [fileName stringByAppendingString:@".pdf"];
+    
+    NSString *filePath = [directory stringByAppendingPathComponent:fileName];
+    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+    
+    [fileManager removeItemAtPath:filePath error:nil];
+    [_openPDFButton setTitle:NSLocalizedString(@"Loading...", nil) forState:UIControlStateNormal];
+    
+    [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:pdfURL] queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        if (!connectionError) {
+            NSData *pdfData = [[NSData alloc] initWithData:data];
+            if ([pdfData writeToFile:filePath atomically:YES]) {
+                _docController = [UIDocumentInteractionController interactionControllerWithURL:fileURL];
+                [_docController presentOpenInMenuFromRect:CGRectZero inView:webView animated:YES];
+            } else {
+                JFMinimalNotification *minimalNotification = [JFMinimalNotification notificationWithStyle:JFMinimalNotificationStyleError title:NSLocalizedString(@"Failed to open PDF", nil) subTitle:nil dismissalDelay:5.0];
+                minimalNotification.layer.zPosition = MAXFLOAT;
+                [_parent.view addSubview:minimalNotification];
+                [minimalNotification show];
+            }
+        } else{
+            JFMinimalNotification *minimalNotification = [JFMinimalNotification notificationWithStyle:JFMinimalNotificationStyleError title:NSLocalizedString(@"Failed to load PDF", nil) subTitle:nil dismissalDelay:5.0];
+            minimalNotification.layer.zPosition = MAXFLOAT;
+            [_parent.view addSubview:minimalNotification];
+            [minimalNotification show];
+        }
+        
+        [_openPDFButton setTitle:NSLocalizedString(@"Open in...", nil) forState:UIControlStateNormal];
+    }];
+}
 
 @end

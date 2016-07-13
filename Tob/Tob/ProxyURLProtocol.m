@@ -105,6 +105,7 @@
         NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
         resourcePath = [resourcePath stringByReplacingOccurrencesOfString:@"/" withString:@"//"];
         resourcePath = [resourcePath stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
+        url = [NSURL URLWithString:resourcePath];
         
         NSMutableURLRequest *newRequest = [NSMutableURLRequest requestWithURL:url];
         [newRequest setAllHTTPHeaderFields:[[self request] allHTTPHeaderFields]];
@@ -341,6 +342,7 @@
     NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
     NSLog(@"beginning cookie routine for URL %@ (main document %@)\ncurrent cookies=%@", request.URL.absoluteString, request.mainDocumentURL.absoluteString, cookies);
 #endif
+
     if ([_request HTTPShouldHandleCookies] == YES
         && [response isKindOfClass: [NSHTTPURLResponse class]] == YES)
     {

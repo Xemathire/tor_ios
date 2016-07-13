@@ -8,9 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import "TabsViewController.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface WebViewTab : UIWebView <UIWebViewDelegate, UIAlertViewDelegate, UIGestureRecognizerDelegate> {
     NSMutableDictionary *_progressDictionary;
+    UIDocumentInteractionController *_docController;
+    UIView *_openPdfView;
+    UIButton *_openPDFButton;
     float _progress;
 }
 

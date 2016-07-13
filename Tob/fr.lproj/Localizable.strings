@@ -127,6 +127,12 @@
 "Bridge Configuration" = "Configuration des \"bridge\"";
 "You can configure bridges here if your ISP normally blocks access to Tor.\n\nIf you did not mean to access the Bridge configuration, press \"Cancel\", then \"Restart App\", and then re-launch Tob." = "Vous pouvez configurer les \"bridges\" ici si votre fournisseur d'accès internet bloque l'accès à Tor.\n\nSi vous ne vouliez pas accéder à cettepage, sélectionnez \"annuler\", puis \"Relancer l'application\", et relancez Tob.";
 
+/* WebView tab*/
+"Loading..." = "Chargement...";
+"Failed to open PDF" = "Erreur lors de l'ouverture du PDF";
+"Failed to load PDF" = "Erreur lors du chargement du PDF";
+"Open in..." = "Ouvrir avec...";
+
 /* Bookmarks strings */
 "Bookmark Title" = "Titre du signet";
 "Bookmark URL" = "URL du signet";

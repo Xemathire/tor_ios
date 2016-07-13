@@ -30,6 +30,7 @@ startUrl,
 tor = _tor,
 window = _window,
 tabsViewController,
+logViewController,
 managedObjectContext = __managedObjectContext,
 managedObjectModel = __managedObjectModel,
 persistentStoreCoordinator = __persistentStoreCoordinator,
@@ -128,9 +129,11 @@ doPrepopulateBookmarks
     sigaction(SIGILL, &signalAction, NULL);
     sigaction(SIGBUS, &signalAction, NULL);
     
-    _window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    logViewController = [[LogViewController alloc] init];
     tabsViewController = [[TabsViewController alloc] init];
     tabsViewController.restorationIdentifier = @"WebViewController";
+    
+    _window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     _window.rootViewController = tabsViewController;
     [_window makeKeyAndVisible];
     

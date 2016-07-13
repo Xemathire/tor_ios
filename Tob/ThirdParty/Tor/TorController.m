@@ -94,11 +94,24 @@ connectionStatus = _connectionStatus
                                                          repeats:NO];
 }
 
+- (void)requestTorInfo {
+#ifdef DEBUG
+    NSLog(@"[tor] Requesting Tor info (getinfo orconn-status)" );
+#endif
+    // getinfo orconn-status: not the user's IP
+    // getinfo circuit-status: not the user's IP
+    // entry-guards: not the user's IP
+    [_mSocket writeString:@"getinfo circuit-status\n" encoding:NSUTF8StringEncoding];
+}
+
 - (void)requestNewTorIdentity {
 #ifdef DEBUG
     NSLog(@"[tor] Requesting new identity (SIGNAL NEWNYM)" );
 #endif
     [_mSocket writeString:@"SIGNAL NEWNYM\n" encoding:NSUTF8StringEncoding];
+    
+    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    [appDelegate.logViewController logInfo:@"[tor] Requesting new identity"];
 }
 
 
@@ -112,6 +125,9 @@ connectionStatus = _connectionStatus
 #ifdef DEBUG
         NSLog(@"[tor] Reachability changed (now online), sending HUP" );
 #endif
+        
+        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        [appDelegate.logViewController logInfo:@"[tor] Reachability changed (now online)"];
         [self hupTor];
     }
 }
@@ -131,6 +147,9 @@ connectionStatus = _connectionStatus
 #ifdef DEBUG
     NSLog(@"[tor] Came back from background, trying to talk to Tor again" );
 #endif
+    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    [appDelegate.logViewController logInfo:@"[tor] Came back from background, trying to talk to Tor again"];
+
     _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:0.25f
                                                           target:self
                                                         selector:@selector(activateTorCheckLoop)
@@ -196,6 +215,8 @@ connectionStatus = _connectionStatus
     //
     // Fail: Restart Tor? (Maybe HUP?)
     NSLog(@"[tor] checkTor timed out, attempting to restart tor");
+    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    [appDelegate.logViewController logInfo:@"[tor] checkTor timed out, attempting to restart tor"];
     //[self startTor];
     [self hupTor];
 }
@@ -240,6 +261,9 @@ connectionStatus = _connectionStatus
 #ifdef DEBUG
             NSLog(@"[tor] Control Port Authenticated Successfully" );
 #endif
+            
+            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            [appDelegate.logViewController logInfo:@"[tor] Control Port Authenticated Successfully"];
             _controllerIsAuthenticated = YES;
             
             [_mSocket writeString:@"getinfo status/bootstrap-phase\n" encoding:NSUTF8StringEncoding];
@@ -318,7 +342,6 @@ connectionStatus = _connectionStatus
         }
     } else if ([msgIn rangeOfString:@"orconn-status="].location != NSNotFound) {
         [_torStatusTimeoutTimer invalidate];
-        
         // Response to "getinfo orconn-status"
         // This is a response to a "checkTor" call in the middle of our app.
         if ([msgIn rangeOfString:@"250 OK"].location == NSNotFound) {
@@ -330,6 +353,9 @@ connectionStatus = _connectionStatus
                    withString:@"\n    "]
                   );
             
+            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            [appDelegate.logViewController logInfo:[NSString stringWithFormat:@"[tor] Control Port: orconn-status: NOT OK\n    %@", [msgIn stringByReplacingOccurrencesOfString:@"\n" withString:@"\n    "]]];
+
             [self hupTor];
         } else {
 #ifdef DEBUG
@@ -341,6 +367,81 @@ connectionStatus = _connectionStatus
                                                                 userInfo:nil
                                                                  repeats:NO];
         }
+    
+    }
+    /*
+    else if ([msgIn rangeOfString:@"entry-guards="].location != NSNotFound) {
+        NSMutableArray *guards = [[msgIn componentsSeparatedByString: @"\r\n"] mutableCopy];
+        
+        if ([guards count] > 1) {
+            // If the value is correct, the first object should be "250+entry-guards="
+            // The next ones should be "$<ID>~<NAME> <STATUS>"
+            [guards removeObjectAtIndex:0];
+            
+            for (NSString *exit in guards) {
+                NSRange r1 = [exit rangeOfString:@"$"];
+                NSRange r2 = [exit rangeOfString:@"~"];
+                NSRange idRange = NSMakeRange(r1.location + r1.length, r2.location - r1.location - r1.length);
+                
+                if (r1.location != NSNotFound && r2.location != NSNotFound && idRange.location != NSNotFound) {
+                    NSString *exitID = [exit substringWithRange:idRange];
+                    NSLog(@"exitID (up): %@", exitID);
+                    
+                    // Get IP for the current exit
+                    [_mSocket writeString:[NSString stringWithFormat:@"getinfo ns/id/%@\n", exitID] encoding:NSUTF8StringEncoding];
+                }
+            }
+        }
+    } 
+     */    
+    else if ([msgIn rangeOfString:@"circuit-status="].location != NSNotFound) {
+        NSMutableArray *guards = [[msgIn componentsSeparatedByString: @"\r\n"] mutableCopy];
+        
+        if ([guards count] > 1) {
+            // If the value is correct, the first object should be "250+entry-guards="
+            // The next ones should be "$<ID>~<NAME> <STATUS>"
+            [guards removeObjectAtIndex:0];
+            
+            for (NSString *exit in guards) {
+                NSRange r1 = [exit rangeOfString:@"$"];
+                NSRange r2 = [exit rangeOfString:@"~"];
+                NSRange idRange = NSMakeRange(r1.location + r1.length, r2.location - r1.location - r1.length);
+                
+                if (r1.location != NSNotFound && r2.location != NSNotFound && idRange.location != NSNotFound) {
+                    NSString *exitID = [exit substringWithRange:idRange];
+                    NSLog(@"exitID: %@", exitID);
+                    
+                    // Get IP for the current exit
+                    [_mSocket writeString:[NSString stringWithFormat:@"getinfo ns/id/%@\n", exitID] encoding:NSUTF8StringEncoding];
+                }
+            }
+        }
+    } else if ([msgIn rangeOfString:@"ns/id/"].location != NSNotFound) {
+        // getinfo ip-to-country/216.66.24.2
+        // Multiple results can be received at the same time
+        NSArray *requests = [msgIn componentsSeparatedByString:@"250+ns/id/"];
+        
+        for (NSString *msg in requests) {
+            NSMutableArray *infoArray = [[msg componentsSeparatedByString: @"\r\n"] mutableCopy];
+            
+            if ([infoArray count] > 1) {
+                // Format should be "<NAME> C3ZsrjOVPuRpCX2dprynFoY/jrQ awageVh+KgvJYAgPcG5kruCcJPo <TIME> <IP> 9001 9030"
+                // e.g. "Iroha C3ZsrjOVPuRpCX2dprynFoY/jrQ awageVh+KgvJYAgPcG5kruCcJPo 2016-05-22 05:04:19 185.21.217.32 9001 9030"
+                
+                NSString *infoString = [infoArray objectAtIndex:1];
+                NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)" options:NSRegularExpressionCaseInsensitive error:nil];
+                
+                NSArray* matches = [regex matchesInString:infoString
+                                                  options:0
+                                                    range:NSMakeRange(0, [infoString length])];
+                for (NSTextCheckingResult *match in matches) {
+                    NSLog(@"IP: %@", [infoString substringWithRange:[match rangeAtIndex:0]]);
+                }
+                
+            }
+        }
+    } else {
+        NSLog(@"msgIn: %@", msgIn);
     }
 }
 

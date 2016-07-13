@@ -16,6 +16,7 @@
 #import "BridgeViewController.h"
 #import "NSStringPunycodeAdditions.h"
 #import "iRate.h"
+#import "LogViewController.h"
 #import <objc/runtime.h>
 
 #define UNIBAR_DEFAULT_X 12
@@ -225,16 +226,21 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     _torLoadingView.center = self.view.center;
     _torLoadingView.layer.cornerRadius = 5.0f;
     _torLoadingView.layer.masksToBounds = YES;
-    
-    UILabel *titleProgressLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, _torLoadingView.frame.size.width - 20, 30)];
+
+    UILabel *titleProgressLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 10, _torLoadingView.frame.size.width, 30)];
     titleProgressLabel.text = NSLocalizedString(@"Initializing Tor…", nil);
     titleProgressLabel.textAlignment = NSTextAlignmentCenter;
     [_torLoadingView addSubview:titleProgressLabel];
-    
-    UIButton *settingsButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, 30, 30)];
+
+    UIButton *settingsButton = [[UIButton alloc] initWithFrame:CGRectMake(_torLoadingView.frame.size.width - 40, 10, 30, 30)];
     [settingsButton setImage:[[UIImage imageNamed:@"Settings"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [settingsButton addTarget:self action:@selector(settingsTapped:) forControlEvents:UIControlEventTouchUpInside];
     [_torLoadingView addSubview:settingsButton];
+    
+    UIButton *logButton = [[UIButton alloc] initWithFrame:CGRectMake(13, 13, 24, 24)];
+    [logButton setImage:[[UIImage imageNamed:@"Log"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [logButton addTarget:self action:@selector(showLog) forControlEvents:UIControlEventTouchUpInside];
+    [_torLoadingView addSubview:logButton];
     
     _torProgressView = [[UIProgressView alloc] initWithFrame:CGRectMake(10, 50, _torLoadingView.frame.size.width - 20, 10)];
     [_torLoadingView addSubview:_torProgressView];
@@ -245,6 +251,8 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     _torProgressDescription.adjustsFontSizeToFitWidth = YES;
     _torProgressDescription.text = @"0% - Starting";
     [_torLoadingView addSubview:_torProgressDescription];
+    
+    [appDelegate.logViewController logInfo:@"[tor] 0% - Starting"];
     
     [self.view addSubview:_torLoadingView];
     
@@ -291,7 +299,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         
         _progressView.trackTintColor = [UIColor colorWithRed:0.90 green:0.90 blue:0.92 alpha:1.0];
         _progressView.progressTintColor = self.view.tintColor;
-        _torProgressView.trackTintColor = [UIColor colorWithRed:0.90 green:0.90 blue:0.92 alpha:1.0];;
+        _torProgressView.trackTintColor = [UIColor colorWithRed:0.80 green:0.80 blue:0.82 alpha:1.0];;
         _torProgressView.progressTintColor = self.view.tintColor;
         
         _torLoadingView.backgroundColor = [UIColor groupTableViewBackgroundColor];
@@ -393,8 +401,10 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     
     if (self.tabView.isTabSelected) {
         [self.view bringSubviewToFront:self.selectedToolbar];
+        [self.view bringSubviewToFront:_bookmarks.tableView];
         [self.view bringSubviewToFront:_torDarkBackgroundView];
         [self.view bringSubviewToFront:_torLoadingView];
+        [self.view bringSubviewToFront:_torPanelView];
     }
 }
 
@@ -406,7 +416,6 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
     
-    
     // Update the toolbar's frame
     [self.selectedToolbar setFrame:CGRectMake(0, size.height - 44, size.width, 44)];
     [self.deselectedToolbar setFrame:CGRectMake(0, size.height - 44, size.width, 44)];
@@ -416,7 +425,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     frame.size = size;
     
     [self.tabView selectCurrentView];
-    
+        
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
         // Update the frame for all the content views
         for (WebViewTab *tab in self.contentViews) {
@@ -443,6 +452,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         else
             _webViewObject.frame =  CGRectMake(0, maxNavbarSize, SCREEN_WIDTH, SCREEN_HEIGHT - maxNavbarSize);
         
+        _cancelButton.frame = CGRectMake(size.width - 60, UNIBAR_DEFAULT_Y, 55, UNIBAR_DEFAULT_HEIGHT);
         CGRect textFieldFrame = _addressTextField.frame;
         textFieldFrame.origin.y = UNIBAR_DEFAULT_Y;
         _addressTextField.frame = textFieldFrame;
@@ -642,13 +652,17 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 }
 
 - (void)updateNavigationItems {
-    _addressTextField.text = [_titles objectAtIndex:self.tabView.currentIndex];
+    if (![_addressTextField isEditing])
+        _addressTextField.text = [_titles objectAtIndex:self.tabView.currentIndex];
     
     self.backBarButtonItem.enabled = _webViewObject.canGoBack;
     self.forwardBarButtonItem.enabled = _webViewObject.canGoForward;
     
     UIButton *refreshStopButton = _webViewObject.isLoading ? _addressTextField.cancelButton : _addressTextField.refreshButton;
+    refreshStopButton.hidden = _addressTextField.isEditing;
+        
     _addressTextField.rightView = refreshStopButton;
+
     UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
     UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     
@@ -738,7 +752,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 }
 
 -(NSString *)isURL:(NSString *)userInput {
-    NSArray *urlEndings = @[@".com",@".co",@".net",@".io",@".org",@".edu",@".to",@".ly",@".gov",@".eu",@".cn",@".mil",@".gl",@".info"];
+    NSArray *urlEndings = @[@".com",@".co",@".net",@".io",@".org",@".edu",@".to",@".ly",@".gov",@".eu",@".cn",@".mil",@".gl",@".info",@".onion"];
     NSString *workingInput = @"";
     
     // Check if it's escaped
@@ -987,6 +1001,11 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     
     [self performSelectorOnMainThread:@selector(updateTorProgress:) withObject:[NSNumber numberWithFloat:[progress_str intValue]/100.0] waitUntilDone:NO];
     _torProgressDescription.text = [NSString stringWithFormat:@"%@%% - %@", progress_str, summary_str];
+    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    
+    // Log the progress if it hasn't been logged yet
+    if ([appDelegate.logViewController.logTextView.text rangeOfString:[@"[tor] " stringByAppendingString:_torProgressDescription.text]].location == NSNotFound)
+        [appDelegate.logViewController logInfo:[@"[tor] " stringByAppendingString:_torProgressDescription.text]];
     
     if ([progress_str isEqualToString:@"100"]) {
         [self performSelectorOnMainThread:@selector(removeTorProgressView) withObject:nil waitUntilDone:NO];
@@ -1007,7 +1026,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     [self.view addSubview:_torDarkBackgroundView];
     [self.view addSubview:_torPanelView];
     
-    UILabel *torTitle = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 260, 30)];
+    UILabel *torTitle = [[UILabel alloc] initWithFrame:CGRectMake(0, 10, 300, 30)];
     torTitle.text = NSLocalizedString(@"Tor panel", nil);
     torTitle.font = [UIFont systemFontOfSize:20.0f];
     torTitle.textAlignment = NSTextAlignmentCenter;
@@ -1018,6 +1037,11 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     [closeButton.titleLabel setFont:[UIFont systemFontOfSize:25.0f weight:UIFontWeightLight]];
     [closeButton addTarget:self action:@selector(hideTorPanel) forControlEvents:UIControlEventTouchUpInside];
     [_torPanelView addSubview:closeButton];
+    
+    UIButton *logButton = [[UIButton alloc] initWithFrame:CGRectMake(13, 13, 24, 24)];
+    [logButton setImage:[[UIImage imageNamed:@"Log"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [logButton addTarget:self action:@selector(showLog) forControlEvents:UIControlEventTouchUpInside];
+    [_torPanelView addSubview:logButton];
     
     _IPAddressLabel = [[UILabel alloc] initWithFrame:CGRectMake(25, 45, 250, 30)];
     
@@ -1087,6 +1111,17 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     }];
 }
 
+- (void)showLog {
+    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    CATransition *transition = [CATransition animation];
+    transition.duration = 0.3;
+    transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    transition.type = kCATransitionPush;
+    transition.subtype = kCATransitionFromRight;
+    [self.view.window.layer addAnimation:transition forKey:nil];
+    [self presentViewController:appDelegate.logViewController animated:NO completion:nil];
+}
+
 - (void)showTLSStatus {
     if ([self.tlsStatuses objectAtIndex:self.tabView.currentIndex] == [NSNumber numberWithInt:TLSSTATUS_HIDDEN] || [_addressTextField isFirstResponder]) {
         [_addressTextField setLeftViewMode:UITextFieldViewModeNever];
@@ -1105,6 +1140,9 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 
 // Get IP Address
 - (void)getIPAddress {
+    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    [appDelegate.tor requestTorInfo];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         int currentIndentityNumber = _newIdentityNumber;
         

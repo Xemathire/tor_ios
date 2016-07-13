@@ -89,6 +89,7 @@
 		33C5DB9A1CD2241200102324 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3396C35D1CCF739200C7CCE2 /* main.m */; };
 		33D3DA8F1CDCA402009FCC6B /* searchEngineURLs.plist in Resources */ = {isa = PBXBuildFile; fileRef = 33D3DA8E1CDCA402009FCC6B /* searchEngineURLs.plist */; };
 		33D3DA921CDCA832009FCC6B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 33D3DA941CDCA832009FCC6B /* Localizable.strings */; };
+		33E38F9D1D294CA20003314B /* LogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 33E38F9C1D294CA20003314B /* LogViewController.m */; };
 		33FF98911CDA5CFE0086AED5 /* credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 33FF98901CDA5CFE0086AED5 /* credits.html */; };
 /* End PBXBuildFile section */
 
@@ -221,6 +222,8 @@
 		33D3DA8E1CDCA402009FCC6B /* searchEngineURLs.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = searchEngineURLs.plist; sourceTree = "<group>"; };
 		33D3DA931CDCA832009FCC6B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		33D3DA951CDCA84D009FCC6B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		33E38F9B1D294CA20003314B /* LogViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogViewController.h; sourceTree = "<group>"; };
+		33E38F9C1D294CA20003314B /* LogViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogViewController.m; sourceTree = "<group>"; };
 		33FF98901CDA5CFE0086AED5 /* credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = credits.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -462,6 +465,8 @@
 			children = (
 				3396C35F1CCF739200C7CCE2 /* AppDelegate.h */,
 				3396C3601CCF739200C7CCE2 /* AppDelegate.m */,
+				33E38F9B1D294CA20003314B /* LogViewController.h */,
+				33E38F9C1D294CA20003314B /* LogViewController.m */,
 				334CF8B61CD37D0700C3E346 /* ProxyURLProtocol.h */,
 				334CF8B71CD37D0700C3E346 /* ProxyURLProtocol.m */,
 				3396C3621CCF739200C7CCE2 /* TabsViewController.h */,
@@ -650,6 +655,7 @@
 				334CF9561CD380E700C3E346 /* MOTabView.m in Sources */,
 				334CF9541CD380E700C3E346 /* MOShadowView.m in Sources */,
 				334CF95D1CD380E700C3E346 /* NSData+Conversion.m in Sources */,
+				33E38F9D1D294CA20003314B /* LogViewController.m in Sources */,
 				334CF94F1CD380E700C3E346 /* CKHTTPConnection.m in Sources */,
 				334CF9581CD380E700C3E346 /* MOTitleTextField.m in Sources */,
 				333E270E1CDB859A00D33B2F /* JFMinimalNotificationArt.m in Sources */,
@@ -712,7 +718,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -752,7 +758,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -775,7 +781,7 @@
 					./dependencies/include,
 				);
 				INFOPLIST_FILE = Tob/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -801,7 +807,7 @@
 					./dependencies/include,
 				);
 				INFOPLIST_FILE = Tob/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

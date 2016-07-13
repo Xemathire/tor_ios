@@ -33,6 +33,7 @@
 - (void)hupTor;
 
 - (void)requestNewTorIdentity;
+- (void)requestTorInfo;
 
 - (void)activateTorCheckLoop;
 - (void)disableTorCheckLoop;

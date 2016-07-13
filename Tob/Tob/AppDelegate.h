@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "TabsViewController.h"
 #import "TorController.h"
+#import "LogViewController.h"
 
 #define COOKIES_ALLOW_ALL 0
 #define COOKIES_BLOCK_THIRDPARTY 1
@@ -44,6 +45,7 @@
 
 @property (strong, nonatomic) UIWindow *window;
 @property(strong, nonatomic) TabsViewController *tabsViewController;
+@property(strong, nonatomic) LogViewController *logViewController;
 @property (strong, nonatomic) TorController *tor;
 
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
