@@ -147,7 +147,7 @@
     }
     
     if (indexPath.section == 0) {
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         cell.textLabel.text = NSLocalizedString(@"Homepage", nil);
         cell.detailTextLabel.text = appDelegate.homepage;
     } else {
@@ -213,14 +213,14 @@
     if (!_embedded) {
         // Open an editing pane
         if (indexPath.section == 0) {
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings2 = appDelegate.getSettings;
             
             UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Homepage", nil) message:NSLocalizedString(@"Leave blank to use default Tob home page.", nil) preferredStyle:UIAlertControllerStyleAlert];
             [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
             
             [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Save", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-                AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+                AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
                 NSMutableDictionary *settings = appDelegate.getSettings;
                 
                 if ([[alert.textFields.firstObject text] length] == 0) {
@@ -250,7 +250,7 @@
         }
     } else {
         if (indexPath.section == 0) {
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSString *urlString = appDelegate.homepage;
             NSURL *url = [NSURL URLWithString:urlString];
             
@@ -264,7 +264,7 @@
             Bookmark *bookmark = (Bookmark *)[bookmarksArray objectAtIndex:indexPath.row];
             urlString = bookmark.url;
             
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             url = [NSURL URLWithString:urlString];
             [appDelegate.tabsViewController loadURL:url];
             [appDelegate.tabsViewController.titles replaceObjectAtIndex:appDelegate.tabsViewController.tabView.currentIndex withObject:urlString];
@@ -276,7 +276,7 @@
 - (void)addBookmark {
     Bookmark *bookmark = (Bookmark *)[NSEntityDescription insertNewObjectForEntityForName:@"Bookmark" inManagedObjectContext:managedObjectContext];
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     [bookmark setTitle:[[appDelegate.tabsViewController subtitles] objectAtIndex:appDelegate.tabsViewController.tabView.currentIndex]];
     [bookmark setUrl:[[appDelegate.tabsViewController titles] objectAtIndex:appDelegate.tabsViewController.tabView.currentIndex]];

@@ -26,8 +26,8 @@
 #VERSION="0.2.7.6"
 VERSION="0.2.8.2-alpha"
 USERSDKVERSION="9.3"
-MINIOSVERSION="7.0"
-VERIFYGPG=false
+MINIOSVERSION="8.0"
+VERIFYGPG=true
 
 # If you are in a country that blocks access to "torproject.org",
 # you will likely get an "Error opening archive" message when building.

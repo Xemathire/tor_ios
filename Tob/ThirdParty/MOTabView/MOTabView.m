@@ -912,7 +912,7 @@ static const BOOL kDebugMode = NO;
                 // User started from the edge of the screen
                 panGestureRecognizerType = PAN_GESTURE_RECOGNIZER_SIDE;
                 // Prevent scrolling/zooming while the user is changing tab
-                AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+                AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
                 WebViewTab *tab = (WebViewTab *)[appDelegate.tabsViewController.contentViews objectAtIndex:_currentIndex];
                 
                 [tab.scrollView.pinchGestureRecognizer setEnabled:NO];
@@ -941,7 +941,7 @@ static const BOOL kDebugMode = NO;
                     
                 case UIGestureRecognizerStateCancelled: {
                     // Reset everything
-                    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+                    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
                     WebViewTab *tab = (WebViewTab *)[appDelegate.tabsViewController.contentViews objectAtIndex:_currentIndex];
                     [tab.scrollView.pinchGestureRecognizer setEnabled:YES];
                     [tab.scrollView.panGestureRecognizer setEnabled:YES];
@@ -951,7 +951,7 @@ static const BOOL kDebugMode = NO;
                     
                 case UIGestureRecognizerStateFailed: {
                     // Reset everything
-                    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+                    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
                     WebViewTab *tab = (WebViewTab *)[appDelegate.tabsViewController.contentViews objectAtIndex:_currentIndex];
                     [tab.scrollView.pinchGestureRecognizer setEnabled:YES];
                     [tab.scrollView.panGestureRecognizer setEnabled:YES];
@@ -960,7 +960,7 @@ static const BOOL kDebugMode = NO;
                 }
                     
                 case UIGestureRecognizerStateEnded: {
-                    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+                    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
                     WebViewTab *tab = (WebViewTab *)[appDelegate.tabsViewController.contentViews objectAtIndex:_currentIndex];
                     [tab.scrollView.pinchGestureRecognizer setEnabled:YES];
                     [tab.scrollView.panGestureRecognizer setEnabled:YES];
@@ -1048,7 +1048,7 @@ static const BOOL kDebugMode = NO;
         } else if (gesture.state == UIGestureRecognizerStateEnded) {
             // Reset the origin point for the gesture
             panGestureOriginPoint = CGPointZero;
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             WebViewTab *tab = (WebViewTab *)[appDelegate.tabsViewController.contentViews objectAtIndex:_currentIndex];
             [tab.scrollView.pinchGestureRecognizer setEnabled:YES];
             [tab.scrollView.panGestureRecognizer setEnabled:YES];

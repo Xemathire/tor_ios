@@ -345,7 +345,7 @@ static char SSLWarningKey;
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if ((alertView.tag == ALERTVIEW_SSL_WARNING) && (buttonIndex == 1)) {
         // "Continue anyway" for SSL cert error
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         
         // Assuming URL in address bar is the one that caused this error.
         NSURL *url = objc_getAssociatedObject(alertView, &SSLWarningKey);
@@ -425,7 +425,7 @@ static char SSLWarningKey;
     [self informError:error];
     
     if (_index == _parent.tabView.currentIndex) {
-        #warning Error here when tab is being closed and object is being replace
+        #warning Error here when tab is being closed and object is being replaced
         [_parent.progressValues replaceObjectAtIndex:_index withObject:[NSNumber numberWithFloat:1.0f]];
         _progress = 1.0f;
         [_parent updateProgress:1.0f animated:YES];

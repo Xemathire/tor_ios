@@ -87,6 +87,8 @@
 		33C5DB981CD2240B00102324 /* TabsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3396C3631CCF739200C7CCE2 /* TabsViewController.m */; };
 		33C5DB991CD2240F00102324 /* WebViewTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 3396C3971CCF76F300C7CCE2 /* WebViewTab.m */; };
 		33C5DB9A1CD2241200102324 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3396C35D1CCF739200C7CCE2 /* main.m */; };
+		33D24EA11DD5FFFA0091A7DC /* ObfsWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 33D24EA01DD5FFFA0091A7DC /* ObfsWrapper.m */; };
+		33D24EA51DD600420091A7DC /* Iobfs4proxy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33D24EA41DD600420091A7DC /* Iobfs4proxy.framework */; };
 		33D3DA8F1CDCA402009FCC6B /* searchEngineURLs.plist in Resources */ = {isa = PBXBuildFile; fileRef = 33D3DA8E1CDCA402009FCC6B /* searchEngineURLs.plist */; };
 		33D3DA921CDCA832009FCC6B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 33D3DA941CDCA832009FCC6B /* Localizable.strings */; };
 		33E38F9D1D294CA20003314B /* LogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 33E38F9C1D294CA20003314B /* LogViewController.m */; };
@@ -219,6 +221,9 @@
 		3396C3971CCF76F300C7CCE2 /* WebViewTab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewTab.m; sourceTree = "<group>"; };
 		33AFDFDC1CDB326A00B6DFBB /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		33AFDFE91CDB703200B6DFBB /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
+		33D24E9F1DD5FFFA0091A7DC /* ObfsWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObfsWrapper.h; sourceTree = "<group>"; };
+		33D24EA01DD5FFFA0091A7DC /* ObfsWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObfsWrapper.m; sourceTree = "<group>"; };
+		33D24EA41DD600420091A7DC /* Iobfs4proxy.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Iobfs4proxy.framework; sourceTree = "<group>"; };
 		33D3DA8E1CDCA402009FCC6B /* searchEngineURLs.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = searchEngineURLs.plist; sourceTree = "<group>"; };
 		33D3DA931CDCA832009FCC6B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		33D3DA951CDCA84D009FCC6B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -236,6 +241,7 @@
 				334CF8DA1CD37F6C00C3E346 /* CoreData.framework in Frameworks */,
 				334CF8E21CD37F9500C3E346 /* CoreGraphics.framework in Frameworks */,
 				334CF8E01CD37F8D00C3E346 /* Foundation.framework in Frameworks */,
+				33D24EA51DD600420091A7DC /* Iobfs4proxy.framework in Frameworks */,
 				334CF97E1CD3812100C3E346 /* libcrypto.a in Frameworks */,
 				334CF97F1CD3812100C3E346 /* libcurve25519_donna.a in Frameworks */,
 				334CF9801CD3812100C3E346 /* libed25519_donna.a in Frameworks */,
@@ -420,6 +426,8 @@
 			isa = PBXGroup;
 			children = (
 				334CF9461CD380E700C3E346 /* geoip */,
+				33D24E9F1DD5FFFA0091A7DC /* ObfsWrapper.h */,
+				33D24EA01DD5FFFA0091A7DC /* ObfsWrapper.m */,
 				334CF9471CD380E700C3E346 /* tor_main.c */,
 				334CF9481CD380E700C3E346 /* TorController.h */,
 				334CF9491CD380E700C3E346 /* TorController.m */,
@@ -493,6 +501,7 @@
 		3396C3771CCF753E00C7CCE2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				33D24EA41DD600420091A7DC /* Iobfs4proxy.framework */,
 				334CF96E1CD3812100C3E346 /* libcrypto.a */,
 				334CF96F1CD3812100C3E346 /* libcurve25519_donna.a */,
 				334CF9701CD3812100C3E346 /* libed25519_donna.a */,
@@ -562,7 +571,7 @@
 		3396C3511CCF739200C7CCE2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = JustKodding;
 				TargetAttributes = {
 					3396C3581CCF739200C7CCE2 = {
@@ -655,6 +664,7 @@
 				334CF9561CD380E700C3E346 /* MOTabView.m in Sources */,
 				334CF9541CD380E700C3E346 /* MOShadowView.m in Sources */,
 				334CF95D1CD380E700C3E346 /* NSData+Conversion.m in Sources */,
+				33D24EA11DD5FFFA0091A7DC /* ObfsWrapper.m in Sources */,
 				33E38F9D1D294CA20003314B /* LogViewController.m in Sources */,
 				334CF94F1CD380E700C3E346 /* CKHTTPConnection.m in Sources */,
 				334CF9581CD380E700C3E346 /* MOTitleTextField.m in Sources */,
@@ -684,6 +694,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -694,8 +705,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -730,6 +743,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -740,8 +754,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -773,6 +789,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PREFIX_HEADER = "Tob/Tob-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					./dependencies/include/common,
@@ -799,6 +819,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PREFIX_HEADER = "Tob/Tob-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					./dependencies/include/common,

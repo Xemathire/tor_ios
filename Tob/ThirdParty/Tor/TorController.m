@@ -110,7 +110,7 @@ connectionStatus = _connectionStatus
 #endif
     [_mSocket writeString:@"SIGNAL NEWNYM\n" encoding:NSUTF8StringEncoding];
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [appDelegate.logViewController logInfo:@"[tor] Requesting new identity"];
 }
 
@@ -126,7 +126,7 @@ connectionStatus = _connectionStatus
         NSLog(@"[tor] Reachability changed (now online), sending HUP" );
 #endif
         
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         [appDelegate.logViewController logInfo:@"[tor] Reachability changed (now online)"];
         [self hupTor];
     }
@@ -147,7 +147,7 @@ connectionStatus = _connectionStatus
 #ifdef DEBUG
     NSLog(@"[tor] Came back from background, trying to talk to Tor again" );
 #endif
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [appDelegate.logViewController logInfo:@"[tor] Came back from background, trying to talk to Tor again"];
 
     _torCheckLoopTimer = [NSTimer scheduledTimerWithTimeInterval:0.25f
@@ -215,12 +215,24 @@ connectionStatus = _connectionStatus
     //
     // Fail: Restart Tor? (Maybe HUP?)
     NSLog(@"[tor] checkTor timed out, attempting to restart tor");
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [appDelegate.logViewController logInfo:@"[tor] checkTor timed out, attempting to restart tor"];
     //[self startTor];
     [self hupTor];
 }
 
+- (void) disableNetwork {
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[appDelegate tabsViewController] stopLoading];
+    [_mSocket writeString:@"setconf disablenetwork=1\n" encoding:NSUTF8StringEncoding];
+    [appDelegate.logViewController logInfo:@"[tor] DisableNetwork is set. Tor will not make or accept non-control network connections. Shutting down all existing connections."];
+}
+
+- (void) enableNetwork {
+    [_mSocket writeString:@"setconf disablenetwork=0\n" encoding:NSUTF8StringEncoding];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [appDelegate.logViewController logInfo:@"[tor] Received reload signal (hup). Reloading config and resetting internal state."];
+}
 
 
 - (void)netsocketConnected:(ULINetSocket*)inNetSocket {
@@ -262,7 +274,7 @@ connectionStatus = _connectionStatus
             NSLog(@"[tor] Control Port Authenticated Successfully" );
 #endif
             
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             [appDelegate.logViewController logInfo:@"[tor] Control Port Authenticated Successfully"];
             _controllerIsAuthenticated = YES;
             
@@ -303,7 +315,7 @@ connectionStatus = _connectionStatus
         }
     } else if ([msgIn rangeOfString:@"-status/bootstrap-phase="].location != NSNotFound) {
         // Response to "getinfo status/bootstrap-phase"
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         
         if ([msgIn rangeOfString:@"BOOTSTRAP PROGRESS=100"].location != NSNotFound) {
             _connectionStatus = CONN_STATUS_CONNECTED;
@@ -353,7 +365,7 @@ connectionStatus = _connectionStatus
                    withString:@"\n    "]
                   );
             
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             [appDelegate.logViewController logInfo:[NSString stringWithFormat:@"[tor] Control Port: orconn-status: NOT OK\n    %@", [msgIn stringByReplacingOccurrencesOfString:@"\n" withString:@"\n    "]]];
 
             [self hupTor];

@@ -193,7 +193,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     _tabsBarButtonItem = self.selectedToolbar.items[1];
     
     // Select the restore/opened tab
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     if ([appDelegate startUrl]) {
         [UIView animateWithDuration:kRestoreAnimationDuration animations:^{
@@ -265,7 +265,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 }
 
 - (void)updateTintColor {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
     if (![[settings valueForKey:@"night-mode"] boolValue]) {
@@ -483,7 +483,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 }
 
 - (void)getRestorableData {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     NSString *appFile = [documentsDirectory stringByAppendingPathComponent:@"state.bin"];
@@ -510,7 +510,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         [self getRestorableData];
         _subtitles = [[NSMutableArray alloc] init];
         
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         if ([appDelegate restoredData]) {
             for (int i = 0; i < [appDelegate restoredData].count; i++) {
                 NSDictionary *params = [appDelegate restoredData][i];
@@ -534,7 +534,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     if (!_titles) {
         _titles = [[NSMutableArray alloc] init];
         
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         if ([appDelegate restoredData]) {
             for (int i = 0; i < [appDelegate restoredData].count; i++) {
                 NSDictionary *params = [appDelegate restoredData][i];
@@ -694,7 +694,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 }
 
 - (void)prePopulateBookmarks {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     NSManagedObjectContext *context = [appDelegate managedObjectContext];
     NSError *error = nil;
@@ -973,7 +973,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     
     [[[self contentViews] objectAtIndex:self.tabView.currentIndex] loadRequest:request];
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     appDelegate.restoredIndex = 0;
     appDelegate.restoredData = nil;
 }
@@ -1001,7 +1001,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     
     [self performSelectorOnMainThread:@selector(updateTorProgress:) withObject:[NSNumber numberWithFloat:[progress_str intValue]/100.0] waitUntilDone:NO];
     _torProgressDescription.text = [NSString stringWithFormat:@"%@%% - %@", progress_str, summary_str];
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     // Log the progress if it hasn't been logged yet
     if ([appDelegate.logViewController.logTextView.text rangeOfString:[@"[tor] " stringByAppendingString:_torProgressDescription.text]].location == NSNotFound)
@@ -1071,7 +1071,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     [addBridgeButton addTarget:self action:@selector(openBridgeView) forControlEvents:UIControlEventTouchUpInside];
     [_torPanelView addSubview:addBridgeButton];
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
     if (![[settings valueForKey:@"night-mode"] boolValue]) {
@@ -1112,7 +1112,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 }
 
 - (void)showLog {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     CATransition *transition = [CATransition animation];
     transition.duration = 0.3;
     transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
@@ -1140,7 +1140,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 
 // Get IP Address
 - (void)getIPAddress {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [appDelegate.tor requestTorInfo];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -1216,7 +1216,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     _newIdentityNumber ++;
     _IPAddress = nil;
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [appDelegate wipeAppData];
     [appDelegate.tor requestNewTorIdentity];
     
@@ -1337,7 +1337,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     
     // Set new range
     [textField setSelectedTextRange:newRange];
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     if (_bookmarks == nil) {
         _bookmarks = [[BookmarkTableViewController alloc] init];
@@ -1382,7 +1382,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         [_webViewObject loadRequest:request];
     } else {
         BOOL javascriptEnabled = true;
-        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         NSMutableDictionary *settings = appDelegate.getSettings;
         NSInteger js_setting = [[settings valueForKey:@"javascript-toggle"] integerValue];
         NSInteger csp_setting = [[settings valueForKey:@"javascript"] integerValue];

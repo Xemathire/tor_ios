@@ -12,7 +12,8 @@
 @interface BridgeViewController : UIViewController <QRCodeReaderDelegate>
 
 - (void)qrscan;
-- (void)save;
+- (void)saveAndExit;
+- (void)saveAndExit:(Boolean)shouldSaveAndExit;
 - (void)cancel;
 
 - (void)exitModal;

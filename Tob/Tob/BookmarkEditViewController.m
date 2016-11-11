@@ -214,7 +214,7 @@
     
     bookmark.url = workingString;
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     NSError *error = nil;
     if (![appDelegate.managedObjectContext save:&error]) {
@@ -225,7 +225,7 @@
 }
 
 - (void)goBack {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSError *error = nil;
 
     [appDelegate.managedObjectContext deleteObject:bookmark];

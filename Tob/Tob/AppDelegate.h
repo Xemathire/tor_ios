@@ -10,6 +10,7 @@
 #import "TabsViewController.h"
 #import "TorController.h"
 #import "LogViewController.h"
+#import "ObfsWrapper.h"
 
 #define COOKIES_ALLOW_ALL 0
 #define COOKIES_BLOCK_THIRDPARTY 1
@@ -47,6 +48,7 @@
 @property(strong, nonatomic) TabsViewController *tabsViewController;
 @property(strong, nonatomic) LogViewController *logViewController;
 @property (strong, nonatomic) TorController *tor;
+@property (strong, nonatomic) ObfsWrapper *obfsproxy;
 
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
@@ -61,9 +63,14 @@
 
 @property (nonatomic) Boolean doPrepopulateBookmarks;
 
+@property (nonatomic) Boolean usingObfs;
+@property (nonatomic) Boolean didLaunchObfsProxy;
+
 @property (nonatomic) NSArray *restoredData;
 @property (nonatomic) int restoredIndex;
 
+- (void)recheckObfsproxy;
+- (NSUInteger) numBridgesConfigured;
 - (void)updateTorrc;
 - (NSURL *)applicationDocumentsDirectory;
 - (void)wipeAppData;

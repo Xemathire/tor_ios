@@ -116,7 +116,7 @@
             cell.textLabel.textColor = self.view.tintColor;
             cell.accessoryType = UITableViewCellAccessoryNone;
         } if (indexPath.row == 2) {
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings = appDelegate.getSettings;
             cell.textLabel.text = NSLocalizedString(@"Homepage", nil);
             cell.detailTextLabel.text = [settings objectForKey:@"homepage"];
@@ -124,11 +124,11 @@
         } else if (indexPath.row == 3) {
             cell.textLabel.text = NSLocalizedString(@"Search engine", nil);
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings = appDelegate.getSettings;
             cell.detailTextLabel.text = [settings valueForKey:@"search-engine"];
         } else if (indexPath.row == 4) {
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings = appDelegate.getSettings;
             BOOL saveAppState = [[settings valueForKey:@"save-app-state"] boolValue];
             
@@ -140,7 +140,7 @@
             [switchView setOn:saveAppState animated:NO];
             [switchView addTarget:self action:@selector(appStateSwitchChanged:) forControlEvents:UIControlEventValueChanged];
         } else if (indexPath.row == 5) {
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings = appDelegate.getSettings;
             BOOL nightMode = [[settings valueForKey:@"night-mode"] boolValue];
             
@@ -170,7 +170,7 @@
             cell.textLabel.text = NSLocalizedString(@"User-Agent", nil);
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings = appDelegate.getSettings;
             NSInteger spoofUserAgent = [[settings valueForKey:@"uaspoof"] integerValue];
             
@@ -188,7 +188,7 @@
                 cell.detailTextLabel.text = @"";
             
         } else if (indexPath.row == 2) {
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings = appDelegate.getSettings;
             NSInteger dntHeader = [[settings valueForKey:@"dnt"] integerValue];
             
@@ -206,7 +206,7 @@
             cell.textLabel.text = NSLocalizedString(@"Active content", nil);
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings = appDelegate.getSettings;
             NSInteger csp_setting = [[settings valueForKey:@"javascript"] integerValue];
             
@@ -220,7 +220,7 @@
                 cell.detailTextLabel.text = @"";
             
         } else if (indexPath.row == 1) {
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings = appDelegate.getSettings;
             NSInteger js_setting = [[settings valueForKey:@"javascript-toggle"] integerValue];
             
@@ -247,7 +247,7 @@
             cell.textLabel.text = NSLocalizedString(@"TLS/SSL", nil);
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings = appDelegate.getSettings;
             NSInteger dntHeader = [[settings valueForKey:@"tlsver"] integerValue];
             
@@ -261,7 +261,7 @@
                 cell.detailTextLabel.text = @"";
             
         } else if (indexPath.row == 3) {
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             
             NSFetchRequest *request = [[NSFetchRequest alloc] init];
             NSEntityDescription *entity = [NSEntityDescription entityForName:@"Bridge" inManagedObjectContext:appDelegate.managedObjectContext];
@@ -305,7 +305,7 @@
     if (indexPath.section == 0) {
         if (indexPath.row == 0) {
             // Bookmark current
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSManagedObjectContext *managedObjectContext = [appDelegate managedObjectContext];
             Bookmark *bookmark = (Bookmark *)[NSEntityDescription insertNewObjectForEntityForName:@"Bookmark" inManagedObjectContext:managedObjectContext];
             
@@ -319,21 +319,21 @@
             BookmarkTableViewController *bookmarksVC = [[BookmarkTableViewController alloc] initWithStyle:UITableViewStylePlain];
             UINavigationController *bookmarkNavController = [[UINavigationController alloc] initWithRootViewController:bookmarksVC];
             
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSManagedObjectContext *context = [appDelegate managedObjectContext];
             bookmarksVC.managedObjectContext = context;
             
             [self presentViewController:bookmarkNavController animated:YES completion:nil];
         } else if (indexPath.row == 2) {
             // Homepage
-            AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings2 = appDelegate.getSettings;
             
             UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Homepage", nil) message:NSLocalizedString(@"Leave blank to use default Tob home page.", nil) preferredStyle:UIAlertControllerStyleAlert];
             [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
             
             [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Save", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-                AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+                AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
                 NSMutableDictionary *settings = appDelegate.getSettings;
                 
                 if ([[alert.textFields.firstObject text] length] == 0) {
@@ -405,7 +405,7 @@
 - (void)dntSwitchChanged:(id)sender {
     UISwitch *switchControl = sender;
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
     if (switchControl.on) {
@@ -420,7 +420,7 @@
 - (void)appStateSwitchChanged:(id)sender {
     UISwitch *switchControl = sender;
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     [settings setObject:[NSNumber numberWithBool:switchControl.on] forKey:@"save-app-state"];
     [appDelegate saveSettings:settings];
@@ -429,7 +429,7 @@
 - (void)nightSwitchChanged:(id)sender {
     UISwitch *switchControl = sender;
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     [settings setObject:[NSNumber numberWithBool:switchControl.on] forKey:@"night-mode"];
     [appDelegate saveSettings:settings];
@@ -438,7 +438,7 @@
 - (void)jsSwitchChanged:(id)sender {
     UISwitch *switchControl = sender;
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
     if (switchControl.on) {
@@ -498,7 +498,7 @@
         cell = [[UITableViewCell alloc] initWithFrame:CGRectZero];
     }
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     NSString *searchEngine = [settings valueForKey:@"search-engine"];
     
@@ -543,7 +543,7 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
     [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentRow inSection:indexPath.section]].accessoryType = UITableViewCellAccessoryNone;
@@ -653,7 +653,7 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
     [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentRow inSection:indexPath.section]].accessoryType = UITableViewCellAccessoryNone;
@@ -737,7 +737,7 @@
         cell = [[UITableViewCell alloc] initWithFrame:CGRectZero];
     }
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     NSInteger spoofUserAgent = [[settings valueForKey:@"uaspoof"] integerValue];
     
@@ -785,7 +785,7 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
     [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentRow inSection:indexPath.section]].accessoryType = UITableViewCellAccessoryNone;
@@ -866,7 +866,7 @@
         cell = [[UITableViewCell alloc] initWithFrame:CGRectZero];
     }
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     NSInteger csp_setting = [[settings valueForKey:@"javascript"] integerValue];
     
@@ -900,7 +900,7 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
     [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentRow inSection:indexPath.section]].accessoryType = UITableViewCellAccessoryNone;
@@ -982,7 +982,7 @@
         cell = [[UITableViewCell alloc] initWithFrame:CGRectZero];
     }
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     NSInteger dntHeader = [[settings valueForKey:@"tlsver"] integerValue];
     
@@ -1016,7 +1016,7 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
     [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentRow inSection:indexPath.section]].accessoryType = UITableViewCellAccessoryNone;

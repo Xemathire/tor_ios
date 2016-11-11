@@ -35,6 +35,9 @@
 - (void)requestNewTorIdentity;
 - (void)requestTorInfo;
 
+- (void)disableNetwork;
+- (void)enableNetwork;
+
 - (void)activateTorCheckLoop;
 - (void)disableTorCheckLoop;
 - (void)checkTor;

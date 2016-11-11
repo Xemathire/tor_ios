@@ -28,13 +28,16 @@
 sslWhitelistedDomains,
 startUrl,
 tor = _tor,
+obfsproxy = _obfsproxy,
 window = _window,
 tabsViewController,
 logViewController,
 managedObjectContext = __managedObjectContext,
 managedObjectModel = __managedObjectModel,
 persistentStoreCoordinator = __persistentStoreCoordinator,
-doPrepopulateBookmarks
+doPrepopulateBookmarks,
+usingObfs,
+didLaunchObfsProxy
 ;
 
 + (void)initialize
@@ -50,6 +53,8 @@ doPrepopulateBookmarks
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    usingObfs = NO;
+    didLaunchObfsProxy = NO;
     
     // Detect bookmarks file.
     NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"Settings.sqlite"];
@@ -102,15 +107,8 @@ doPrepopulateBookmarks
     [[NSUserDefaults standardUserDefaults] setInteger:2 forKey:@"WebKitStorageBlockingPolicy"];
     [[NSUserDefaults standardUserDefaults] setInteger:2 forKey:@"WebKitStorageBlockingPolicyKey"];
     
-    // Always disable caches
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitUsesPageCache"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitUsesPageCachePreferenceKey"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitPageCacheSupportsPlugins"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitPageCacheSupportsPluginsPreferenceKey"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitOfflineWebApplicationCacheEnabled"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitOfflineWebApplicationCacheEnabledPreferenceKey"];
+    // Disable disk-based caches.
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitDiskImageCacheEnabled"];
-    [[NSUserDefaults standardUserDefaults] setObject:@"/dev/null" forKey:@"WebKitLocalCache"];
     [[NSUserDefaults standardUserDefaults] synchronize];
     /*********** /WebKit options **********/
     
@@ -205,8 +203,39 @@ doPrepopulateBookmarks
     }
 }
 
--(void) afterFirstRun {
+-(void) recheckObfsproxy {
+    /* Launches obfs4proxy if it hasn't been launched yet
+     * but we have some PT bridges that we didn't have before.
+     * NOTE that this does not HUP tor. Caller should also perform
+     * that action.
+     */
     [self updateTorrc];
+    if (usingObfs && !didLaunchObfsProxy) {
+#ifdef DEBUG
+        NSLog(@"have obfs* or meek_lite or scramblesuit bridges, will launch obfs4proxy");
+#endif
+        [_obfsproxy start];
+        didLaunchObfsProxy = YES;
+        [NSThread sleepForTimeInterval:0.1];
+    }
+}
+
+-(void) afterFirstRun {
+    /* On very first run of app, we check with user if they want bridges
+     * (so we don't dangerously launch un-bridged network connections).
+     * After they are done configuring bridges, this happens.
+     * On successive runs, we simply jump straight to here on app launch.
+     */
+    _obfsproxy = [[ObfsWrapper alloc] init];
+    [self updateTorrc];
+    if (usingObfs && !didLaunchObfsProxy) {
+#ifdef DEBUG
+        NSLog(@"have obfs* or meek_lite or scramblesuit bridges, will launch obfs4proxy");
+#endif
+        [_obfsproxy start];
+        didLaunchObfsProxy = YES;
+        [NSThread sleepForTimeInterval:0.1];
+    }
     _tor = [[TorController alloc] init];
     [_tor startTor];
 }
@@ -273,7 +302,7 @@ doPrepopulateBookmarks
 
 void HandleException(NSException *exception) {
     // Save state on crash if the user chose to
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     if ([[appDelegate.getSettings valueForKey:@"save-app-state"] boolValue]) {
         [[(AppDelegate *)[[UIApplication sharedApplication] delegate] tabsViewController] saveAppState];
     }
@@ -281,7 +310,7 @@ void HandleException(NSException *exception) {
 
 void HandleSignal(int signal) {
     // Save state on crash if the user chose to
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     if ([[appDelegate.getSettings valueForKey:@"save-app-state"] boolValue]) {
         [[(AppDelegate *)[[UIApplication sharedApplication] delegate] tabsViewController] saveAppState];
     }
@@ -399,6 +428,20 @@ void HandleSignal(int signal) {
     }
 }
 
+-(NSUInteger) numBridgesConfigured {
+    
+    NSFetchRequest *request = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Bridge" inManagedObjectContext:self.managedObjectContext];
+    [request setEntity:entity];
+    
+    NSError *error = nil;
+    NSMutableArray *mutableFetchResults = [[self.managedObjectContext executeFetchRequest:request error:&error] mutableCopy];
+    if (mutableFetchResults == nil) {
+        // Handle the error.
+    }
+    return [mutableFetchResults count];
+}
+
 - (Boolean)torrcExists {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *destTorrc = [[[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"torrc"] relativePath];
@@ -435,8 +478,23 @@ void HandleSignal(int signal) {
         
         [myHandle writeData:[@"UseBridges 1\n" dataUsingEncoding:NSUTF8StringEncoding]];
         for (Bridge *bridge in mutableFetchResults) {
-            [myHandle writeData:[[NSString stringWithFormat:@"bridge %@\n", bridge.conf] dataUsingEncoding:NSUTF8StringEncoding]];
+            if ([bridge.conf containsString:@"obfs4"] || [bridge.conf containsString:@"meek_lite"]  || [bridge.conf containsString:@"obfs2"]  || [bridge.conf containsString:@"obfs3"]  || [bridge.conf containsString:@"scramblesuit"] ) {
+                usingObfs = YES;
+            }
+            //NSLog(@"%@", [NSString stringWithFormat:@"Bridge %@\n", bridge.conf]);
+            [myHandle writeData:[[NSString stringWithFormat:@"Bridge %@\n", bridge.conf] dataUsingEncoding:NSUTF8StringEncoding]];
         }
+        
+        if (usingObfs) {
+            // TODO iObfs#1 eventually fix this so we use random ports
+            //      and communicate that from obfs4proxy to iOS
+            [myHandle writeData:[@"ClientTransportPlugin obfs4 socks5 127.0.0.1:47351\n" dataUsingEncoding:NSUTF8StringEncoding]];
+            [myHandle writeData:[@"ClientTransportPlugin meek_lite socks5 127.0.0.1:47352\n" dataUsingEncoding:NSUTF8StringEncoding]];
+            [myHandle writeData:[@"ClientTransportPlugin obfs2 socks5 127.0.0.1:47353\n" dataUsingEncoding:NSUTF8StringEncoding]];
+            [myHandle writeData:[@"ClientTransportPlugin obfs3 socks5 127.0.0.1:47354\n" dataUsingEncoding:NSUTF8StringEncoding]];
+            [myHandle writeData:[@"ClientTransportPlugin scramblesuit socks5 127.0.0.1:47355\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        }
+        [myHandle closeFile];
     }
     
     // Encrypt the new torrc (since this "running" copy of torrc may now contain bridges)
@@ -716,6 +774,7 @@ void HandleSignal(int signal) {
                     [fileManager setAttributes:doNotEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
                 } else if (
                            [filePath rangeOfString:@"torrc"].location == NSNotFound ||
+                           [filePath rangeOfString:@"pt_state"].location == NSNotFound ||
                            [filePath hasPrefix:[NSString stringWithFormat:@"%@cached-certs", tmpDirStr]] ||
                            [filePath hasPrefix:[NSString stringWithFormat:@"%@cached-microdesc", tmpDirStr]] ||
                            [filePath hasPrefix:[NSString stringWithFormat:@"%@control_auth_cookie", tmpDirStr]] ||
@@ -768,9 +827,9 @@ void HandleSignal(int signal) {
         [str appendString:@"navigator.__proto__ = __originalNavigator;"];
         [str appendString:@"navigator.__defineGetter__('appCodeName',function(){return 'Mozilla';});"];
         [str appendString:@"navigator.__defineGetter__('appName',function(){return 'Netscape';});"];
-        [str appendString:@"navigator.__defineGetter__('appVersion',function(){return '5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/600.1.17 (KHTML, like Gecko) Version/7.1 Safari/537.85.10';});"];
+        [str appendString:@"navigator.__defineGetter__('appVersion',function(){return '5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7';});"];
         [str appendString:@"navigator.__defineGetter__('platform',function(){return 'MacIntel';});"];
-        [str appendString:@"navigator.__defineGetter__('userAgent',function(){return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/600.1.17 (KHTML, like Gecko) Version/7.1 Safari/537.85.10';});"];
+        [str appendString:@"navigator.__defineGetter__('userAgent',function(){return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7';});"];
     } else if (uaspoof == UA_SPOOF_WIN7_TORBROWSER) {
         [str appendString:@"var __originalNavigator = navigator;"];
         [str appendString:@"navigator = new Object();"];
@@ -780,25 +839,25 @@ void HandleSignal(int signal) {
         [str appendString:@"navigator.__defineGetter__('appVersion',function(){return '5.0 (Windows)';});"];
         [str appendString:@"navigator.__defineGetter__('platform',function(){return 'Win32';});"];
         [str appendString:@"navigator.__defineGetter__('language',function(){return 'en-US';});"];
-        [str appendString:@"navigator.__defineGetter__('userAgent',function(){return 'Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0';});"];
+        [str appendString:@"navigator.__defineGetter__('userAgent',function(){return 'Mozilla/5.0 (Windows NT 6.1; rv:45.0) Gecko/20100101 Firefox/45.0';});"];
     } else if (uaspoof == UA_SPOOF_IPHONE) {
         [str appendString:@"var __originalNavigator = navigator;"];
         [str appendString:@"navigator = new Object();"];
         [str appendString:@"navigator.__proto__ = __originalNavigator;"];
         [str appendString:@"navigator.__defineGetter__('appCodeName',function(){return 'Mozilla';});"];
         [str appendString:@"navigator.__defineGetter__('appName',function(){return 'Netscape';});"];
-        [str appendString:@"navigator.__defineGetter__('appVersion',function(){return '5.0 (iPhone; CPU iPhone OS 8_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12A405 Safari/600.1.4';});"];
+        [str appendString:@"navigator.__defineGetter__('appVersion',function(){return '5.0 (iPhone; CPU iPhone OS 9_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13E230 Safari/601.1';});"];
         [str appendString:@"navigator.__defineGetter__('platform',function(){return 'iPhone';});"];
-        [str appendString:@"navigator.__defineGetter__('userAgent',function(){return 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12A405 Safari/600.1.4';});"];
+        [str appendString:@"navigator.__defineGetter__('userAgent',function(){return 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13E230 Safari/601.1';});"];
     } else if (uaspoof == UA_SPOOF_IPAD) {
         [str appendString:@"var __originalNavigator = navigator;"];
         [str appendString:@"navigator = new Object();"];
         [str appendString:@"navigator.__proto__ = __originalNavigator;"];
         [str appendString:@"navigator.__defineGetter__('appCodeName',function(){return 'Mozilla';});"];
         [str appendString:@"navigator.__defineGetter__('appName',function(){return 'Netscape';});"];
-        [str appendString:@"navigator.__defineGetter__('appVersion',function(){return '5.0 (iPad; CPU OS 8_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12A405 Safari/600.1.4';});"];
+        [str appendString:@"navigator.__defineGetter__('appVersion',function(){return '5.0 (iPad; CPU OS 9_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13E237 Safari/601.1';});"];
         [str appendString:@"navigator.__defineGetter__('platform',function(){return 'iPad';});"];
-        [str appendString:@"navigator.__defineGetter__('userAgent',function(){return 'Mozilla/5.0 (iPad; CPU OS 8_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12A405 Safari/600.1.4';});"];
+        [str appendString:@"navigator.__defineGetter__('userAgent',function(){return 'Mozilla/5.0 (iPad; CPU OS 9_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13E237 Safari/601.1';});"];
     }
     
     Byte activeContent = [[self.getSettings valueForKey:@"javascript"] integerValue];
@@ -815,13 +874,13 @@ void HandleSignal(int signal) {
 - (NSString *)customUserAgent {
     Byte uaspoof = [[self.getSettings valueForKey:@"uaspoof"] integerValue];
     if (uaspoof == UA_SPOOF_SAFARI_MAC) {
-        return @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/600.1.17 (KHTML, like Gecko) Version/7.1 Safari/537.85.10";
+        return @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7";
     } else if (uaspoof == UA_SPOOF_WIN7_TORBROWSER) {
-        return @"Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0";
+        return @"Mozilla/5.0 (Windows NT 6.1; rv:45.0) Gecko/20100101 Firefox/45.0";
     } else if (uaspoof == UA_SPOOF_IPHONE) {
-        return @"Mozilla/5.0 (iPhone; CPU iPhone OS 8_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12A405 Safari/600.1.4";
+        return @"Mozilla/5.0 (iPhone; CPU iPhone OS 9_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13E230 Safari/601.1";
     } else if (uaspoof == UA_SPOOF_IPAD) {
-        return @"Mozilla/5.0 (iPad; CPU OS 8_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12A405 Safari/600.1.4";
+        return @"Mozilla/5.0 (iPad; CPU OS 9_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13E237 Safari/601.1";
     }
     return nil;
 }

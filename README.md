@@ -24,7 +24,7 @@ Web browsing is slower than through a normal web browser due to relaying through
 			<a href="https://itunes.apple.com/app/id1063151782" style="float: left;"><img border="0" alt="Available on the appstore" src="resources/appstore.png?raw=true" width="149" height="50"></a>
 	</div>	
 	<div style="margin-left:170px">
-		<div style="font-size:1.2em;padding-top:10px"> 100,000+ downloads!</div>
+		<div style="font-size:1.2em;padding-top:10px"> 200,000+ downloads!</div>
 	</div>
 </div>
 

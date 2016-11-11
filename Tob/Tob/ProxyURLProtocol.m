@@ -91,7 +91,7 @@
 
 
 - (void)startLoading {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     for (WebViewTab *webView in [appDelegate.tabsViewController contentViews]) {
         if ([webView isLoading] && [[[[webView url] host] stringByReplacingOccurrencesOfString:@"www." withString:@""] isEqualToString:[[[_request mainDocumentURL] host] stringByReplacingOccurrencesOfString:@"www." withString:@""]] && [[[webView url] pathComponents] isEqualToArray:[[_request mainDocumentURL] pathComponents]]) {
             
@@ -183,7 +183,7 @@
     }
     _data.length = 0;
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
     if ([[[[_request mainDocumentURL] scheme] lowercaseString] isEqualToString:@"https"] && ![[[[response URL] scheme] lowercaseString] isEqualToString:@"https"]) {
@@ -507,7 +507,7 @@
     [self setConnection:nil];
     _data = nil;
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     for (WebViewTab *webView in [appDelegate.tabsViewController contentViews]) {
         if ([webView isLoading] && [[[[webView url] host] stringByReplacingOccurrencesOfString:@"www." withString:@""] isEqualToString:[[[_request mainDocumentURL] host] stringByReplacingOccurrencesOfString:@"www." withString:@""]] && [[[webView url] pathComponents] isEqualToArray:[[_request mainDocumentURL] pathComponents]]) {
             
@@ -521,7 +521,7 @@
     [self setConnection:nil];
     _data = nil;
     
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     for (WebViewTab *webView in [appDelegate.tabsViewController contentViews]) {
         if ([webView isLoading] && [[[[webView url] host] stringByReplacingOccurrencesOfString:@"www." withString:@""] isEqualToString:[[[_request mainDocumentURL] host] stringByReplacingOccurrencesOfString:@"www." withString:@""]] && [[[webView url] pathComponents] isEqualToArray:[[_request mainDocumentURL] pathComponents]]) {
             
@@ -541,7 +541,7 @@
      * script executes on-page. Currently allows rewriting `navigator.Useragent` but will eventually be
      * used to truly ensure that sockets & other dangerous JS-based dynamic content are blocked.
      */
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableData *newData = [[NSMutableData alloc] init];
     
     // Prepend a DOCTYPE (to force into standards mode) and throw in any javascript overrides
@@ -559,7 +559,7 @@
      * script executes on-page. Currently allows rewriting `navigator.Useragent` but will eventually be
      * used to truly ensure that sockets & other dangerous JS-based dynamic content are blocked.
      */
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableData *newData = [[NSMutableData alloc] init];
     
     [newData appendData:[[NSString stringWithFormat:@"%@\n", appDelegate.javascriptInjection] dataUsingEncoding:NSUTF8StringEncoding]];

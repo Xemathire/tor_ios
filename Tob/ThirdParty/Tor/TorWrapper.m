@@ -23,7 +23,7 @@
 }
 
 -(void)main {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSString *tmpDir = NSTemporaryDirectory();
     
     //NSString *base_torrc = [[NSBundle mainBundle] pathForResource:@"torrc" ofType:nil];
@@ -38,7 +38,7 @@
     /**************/
     
     char *arg_0 = "tor";
-
+    
     // These options here (and not in torrc) since we don't know the temp dir
     // and data dir for this app until runtime.
     char *arg_1 = "DataDirectory";
@@ -56,13 +56,13 @@
     // loglevel "warn" for release). Debug also will receive "DisableDebuggerAttachment"
     // torrc option (which allows GDB/LLDB to attach to the process).
     char *arg_11 = "Log";
-
-    #ifndef DEBUG
+    
+#ifndef DEBUG
     char *arg_12 = "err file /dev/null";
-    #endif
-    #ifdef DEBUG
+#endif
+#ifdef DEBUG
     char *arg_12 = "notice stderr";
-    #endif
+#endif
     char* argv[] = {arg_0, arg_1, arg_2, arg_3, arg_4, arg_5, arg_6, arg_7, arg_8, arg_9, arg_10, arg_11, arg_12, NULL};
     tor_main(13, argv);
 }
