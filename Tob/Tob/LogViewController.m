@@ -28,10 +28,20 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    UIInterfaceOrientation interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    CGSize viewSize = CGSizeMake(MIN(self.view.frame.size.height, self.view.frame.size.width), MAX(self.view.frame.size.height, self.view.frame.size.width));
+    
+    // Update the UI (when the view isn't displayed, viewWillTransitionToSize is not fired)
+    // Find the size ourselves in case the view size isn't adapted to the screen orientation yet
+    if (UIInterfaceOrientationIsLandscape(interfaceOrientation))
+        viewSize = CGSizeMake(MAX(self.view.frame.size.height, self.view.frame.size.width), MIN(self.view.frame.size.height, self.view.frame.size.width));
+
     CGRect navbarFrame = self.view.frame;
+    navbarFrame.size = viewSize;
     navbarFrame.size.height = 44 + [UIApplication sharedApplication].statusBarFrame.size.height;
     
     CGRect logTextViewFrame = self.view.frame;
+    logTextViewFrame.size = viewSize;
     logTextViewFrame.size.height -= navbarFrame.size.height;
     logTextViewFrame.origin.y += navbarFrame.size.height;
     
@@ -39,6 +49,10 @@
     [_navbar setFrame:navbarFrame];
     [_titleLabel setFrame:CGRectMake(navbarFrame.origin.x, [UIApplication sharedApplication].statusBarFrame.size.height, navbarFrame.size.width, navbarFrame.size.height - [UIApplication sharedApplication].statusBarFrame.size.height)];
     [_doneButton setFrame:CGRectMake(10, [UIApplication sharedApplication].statusBarFrame.size.height, 100, navbarFrame.size.height - [UIApplication sharedApplication].statusBarFrame.size.height)];
+    
+    // Prevent the text from being cut when changing the frame
+    _logTextView.scrollEnabled = NO;
+    _logTextView.scrollEnabled = YES;
 }
 
 - (void)initUI {

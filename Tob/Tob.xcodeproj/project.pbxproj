@@ -91,6 +91,7 @@
 		33D24EA51DD600420091A7DC /* Iobfs4proxy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33D24EA41DD600420091A7DC /* Iobfs4proxy.framework */; };
 		33D3DA8F1CDCA402009FCC6B /* searchEngineURLs.plist in Resources */ = {isa = PBXBuildFile; fileRef = 33D3DA8E1CDCA402009FCC6B /* searchEngineURLs.plist */; };
 		33D3DA921CDCA832009FCC6B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 33D3DA941CDCA832009FCC6B /* Localizable.strings */; };
+		33DD8F641DD623F000D85048 /* TLDs.json in Resources */ = {isa = PBXBuildFile; fileRef = 33DD8F631DD623F000D85048 /* TLDs.json */; };
 		33E38F9D1D294CA20003314B /* LogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 33E38F9C1D294CA20003314B /* LogViewController.m */; };
 		33FF98911CDA5CFE0086AED5 /* credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 33FF98901CDA5CFE0086AED5 /* credits.html */; };
 /* End PBXBuildFile section */
@@ -227,6 +228,7 @@
 		33D3DA8E1CDCA402009FCC6B /* searchEngineURLs.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = searchEngineURLs.plist; sourceTree = "<group>"; };
 		33D3DA931CDCA832009FCC6B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		33D3DA951CDCA84D009FCC6B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		33DD8F631DD623F000D85048 /* TLDs.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TLDs.json; sourceTree = "<group>"; };
 		33E38F9B1D294CA20003314B /* LogViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogViewController.h; sourceTree = "<group>"; };
 		33E38F9C1D294CA20003314B /* LogViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogViewController.m; sourceTree = "<group>"; };
 		33FF98901CDA5CFE0086AED5 /* credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = credits.html; sourceTree = "<group>"; };
@@ -535,6 +537,7 @@
 		33FF988F1CDA576D0086AED5 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				33DD8F631DD623F000D85048 /* TLDs.json */,
 				33D3DA941CDCA832009FCC6B /* Localizable.strings */,
 				334CF8D41CD37E0C00C3E346 /* Launch Screen.xib */,
 				3396C3681CCF739200C7CCE2 /* Assets.xcassets */,
@@ -609,6 +612,7 @@
 				33D3DA921CDCA832009FCC6B /* Localizable.strings in Resources */,
 				33AFDFEA1CDB703200B6DFBB /* JSTools.js in Resources */,
 				334CF9681CD380E700C3E346 /* geoip in Resources */,
+				33DD8F641DD623F000D85048 /* TLDs.json in Resources */,
 				334CF96B1CD380E700C3E346 /* torrc in Resources */,
 				336012301CE789E600DDC290 /* iRate.bundle in Resources */,
 				334CF8D51CD37E0C00C3E346 /* Launch Screen.xib in Resources */,

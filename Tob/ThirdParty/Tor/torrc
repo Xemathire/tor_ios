@@ -18,10 +18,6 @@ SafeLogging 1
 TestSocks 0
 WarnUnsafeSocks 0 # default 1 (we don't care on iOS)
 
-# IPv6 support test
-ClientPreferIPv6ORPort 1
-ClientPreferIPv6DirPort 1
-
 # We actually disabled this by removing ptrace() calls when building tor.
 # See "build-tor-ptrace-patch.diff" and "build-tor.sh" in the OnionBrowser
 # repo root. This technically results in "less security", but iOS

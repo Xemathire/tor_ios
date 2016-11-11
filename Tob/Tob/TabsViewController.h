@@ -18,8 +18,10 @@ extern const char AlertViewIncomingUrl;
 
 @interface TabsViewController : MOTabViewController
 
-// @property (nonatomic, strong) NSArray *restoredURLs;
 @property (nonatomic, strong) UIProgressView *progressView;
+@property (nonatomic, strong) NSString *IPAddress;
+@property (nonatomic) int newIdentityNumber; // An integer containing the current identity number, to avoid showing the wrong IP
+
 
 - (NSMutableArray *)titles;
 - (NSMutableArray *)subtitles;
@@ -31,6 +33,8 @@ extern const char AlertViewIncomingUrl;
 - (void)askToLoadURL:(NSURL *)url;
 - (void)addNewTabForURL:(NSURL *)url;
 - (void)stopLoading;
+- (void)refreshCurrentTab;
+- (void)setTabsNeedForceRefresh:(BOOL)needsForceRefresh;
 
 - (void)updateNavigationItems;
 - (void)showNavigationBarAtFullHeight;

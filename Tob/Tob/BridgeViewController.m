@@ -29,11 +29,7 @@
     UIBarButtonItem *qrButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:@selector(qrscan)];
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancel)];
     self.navigationItem.leftBarButtonItem = cancelButton;
-    if ([QRCodeReader isAvailable]) {
-        [self.navigationItem setRightBarButtonItems:[NSArray arrayWithObjects:saveButton, qrButton, nil]];
-    } else {
-        self.navigationItem.rightBarButtonItem = saveButton;
-    }
+    [self.navigationItem setRightBarButtonItems:[NSArray arrayWithObjects:saveButton, qrButton, nil]];
     
     self.navigationController.toolbarHidden = NO;
     UIBarButtonItem *flexibleItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
@@ -52,9 +48,9 @@
     txtView.font = [UIFont systemFontOfSize:11];
     txtView.text = [self bridgesToBridgeLines];
     if ([QRCodeReader isAvailable]) {
-        txtView.placeholder = NSLocalizedString(@"Visit https://bridges.torproject.org/ and Get Bridges. Tap the 'camera' icon above to scan the QR code, or manually copy-and-paste the \"bridge lines\" here:\n\ni.e.:\n172.0.0.1:1234 912ec803b2ce49e4a541068d495ab570912ec803\n172.0.0.2:4567 098f6bcd4621d373cade4e832627b4f6098f6bcd\n172.0.0.3:7890 a541068d495ab570912ec803a541068d495ab570\n\nPlease note that Tob does NOT currently support bridges using Pluggable Transports (obfs3, scramblesuit, obfs4, etc.)\n\nIf you are in a location that uses more sophisticated methods to block Tor, you might have trouble getting a connection in Tob until Pluggable Transports are supported.", nil);
+        txtView.placeholder = NSLocalizedString(@"You can configure bridges here if your ISP normally blocks access to Tor.\n\nSelect a preset or visit https://bridges.torproject.org/ to get bridges and then tap the 'camera' icon above to scan the QR code, or manually copy-and-paste the \"bridge lines\" here.", nil);
     } else {
-        txtView.placeholder = NSLocalizedString(@"Visit https://bridges.torproject.org/ and Get Bridges. Then copy-and-paste the \"bridge lines\" here:\n\ni.e.:\n172.0.0.1:1234 912ec803b2ce49e4a541068d495ab570912ec803\n172.0.0.2:4567 098f6bcd4621d373cade4e832627b4f6098f6bcd\n172.0.0.3:7890 a541068d495ab570912ec803a541068d495ab570\n\nPlease note that Tob does NOT currently support bridges using Pluggable Transports (obfs3, scramblesuit, obfs4, etc.)\n\nIf you are in a location that uses more sophisticated methods to block Tor, you might have trouble getting a connection in Tob until Pluggable Transports are supported.", nil);
+        txtView.placeholder = NSLocalizedString(@"You can configure bridges here if your ISP normally blocks access to Tor.\n\nSelect a preset or visit https://bridges.torproject.org/ to get bridges and copy-and-paste the \"bridge lines\" here.", nil);
     }
     txtView.placeholderColor = [UIColor grayColor];
     txtView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
@@ -146,7 +142,7 @@
         [self presentViewController:reader animated:YES completion:NULL];
     }
     else {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Error" message:@"Camera access was not granted or QRCode scanning is not supported by your device." preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Error", nil) message:NSLocalizedString(@"Camera access was not granted or QRCode scanning is not supported by your device.", nil) preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
         [self presentViewController:alert animated:YES completion:NULL];
     }
@@ -293,6 +289,8 @@
     }
     
     [appDelegate updateTorrc];
+    [appDelegate tabsViewController].newIdentityNumber += 1;
+    [appDelegate tabsViewController].IPAddress = nil;
     
     if (shouldSaveAndExit) {
         [self exitModal];

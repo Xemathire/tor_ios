@@ -224,6 +224,7 @@ connectionStatus = _connectionStatus
 - (void) disableNetwork {
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [[appDelegate tabsViewController] stopLoading];
+    [[appDelegate tabsViewController] setTabsNeedForceRefresh:YES];
     [_mSocket writeString:@"setconf disablenetwork=1\n" encoding:NSUTF8StringEncoding];
     [appDelegate.logViewController logInfo:@"[tor] DisableNetwork is set. Tor will not make or accept non-control network connections. Shutting down all existing connections."];
 }
@@ -231,6 +232,7 @@ connectionStatus = _connectionStatus
 - (void) enableNetwork {
     [_mSocket writeString:@"setconf disablenetwork=0\n" encoding:NSUTF8StringEncoding];
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[appDelegate tabsViewController] refreshCurrentTab];
     [appDelegate.logViewController logInfo:@"[tor] Received reload signal (hup). Reloading config and resetting internal state."];
 }
 

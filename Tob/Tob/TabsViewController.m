@@ -102,8 +102,6 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     // Tor panel view
     UIView *_torPanelView;
     UILabel *_IPAddressLabel;
-    NSString *_IPAddress;
-    int _newIdentityNumber; // An integer containing the current identity number, to avoid showing the wrong IP
     
     // Bookmarks
     BookmarkTableViewController *_bookmarks;
@@ -752,7 +750,28 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 }
 
 -(NSString *)isURL:(NSString *)userInput {
-    NSArray *urlEndings = @[@".com",@".co",@".net",@".io",@".org",@".edu",@".to",@".ly",@".gov",@".eu",@".cn",@".mil",@".gl",@".info",@".onion"];
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"TLDs" ofType:@"json"];
+    NSString *jsonString = [[NSString alloc] initWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
+    NSArray *urlEndings;
+    
+    if (!jsonString) {
+#ifdef DEBUG
+        NSLog(@"TLDs.json file not found! Defaulting to a shorter list.");
+#endif
+        urlEndings = @[@".com",@".co",@".net",@".io",@".org",@".edu",@".to",@".ly",@".gov",@".eu",@".cn",@".mil",@".gl",@".info",@".onion",@".uk",@".fr"];
+    } else {
+        NSError *error = nil;
+        NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+        urlEndings = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
+        
+        if (error) {
+#ifdef DEBUG
+            NSLog(@"TLDs.json file not found! Defaulting to a shorter list.");
+#endif
+            urlEndings = @[@".com",@".co",@".net",@".io",@".org",@".edu",@".to",@".ly",@".gov",@".eu",@".cn",@".mil",@".gl",@".info",@".onion",@".uk",@".fr"];
+        }
+    }
+    
     NSString *workingInput = @"";
     
     // Check if it's escaped
@@ -942,6 +961,17 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     [_torProgressView setProgress:[progress floatValue] animated:YES];
 }
 
+- (void)refreshCurrentTab {
+    if (_webViewObject)
+        [_webViewObject reload];
+}
+
+- (void)setTabsNeedForceRefresh:(BOOL)needsForceRefresh {
+    for (int i = 0; i < [[self subtitles] count]; i++) {
+        [[[self contentViews] objectAtIndex:i] setNeedsForceRefresh:needsForceRefresh];
+    }
+}
+
 - (void)removeTorProgressView {
     [_torLoadingView removeFromSuperview];
     [_torDarkBackgroundView removeFromSuperview];
@@ -1078,6 +1108,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         _torPanelView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         torTitle.textColor = [UIColor blackColor];
         [closeButton setTitleColor:self.view.tintColor forState:UIControlStateNormal];
+        [logButton setTintColor:self.view.tintColor];
         _IPAddressLabel.textColor = [UIColor blackColor];
         [newIdentityButton setTitleColor:self.view.tintColor forState:UIControlStateNormal];
         [addBridgeButton setTitleColor:self.view.tintColor forState:UIControlStateNormal];
@@ -1085,6 +1116,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         _torPanelView.backgroundColor = [UIColor darkGrayColor];
         torTitle.textColor = [UIColor whiteColor];
         [closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [logButton setTintColor:[UIColor whiteColor]];
         _IPAddressLabel.textColor = [UIColor whiteColor];
         [newIdentityButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [addBridgeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -1230,12 +1262,6 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 
 - (void)openBridgeView {
     [self hideTorPanel];
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Bridge Configuration", nil)
-                                                    message:NSLocalizedString(@"You can configure bridges here if your ISP normally blocks access to Tor.\n\nIf you did not mean to access the Bridge configuration, press \"Cancel\", then \"Restart App\", and then re-launch Tob.", nil)
-                                                   delegate:nil
-                                          cancelButtonTitle:NSLocalizedString(@"OK", nil)
-                                          otherButtonTitles:nil];
-    [alert show];
     
     BridgeViewController *bridgesVC = [[BridgeViewController alloc] init];
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:bridgesVC];
