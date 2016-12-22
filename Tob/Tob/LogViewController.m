@@ -28,6 +28,8 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
     UIInterfaceOrientation interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
     CGSize viewSize = CGSizeMake(MIN(self.view.frame.size.height, self.view.frame.size.width), MAX(self.view.frame.size.height, self.view.frame.size.width));
     
@@ -67,7 +69,7 @@
     _navbar.translucent = NO;
     
     _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(navbarFrame.origin.x, [UIApplication sharedApplication].statusBarFrame.size.height, navbarFrame.size.width, navbarFrame.size.height - [UIApplication sharedApplication].statusBarFrame.size.height)];
-    _titleLabel.text = @"Tor log";
+    _titleLabel.text = NSLocalizedString(@"Tor log", nil);
     _titleLabel.font = [UIFont boldSystemFontOfSize:17];
     _titleLabel.textAlignment = NSTextAlignmentCenter;
     [_navbar addSubview:_titleLabel];

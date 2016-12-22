@@ -6,8 +6,9 @@
 #ifndef __GoIobfs4proxy_H__
 #define __GoIobfs4proxy_H__
 
-#include <Foundation/Foundation.h>
+@import Foundation;
 #include "GoUniverse.h"
+
 
 FOUNDATION_EXPORT void GoIobfs4proxyMain();
 

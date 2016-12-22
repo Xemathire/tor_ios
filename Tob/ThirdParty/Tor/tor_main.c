@@ -14,10 +14,10 @@
  * src/or/Makefile.am, and is usually right.
  */
 const char tor_git_revision[] =
-#ifndef _MSC_VER
-#include "micro-revision.i"
-#endif
-  "";
+//#ifndef _MSC_VER
+//#include "micro-revision.i"
+//#endif
+"";
 
 /**
  * \file tor_main.c
@@ -32,8 +32,8 @@ int tor_main(int argc, char *argv[]);
  */
 /*
  int
-main(int argc, char *argv[])
-{
-  return tor_main(argc, argv);
-}
-*/
+ main(int argc, char *argv[])
+ {
+ return tor_main(argc, argv);
+ }
+ */

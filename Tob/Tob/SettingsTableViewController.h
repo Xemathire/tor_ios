@@ -36,5 +36,9 @@
 @end
 
 
+@interface IPTableViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate>
+@end
+
+
 @interface CreditsWebViewController : UIViewController <UIWebViewDelegate>
 @end

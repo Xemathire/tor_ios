@@ -117,7 +117,7 @@ static const int kTitleFontSize = 13;
         else
             _viewTitle.frame = CGRectMake(kDeleteViewHeight, 0, kDeselectedScaleLandscape * _containerView.frame.size.width - (kDeleteViewHeight + 10), kDeleteViewHeight);
 
-        [_viewTitle setText:@"New tab"];
+        [_viewTitle setText:NSLocalizedString(@"New tab", nil)];
         [_viewTitle setTextColor:[UIColor whiteColor]];
         [_viewTitle setFont:[UIFont boldSystemFontOfSize:kTitleFontSize]];
         [_viewTitle setLineBreakMode:NSLineBreakByTruncatingTail];

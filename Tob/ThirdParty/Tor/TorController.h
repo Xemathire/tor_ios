@@ -1,10 +1,9 @@
+// Copyright © 2012-2016 Mike Tigas
 //
-//  TorController.h
-//  OnionBrowser
-//
-//  Created by Mike Tigas on 9/5/12.
-//
-//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 
 #import <Foundation/Foundation.h>
 #import "TorWrapper.h"
@@ -16,9 +15,15 @@
 #define CONN_STATUS_NONE 0
 #define CONN_STATUS_CONNECTED 1
 
+#define CONN_LAST_AUTO_IPV4V6_IPV4 0
+#define CONN_LAST_AUTO_IPV4V6_IPV6 1
+#define CONN_LAST_AUTO_IPV4V6_DUAL 2
+#define CONN_LAST_AUTO_IPV4V6_MANUAL 99
+
 @property (nonatomic) unsigned int controllerIsAuthenticated;
 @property (nonatomic) Boolean didFirstConnect;
 @property (nonatomic) unsigned int connectionStatus;
+@property (nonatomic) unsigned int connLastAutoIPStack;
 
 @property (nonatomic) TorWrapper *torThread;
 @property (nonatomic) NSTimer *torCheckLoopTimer;

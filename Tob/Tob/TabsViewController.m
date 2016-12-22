@@ -1073,7 +1073,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     [logButton addTarget:self action:@selector(showLog) forControlEvents:UIControlEventTouchUpInside];
     [_torPanelView addSubview:logButton];
     
-    _IPAddressLabel = [[UILabel alloc] initWithFrame:CGRectMake(25, 45, 250, 30)];
+    _IPAddressLabel = [[UILabel alloc] initWithFrame:CGRectMake(25, 45, 250, 35)];
     
     if (_IPAddress)
         _IPAddressLabel.text = [NSString stringWithFormat:NSLocalizedString(@"IP: %@", nil), _IPAddress];
@@ -1085,21 +1085,13 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     _IPAddressLabel.textAlignment = NSTextAlignmentLeft;
     [_torPanelView addSubview:_IPAddressLabel];
     
-    UIButton *newIdentityButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 80, 135, 30)];
+    UIButton *newIdentityButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 85, 280, 25)];
     newIdentityButton.titleLabel.numberOfLines = 1;
     newIdentityButton.titleLabel.adjustsFontSizeToFitWidth = YES;
     newIdentityButton.titleLabel.lineBreakMode = NSLineBreakByClipping;
     [newIdentityButton setTitle:NSLocalizedString(@"New identity", nil) forState:UIControlStateNormal];
     [newIdentityButton addTarget:self action:@selector(newIdentity) forControlEvents:UIControlEventTouchUpInside];
     [_torPanelView addSubview:newIdentityButton];
-    
-    UIButton *addBridgeButton = [[UIButton alloc] initWithFrame:CGRectMake(155, 80, 135, 30)];
-    addBridgeButton.titleLabel.numberOfLines = 1;
-    addBridgeButton.titleLabel.adjustsFontSizeToFitWidth = YES;
-    addBridgeButton.titleLabel.lineBreakMode = NSLineBreakByClipping;
-    [addBridgeButton setTitle:NSLocalizedString(@"Add bridge", nil) forState:UIControlStateNormal];
-    [addBridgeButton addTarget:self action:@selector(openBridgeView) forControlEvents:UIControlEventTouchUpInside];
-    [_torPanelView addSubview:addBridgeButton];
     
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
@@ -1111,7 +1103,6 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         [logButton setTintColor:self.view.tintColor];
         _IPAddressLabel.textColor = [UIColor blackColor];
         [newIdentityButton setTitleColor:self.view.tintColor forState:UIControlStateNormal];
-        [addBridgeButton setTitleColor:self.view.tintColor forState:UIControlStateNormal];
     } else {
         _torPanelView.backgroundColor = [UIColor darkGrayColor];
         torTitle.textColor = [UIColor whiteColor];
@@ -1119,7 +1110,6 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         [logButton setTintColor:[UIColor whiteColor]];
         _IPAddressLabel.textColor = [UIColor whiteColor];
         [newIdentityButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [addBridgeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     }
     
     [self.view bringSubviewToFront:_torDarkBackgroundView];
@@ -1258,15 +1248,6 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         else
             [[[self contentViews] objectAtIndex:i] reload];
     }
-}
-
-- (void)openBridgeView {
-    [self hideTorPanel];
-    
-    BridgeViewController *bridgesVC = [[BridgeViewController alloc] init];
-    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:bridgesVC];
-    navController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    [self presentViewController:navController animated:YES completion:nil];
 }
 
 -(void)openSettingsView {

@@ -1,17 +1,12 @@
+// Copyright © 2012-2016 Mike Tigas
 //
-//  CKHTTPConnection.m
-//  Connection
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
-//  Created by Mike on 17/03/2009.
-//  Copyright 2009 Karelia Software. All rights reserved.
-//
-//  Originally from ConnectionKit 2.0 branch; source at:
-//  http://www.opensource.utr-software.com/source/connection/branches/2.0/CKHTTPConnection.m
-//  (CKHTTPConnection.m last updated rev 1242, 2009-06-16 09:40:21 -0700, by mabdullah)
-//
-//  Under Modified BSD License, as per description at
-//  http://www.opensource.utr-software.com/
-//
+// This file is derived from "Connection Framework" (ConnectionKit 2.0
+// branch), under the Modified BSD License.
+// Copyright 2009 Karelia Software. All rights reserved.
 
 #import "CKHTTPConnection.h"
 #import "AppDelegate.h"
@@ -161,7 +156,7 @@
             for (NSString *whitelistHost in appDelegate.sslWhitelistedDomains) {
                 if ([whitelistHost isEqualToString:URL.host]) {
 #ifdef DEBUG
-                    //NSLog(@"%@ in SSL host whitelist ignoring SSL certificate status", URL.host);
+                    NSLog(@"%@ in SSL host whitelist ignoring SSL certificate status", URL.host);
 #endif
                     ignoreSSLErrors = YES;
                     break;
@@ -398,7 +393,7 @@
                                      (__bridge CFStringRef)[NSString stringWithFormat:@"%d",
                                                             dntValue]);
 #if DEBUG
-    //NSLog(@"Sending 'DNT: %d' header", dntValue);
+    NSLog(@"Sending 'DNT: %d' header", dntValue);
 #endif
     
     // Send cookies we have (in sharedHTTPCookieStorage) that are valid for this URL
@@ -410,7 +405,7 @@
                                              (__bridge CFStringRef)headerKey,
                                              (__bridge CFStringRef)[cookieHeaders objectForKey:headerKey]);
 #if DEBUG
-            //NSLog(@"Sent cookie header --- %@: %@", headerKey, [cookieHeaders objectForKey:headerKey]);
+            NSLog(@"Sent cookie header --- %@: %@", headerKey, [cookieHeaders objectForKey:headerKey]);
 #endif
             
         }
@@ -572,5 +567,3 @@
 - (CFHTTPAuthenticationRef)CFHTTPAuthentication { return _HTTPAuthentication; }
 
 @end
-
-

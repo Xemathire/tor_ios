@@ -65,7 +65,7 @@ static void _cfsocketCallback( CFSocketRef inCFSocketRef, CFSocketCallBackType i
 
 - (id)init
 {
-	if( ![super init] )
+	if(![super init])
 		return nil;
 	
 	// Initialize some values

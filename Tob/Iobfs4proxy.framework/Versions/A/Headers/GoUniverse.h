@@ -6,23 +6,24 @@
 #ifndef __GoUniverse_H__
 #define __GoUniverse_H__
 
-#include <Foundation/Foundation.h>
+@import Foundation;
 #include "GoUniverse.h"
+
 
 @protocol GoUniverseerror;
 @class GoUniverseerror;
 
-@protocol GoUniverseerror
+@protocol GoUniverseerror <NSObject>
 - (NSString*)error;
 @end
 
 @class GoUniverseerror;
 
-@interface GoUniverseerror : NSObject <GoUniverseerror> {
+@interface GoUniverseerror : NSError <goSeqRefInterface, GoUniverseerror> {
 }
 @property(strong, readonly) id _ref;
 
-- (id)initWithRef:(id)ref;
+- (instancetype)initWithRef:(id)ref;
 - (NSString*)error;
 @end
 

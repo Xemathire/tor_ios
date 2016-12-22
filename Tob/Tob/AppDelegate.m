@@ -7,15 +7,14 @@
 //
 
 #import "AppDelegate.h"
-#include <Openssl/sha.h>
 #import "Bridge.h"
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #import <sys/utsname.h>
 #import "BridgeViewController.h"
+#import "Ipv6Tester.h"
 #import "JFMinimalNotification.h"
 #import "iRate.h"
-#include <arpa/inet.h>
 
 @interface AppDelegate ()
 - (Boolean)torrcExists;
@@ -52,7 +51,6 @@ didLaunchObfsProxy
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
     usingObfs = NO;
     didLaunchObfsProxy = NO;
     
@@ -135,32 +133,13 @@ didLaunchObfsProxy
     _window.rootViewController = tabsViewController;
     [_window makeKeyAndVisible];
     
-    // OLD IOS SECURITY WARNINGS
-    if ([[[UIDevice currentDevice] systemVersion] compare:@"8.2" options:NSNumericSearch] == NSOrderedAscending) {
-        
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Outdated iOS Warning", nil) message:NSLocalizedString(@"You are running a version of iOS that may use weak HTTPS encryption; iOS 8.2 contains a fix for this issue.", nil) preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-            [self startup2];
-        }]];
-        
-        if (alert) {
-            [_window.rootViewController presentViewController:alert animated:YES completion:NULL];
-        } else {
-            JFMinimalNotification *minimalNotification = [JFMinimalNotification notificationWithStyle:JFMinimalNotificationStyleDefault title:NSLocalizedString(@"Outdated iOS Warning", nil) subTitle:NSLocalizedString(@"You are running a version of iOS that may use weak HTTPS encryption; iOS 8.2 contains a fix for this issue.", nil) dismissalDelay:10.0];
-            minimalNotification.layer.zPosition = MAXFLOAT;
-            [_window.rootViewController.view addSubview:minimalNotification];
-            [minimalNotification show];
-            
-            [self startup2];
-        }
-    } else {
-        [self startup2];
-    }
+    [self startup2];
     
     return YES;
 }
 
 -(void) startup2 {
+    /*
     if (![self torrcExists] && ![self isRunningTests]) {
         UIAlertController *alert2 = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Welcome to Tob", nil) message:NSLocalizedString(@"If you are in a location that blocks connections to Tor, you may configure bridges before trying to connect for the first time.", nil) preferredStyle:UIAlertControllerStyleAlert];
         
@@ -177,6 +156,8 @@ didLaunchObfsProxy
     } else {
         [self afterFirstRun];
     }
+     */
+    [self afterFirstRun];
     
     sslWhitelistedDomains = [[NSMutableArray alloc] init];
     
@@ -299,6 +280,9 @@ didLaunchObfsProxy
 - (NSURL *)applicationDocumentsDirectory {
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
+- (NSURL *)applicationLibraryDirectory {
+    return [[[NSFileManager defaultManager] URLsForDirectory:NSLibraryDirectory inDomains:NSUserDomainMask] lastObject];
+}
 
 void HandleException(NSException *exception) {
     // Save state on crash if the user chose to
@@ -407,7 +391,7 @@ void HandleSignal(int signal) {
 
 #pragma mark App helpers
 
-- (NSUInteger) deviceType{
+- (NSUInteger) deviceType {
     size_t size;
     sysctlbyname("hw.machine", NULL, &size, NULL, 0);
     char *machine = malloc(size);
@@ -428,8 +412,7 @@ void HandleSignal(int signal) {
     }
 }
 
--(NSUInteger) numBridgesConfigured {
-    
+-(NSUInteger)numBridgesConfigured {
     NSFetchRequest *request = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"Bridge" inManagedObjectContext:self.managedObjectContext];
     [request setEntity:entity];
@@ -464,6 +447,41 @@ void HandleSignal(int signal) {
         }
     }
     
+    NSFileHandle *myHandle = [NSFileHandle fileHandleForWritingAtPath:destTorrc];
+    [myHandle seekToEndOfFile];
+    
+    // If the bridge setting is set to one of the "built-in" sets, make sure
+    // we use fresh values as provided by the app. This allows us to update the
+    // built-in confs.
+    NSMutableDictionary *settings = self.getSettings;
+    NSInteger bridgeSetting = [[settings valueForKey:@"bridges"] integerValue];
+    if (bridgeSetting == TOR_BRIDGES_OBFS4) {
+        [Bridge updateBridgeLines:[Bridge defaultObfs4]];
+    } else if (bridgeSetting == TOR_BRIDGES_MEEKAMAZON) {
+        [Bridge updateBridgeLines:[Bridge defaultMeekAmazon]];
+    } else if (bridgeSetting == TOR_BRIDGES_MEEKAZURE) {
+        [Bridge updateBridgeLines:[Bridge defaultMeekAzure]];
+    }
+    NSInteger ipSetting = [[settings valueForKey:@"tor_ipv4v6"] integerValue];
+    if (ipSetting == OB_IPV4V6_AUTO) {
+        NSInteger ipv6_status = [Ipv6Tester ipv6_status];
+        if (ipv6_status == TOR_IPV6_CONN_ONLY) {
+            // TODO: eventually get rid of "UseMicrodescriptors 0" workaround
+            //       (because it is very slow) pending this ticket:
+            //       https://trac.torproject.org/projects/tor/ticket/20996
+            [myHandle writeData:[@"\nClientUseIPv4 0\nClientUseIPv6 1\nUseMicrodescriptors 0\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        } else if (ipv6_status == TOR_IPV6_CONN_DUAL) {
+            [myHandle writeData:[@"\nClientUseIPv4 1\nClientUseIPv6 1\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        } else {
+            [myHandle writeData:[@"\nClientUseIPv4 1\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        }
+    } else if (ipSetting == OB_IPV4V6_V6ONLY) {
+        [myHandle writeData:[@"\nClientUseIPv4 0\nClientUseIPv6 1\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    } else {
+        [myHandle writeData:[@"\nClientUseIPv4 1\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    }
+    
+    
     NSFetchRequest *request = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"Bridge" inManagedObjectContext:self.managedObjectContext];
     [request setEntity:entity];
@@ -473,8 +491,6 @@ void HandleSignal(int signal) {
     if (mutableFetchResults == nil) {
         
     } else if ([mutableFetchResults count] > 0) {
-        NSFileHandle *myHandle = [NSFileHandle fileHandleForWritingAtPath:destTorrc];
-        [myHandle seekToEndOfFile];
         
         [myHandle writeData:[@"UseBridges 1\n" dataUsingEncoding:NSUTF8StringEncoding]];
         for (Bridge *bridge in mutableFetchResults) {
@@ -494,8 +510,9 @@ void HandleSignal(int signal) {
             [myHandle writeData:[@"ClientTransportPlugin obfs3 socks5 127.0.0.1:47354\n" dataUsingEncoding:NSUTF8StringEncoding]];
             [myHandle writeData:[@"ClientTransportPlugin scramblesuit socks5 127.0.0.1:47355\n" dataUsingEncoding:NSUTF8StringEncoding]];
         }
-        [myHandle closeFile];
     }
+    [myHandle closeFile];
+    
     
     // Encrypt the new torrc (since this "running" copy of torrc may now contain bridges)
     NSDictionary *f_options = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -506,17 +523,17 @@ void HandleSignal(int signal) {
 - (void)wipeAppData {
     [[self tabsViewController] stopLoading];
     
-    /* This is probably incredibly redundant since we just delete all the files, below */
+    // This is probably incredibly redundant since we just delete all the files, below
+    NSHTTPCookie *cookie;
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    for (NSHTTPCookie *cookie in [storage cookies]) {
+    for (cookie in [storage cookies]) {
         [storage deleteCookie:cookie];
     }
-    [[NSUserDefaults standardUserDefaults] synchronize];
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
     
     
-    /* Delete all Caches, Cookies, Preferences in app's "Library" data dir. (Connection settings
-     * & etc end up in "Documents", not "Library".) */
+    // Delete all Caches, Cookies, Preferences in app's "Library" data dir. (Connection settings
+    // & etc end up in "Documents", not "Library".)
     NSArray *dataPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
     if ((dataPaths != nil) && ([dataPaths count] > 0)) {
         NSString *dataDir = [dataPaths objectAtIndex:0];
@@ -528,7 +545,7 @@ void HandleSignal(int signal) {
                 [fm removeItemAtPath:cookiesDir error:nil];
             }
             
-            NSString *cachesDir = [NSString stringWithFormat:@"%@/Caches", dataDir];
+            NSString *cachesDir = [NSString stringWithFormat:@"%@/Caches/com.miketigas.OnionBrowser", dataDir];
             if ([fm fileExistsAtPath:cachesDir isDirectory:nil]){
                 [fm removeItemAtPath:cachesDir error:nil];
             }
@@ -551,7 +568,6 @@ void HandleSignal(int signal) {
     NSString* theTestConfigPath = environment[ @"XCTestConfigurationFilePath" ];
     return theTestConfigPath != nil;
 }
-
 
 - (NSString *)settingsFile {
     return [[[self applicationDocumentsDirectory] path] stringByAppendingPathComponent:@"Settings.plist"];
@@ -650,6 +666,24 @@ void HandleSignal(int signal) {
             [d setObject:[NSNumber numberWithBool:false] forKey:@"night-mode"];
         update = YES;
     }
+    if ([d objectForKey:@"bridges"] == nil) {
+        // previous versions of onion browser didn't set this option, instead scanning the stored Bridge config.
+        NSFetchRequest *request = [[NSFetchRequest alloc] init];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Bridge" inManagedObjectContext:self.managedObjectContext];
+        [request setEntity:entity];
+        
+        NSError *error = nil;
+        NSMutableArray *mutableFetchResults = [[self.managedObjectContext executeFetchRequest:request error:&error] mutableCopy];
+        NSUInteger bridgeConf = TOR_BRIDGES_NONE;
+        if ((mutableFetchResults != nil) && ([mutableFetchResults count] > 0))
+            bridgeConf = TOR_BRIDGES_CUSTOM;
+        [d setObject:[NSNumber numberWithInteger:bridgeConf] forKey:@"bridges"];
+        update = YES;
+    }
+    if ([d objectForKey:@"tor_ipv4v6"] == nil) {
+        [d setObject:[NSNumber numberWithInteger:OB_IPV4V6_AUTO] forKey:@"tor_ipv4v6"];
+        update = YES;
+    }
     
     if (update) {
         [self saveSettings:d];
@@ -683,7 +717,6 @@ void HandleSignal(int signal) {
 }
 
 
-
 #ifdef DEBUG
 - (void)applicationProtectedDataWillBecomeUnavailable:(UIApplication *)application {
     NSLog(@"app data encrypted");
@@ -705,7 +738,7 @@ void HandleSignal(int signal) {
      *   1 compile and run on your own device (with a passcode)
      *   2 open app, allow app to finish loading, configure app, etc.
      *   3 close app, wait a few seconds for it to sleep, force-quit app
-     *   4 open XCode organizer (command-shift-2), go to device, go to Applications, select Tob app
+     *   4 open XCode organizer (command-shift-2), go to device, go to Applications, select Onion Browser app
      *   5 click "download"
      *   6 open the xcappdata directory you saved, look for Documents/Settings.plist, etc
      *   - THEN: unlock device, open app, and try steps 4-6 again with the app open & device unlocked.
@@ -736,7 +769,7 @@ void HandleSignal(int signal) {
                                                             }];
         
         // NOTE: doNotEncryptAttribute is only up in here because for some versions of Onion
-        //       Browser we were encrypting even Tob.app, which possibly caused
+        //       Browser we were encrypting even OnionBrowser.app, which possibly caused
         //       the app to become invisible. so we'll manually set anything inside executable
         //       app to be unencrypted (because it will never store user data, it's just
         //       *our* bundle.)
@@ -751,9 +784,8 @@ void HandleSignal(int signal) {
         
         NSString *appDir = [[[[NSBundle mainBundle] bundleURL] absoluteString] stringByReplacingOccurrencesOfString:@"/private/var/" withString:@"/var/"];
         NSString *tmpDirStr = [[[NSURL URLWithString:[NSString stringWithFormat:@"file://%@", NSTemporaryDirectory()]] absoluteString] stringByReplacingOccurrencesOfString:@"/private/var/" withString:@"/var/"];
-        
 #ifdef DEBUG
-        // NSLog(@"%@", appDir);
+        NSLog(@"%@", appDir);
 #endif
         
         for (NSURL *fileURL in enumerator) {
@@ -764,17 +796,17 @@ void HandleSignal(int signal) {
             if (![isDirectory boolValue]) {
                 // Directories can't be set to "encrypt"
                 if ([filePath hasPrefix:appDir]) {
-                    // Don't encrypt the Tob.app directory, because otherwise
+                    // Don't encrypt the OnionBrowser.app directory, because otherwise
                     // the system will sometimes lose visibility of the app. (We're re-setting
-                    // the "NSFileProtectionNone" attribute because prev versions of Tob
+                    // the "NSFileProtectionNone" attribute because prev versions of Onion Browser
                     // may have screwed this up.)
 #ifdef DEBUG
-                    // NSLog(@"NO: %@", filePath);
+                    NSLog(@"NO: %@", filePath);
 #endif
                     [fileManager setAttributes:doNotEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
                 } else if (
-                           [filePath rangeOfString:@"torrc"].location == NSNotFound ||
-                           [filePath rangeOfString:@"pt_state"].location == NSNotFound ||
+                           [filePath containsString:@"torrc"] ||
+                           [filePath containsString:@"pt_state"] ||
                            [filePath hasPrefix:[NSString stringWithFormat:@"%@cached-certs", tmpDirStr]] ||
                            [filePath hasPrefix:[NSString stringWithFormat:@"%@cached-microdesc", tmpDirStr]] ||
                            [filePath hasPrefix:[NSString stringWithFormat:@"%@control_auth_cookie", tmpDirStr]] ||
@@ -785,14 +817,14 @@ void HandleSignal(int signal) {
                     // Tor related files should be encrypted, but allowed to stay open
                     // if app was open & device locks.
 #ifdef DEBUG
-                    // NSLog(@"TOR ENCRYPT: %@", filePath);
+                    NSLog(@"TOR ENCRYPT: %@", filePath);
 #endif
                     [fileManager setAttributes:torEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
                 } else {
                     // Full encrypt. This is a file (not a directory) that was generated on the user's device
                     // (not part of our .app bundle).
 #ifdef DEBUG
-                    // NSLog(@"FULL ENCRYPT: %@", filePath);
+                    NSLog(@"FULL ENCRYPT: %@", filePath);
 #endif
                     [fileManager setAttributes:fullEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
                 }

@@ -8,11 +8,12 @@
 
 #import "SettingsTableViewController.h"
 #import "AppDelegate.h"
-#import "BridgeViewController.h"
 #import "Bridge.h"
+#import "BridgesTableViewController.h"
 #import "BookmarkTableViewController.h"
 #import "BookmarkEditViewController.h"
 #import "Bookmark.h"
+#import "Ipv6Tester.h"
 
 @interface SettingsTableViewController ()
 
@@ -61,7 +62,7 @@
     else if (section == 1)
         return 3; // Cookies, UA spoofing, DNT
     else if (section == 2)
-        return 4; // Active content, Javascript, TLS/SSL, bridges
+        return 5; // Active content, Javascript, TLS/SSL, IPv5/IPv4, bridges
     else if (section == 3)
         return 2; // App store, credits
     else
@@ -84,20 +85,22 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSString *CellIdentifier = @"Cell";
     
-    if ((indexPath.section == 0 && (indexPath.row == 2 || indexPath.row == 3)) || (indexPath.section == 1 && (indexPath.row == 0 || indexPath.row == 1)) || (indexPath.section == 2 && (indexPath.row == 0 || indexPath.row == 2))) {
+    if ((indexPath.section == 0 && (indexPath.row == 2 || indexPath.row == 3)) || (indexPath.section == 1 && (indexPath.row == 0 || indexPath.row == 1)) || (indexPath.section == 2 && (indexPath.row == 0 || indexPath.row == 2 || indexPath.row == 3)))
         CellIdentifier = @"Detail cell";
-    } else if ((indexPath.section == 0 && (indexPath.row == 4 || indexPath.row == 5)) || (indexPath.section == 1 && indexPath.row == 2) || (indexPath.section == 2 && indexPath.row == 1)){
+    else if ((indexPath.section == 0 && (indexPath.row == 4 || indexPath.row == 5)) || (indexPath.section == 1 && indexPath.row == 2) || (indexPath.section == 2 && indexPath.row == 1))
         CellIdentifier = @"Switch cell";
-    }
+    else if (indexPath.section == 2 && indexPath.row == 4)
+        CellIdentifier = @"Subtitle cell";
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     if (cell == nil) {
-        if ([CellIdentifier isEqual:@"Detail cell"]) {
+        if ([CellIdentifier isEqual:@"Detail cell"])
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
-        } else {
+        else if ([CellIdentifier isEqual:@"Subtitle cell"])
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
+        else
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
-        }
     }
     
     cell.userInteractionEnabled = YES;
@@ -218,7 +221,6 @@
                 cell.detailTextLabel.text = NSLocalizedString(@"Allow all", nil);
             else
                 cell.detailTextLabel.text = @"";
-            
         } else if (indexPath.row == 1) {
             AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             NSMutableDictionary *settings = appDelegate.getSettings;
@@ -259,8 +261,23 @@
                 cell.detailTextLabel.text = NSLocalizedString(@"TLS 1.2", nil);
             else
                 cell.detailTextLabel.text = @"";
-            
         } else if (indexPath.row == 3) {
+            cell.textLabel.text = NSLocalizedString(@"IPv4/IPv6", nil);
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+            NSMutableDictionary *settings = appDelegate.getSettings;
+            NSInteger ipv4v6Setting = [[settings valueForKey:@"tor_ipv4v6"] integerValue];
+            
+            if (ipv4v6Setting == OB_IPV4V6_AUTO)
+                cell.detailTextLabel.text = NSLocalizedString(@"Auto", nil);
+            else if (ipv4v6Setting == OB_IPV4V6_V6ONLY)
+                cell.detailTextLabel.text = NSLocalizedString(@"IPv6", nil);
+            else if (ipv4v6Setting == OB_IPV4V6_V4ONLY)
+                cell.detailTextLabel.text = NSLocalizedString(@"IPv4", nil);
+            else
+                cell.detailTextLabel.text = @"";
+        } else if (indexPath.row == 4) {
             AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
             
             NSFetchRequest *request = [[NSFetchRequest alloc] init];
@@ -269,16 +286,16 @@
             
             NSError *error = nil;
             NSMutableArray *mutableFetchResults = [[appDelegate.managedObjectContext executeFetchRequest:request error:&error] mutableCopy];
+            cell.textLabel.text = NSLocalizedString(@"Tor bridges", nil);
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             
             NSUInteger numBridges = [mutableFetchResults count];
-            if (numBridges == 0)
-                cell.textLabel.text = NSLocalizedString(@"Add Tor bridge", nil);
+            if (numBridges == 1)
+                cell.detailTextLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld bridge configured", nil), (unsigned long)numBridges];
+            else if (numBridges > 1)
+                cell.detailTextLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld bridges configured", nil), (unsigned long)numBridges];
             else
-                cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld bridges configured", nil), (unsigned long)numBridges];
-            
-            cell.textLabel.textAlignment = NSTextAlignmentCenter;
-            cell.textLabel.textColor = self.view.tintColor;
-            cell.accessoryType = UITableViewCellAccessoryNone;
+                cell.detailTextLabel.text = nil;
         }
     } else if (indexPath.section == 3) {
         // Miscellaneous
@@ -381,11 +398,13 @@
             TLSTableViewController *tlsViewController = [[TLSTableViewController alloc] initWithStyle:UITableViewStyleGrouped];
             [self.navigationController pushViewController:tlsViewController animated:YES];
         } else if (indexPath.row == 3) {
+            // IPv4/IPv6
+            IPTableViewController *IPVC = [[IPTableViewController alloc] initWithStyle:UITableViewStyleGrouped];
+            [self.navigationController pushViewController:IPVC animated:YES];
+        } else if (indexPath.row == 4) {
             // Bridges
-            BridgeViewController *bridgesVC = [[BridgeViewController alloc] init];
-            UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:bridgesVC];
-            navController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-            [self presentViewController:navController animated:YES completion:nil];
+            BridgesTableViewController *bridgesVC = [[BridgesTableViewController alloc] initWithStyle:UITableViewStyleGrouped];
+            [self.navigationController pushViewController:bridgesVC animated:YES];
         }
     } else if (indexPath.section == 3) {
         if (indexPath.row == 0) {
@@ -1039,6 +1058,129 @@
 
 @end
 
+
+
+
+
+@interface IPTableViewController ()
+
+@end
+
+@implementation IPTableViewController {
+    int _currentRow;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    self.navigationItem.title = NSLocalizedString(@"IPv4/IPv6", nil);
+    
+    if([self.tableView respondsToSelector:@selector(setCellLayoutMarginsFollowReadableWidth:)]) {
+        self.tableView.cellLayoutMarginsFollowReadableWidth = NO;
+    }
+}
+
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 3;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    return nil;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
+    NSString *msg = NSLocalizedString(@"This is an advanced setting and should only be modified if you know what you are doing and if you have unusual network needs.", nil);
+    
+    NSInteger ipv6_status = [Ipv6Tester ipv6_status];
+    msg = [msg stringByAppendingString:NSLocalizedString(@"\n\nCurrent autodetect state: ", nil)];
+    if (ipv6_status == TOR_IPV6_CONN_ONLY) {
+        msg = [msg stringByAppendingString:NSLocalizedString(@"IPv6-only detected", nil)];
+    } else if (ipv6_status == TOR_IPV6_CONN_DUAL) {
+        msg = [msg stringByAppendingString:NSLocalizedString(@"Dual-stack IPv4+IPv6 detected", nil)];
+    } else if (ipv6_status == TOR_IPV6_CONN_FALSE) {
+        msg = [msg stringByAppendingString:NSLocalizedString(@"IPv4-only detected", nil)];
+    } else {
+        msg = [msg stringByAppendingString:NSLocalizedString(@"Could not detect IP stack state. Using IPv4-only.", nil)];
+    }
+    
+    msg = [msg stringByAppendingString:NSLocalizedString(@"\n\nDefault: Automatic IPv4/IPv6.", nil)];
+    
+    return msg;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *CellIdentifier = @"Cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithFrame:CGRectZero];
+    }
+    
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    NSMutableDictionary *settings = appDelegate.getSettings;
+    NSInteger ipv4v6Setting = [[settings valueForKey:@"tor_ipv4v6"] integerValue];
+    
+    if (indexPath.row == 0) {
+        cell.textLabel.text = NSLocalizedString(@"Automatic IPv4/IPv6", nil);
+        
+        if (ipv4v6Setting == OB_IPV4V6_AUTO) {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            _currentRow = 0;
+        }
+    } else if (indexPath.row == 1) {
+        cell.textLabel.text = NSLocalizedString(@"Always use IPv4", nil);
+        
+        if (ipv4v6Setting == OB_IPV4V6_V4ONLY) {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            _currentRow = 1;
+        }
+    } else if (indexPath.row == 2) {
+        cell.textLabel.text = NSLocalizedString(@"Always use IPv6", nil);
+        
+        if (ipv4v6Setting == OB_IPV4V6_V6ONLY) {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            _currentRow = 2;
+        }
+    }
+    
+    return cell;
+}
+
+
+#pragma mark - Table view delegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    NSMutableDictionary *settings = appDelegate.getSettings;
+    
+    [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentRow inSection:indexPath.section]].accessoryType = UITableViewCellAccessoryNone;
+    [tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
+    _currentRow = (int)indexPath.row;
+    
+    if (indexPath.row == 0) {
+        [settings setObject:[NSNumber numberWithInteger:OB_IPV4V6_AUTO] forKey:@"tor_ipv4v6"];
+        [appDelegate saveSettings:settings];
+    } else if (indexPath.row == 1) {
+        [settings setObject:[NSNumber numberWithInteger:OB_IPV4V6_V4ONLY] forKey:@"tor_ipv4v6"];
+        [appDelegate saveSettings:settings];
+    } else if (indexPath.row == 2) {
+        [settings setObject:[NSNumber numberWithInteger:OB_IPV4V6_V6ONLY] forKey:@"tor_ipv4v6"];
+        [appDelegate saveSettings:settings];
+    }
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+@end
 
 
 

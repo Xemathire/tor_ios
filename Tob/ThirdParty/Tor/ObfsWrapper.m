@@ -1,10 +1,8 @@
+// Copyright © 2012-2016 Mike Tigas
 //
-//  ObfsWrapper.m
-//  iObfs
-//
-//  Created by Mike Tigas on 4/3/16.
-//  Copyright © 2016 Mike Tigas. All rights reserved.
-//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #import "ObfsWrapper.h"
 #include <Iobfs4proxy/Iobfs4proxy.h>
@@ -12,11 +10,11 @@
 @implementation ObfsWrapper
 
 @synthesize
-    obfs4SocksPort = _obfs4SocksPort,
-    meekSocksPort = _meekSocksPort,
-    obfs2SocksPort = _obfs2SocksPort,
-    obfs3SocksPort = _obfs3SocksPort,
-    scramblesuitSocksPort = _scramblesuitSocksPort
+obfs4SocksPort = _obfs4SocksPort,
+meekSocksPort = _meekSocksPort,
+obfs2SocksPort = _obfs2SocksPort,
+obfs3SocksPort = _obfs3SocksPort,
+scramblesuitSocksPort = _scramblesuitSocksPort
 ;
 
 -(void)main {
@@ -28,7 +26,7 @@
     _obfs2SocksPort = 47353;
     _obfs3SocksPort = 47354;
     _scramblesuitSocksPort = 47355;
-
+    
     GoIobfs4proxyMain();
 }
 @end

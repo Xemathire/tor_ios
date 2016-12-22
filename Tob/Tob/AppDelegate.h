@@ -42,6 +42,16 @@
 #define X_TLSVER_TLS1 1
 #define X_TLSVER_TLS1_2_ONLY 2
 
+#define TOR_BRIDGES_NONE 0
+#define TOR_BRIDGES_OBFS4 1
+#define TOR_BRIDGES_MEEKAMAZON 2
+#define TOR_BRIDGES_MEEKAZURE 3
+#define TOR_BRIDGES_CUSTOM 99
+
+#define OB_IPV4V6_AUTO 0
+#define OB_IPV4V6_V4ONLY 1
+#define OB_IPV4V6_V6ONLY 2
+
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
@@ -72,6 +82,7 @@
 - (void)recheckObfsproxy;
 - (NSUInteger) numBridgesConfigured;
 - (void)updateTorrc;
+- (NSURL *)applicationLibraryDirectory;
 - (NSURL *)applicationDocumentsDirectory;
 - (void)wipeAppData;
 - (NSUInteger) deviceType;

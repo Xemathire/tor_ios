@@ -1,16 +1,15 @@
+// Copyright © 2012-2016 Mike Tigas
 //
-//  TorWrapper.h
-//  wut
-//
-//  Created by Mike Tigas on 2/22/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
-//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #import <Foundation/Foundation.h>
-#include "or/or.h"
-#include "or/main.h"
+#import <Tor/Tor.h>
 
-@interface TorWrapper : NSThread
+@interface TorWrapper : NSObject
+@property (nonatomic, retain) TORThread *tor;
 
--(NSData *)readTorCookie;
+//-(NSData *)readTorCookie;
+-(void)start;
 @end

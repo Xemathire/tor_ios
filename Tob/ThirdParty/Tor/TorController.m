@@ -10,6 +10,7 @@
 #import "NSData+Conversion.h"
 #import "AppDelegate.h"
 #import "Reachability.h"
+#import "Ipv6Tester.h"
 #import <QuartzCore/QuartzCore.h>
 
 @implementation TorController {
@@ -29,7 +30,8 @@ torCheckLoopTimer = _torCheckLoopTimer,
 torStatusTimeoutTimer = _torStatusTimeoutTimer,
 mSocket = _mSocket,
 controllerIsAuthenticated = _controllerIsAuthenticated,
-connectionStatus = _connectionStatus
+connectionStatus = _connectionStatus,
+connLastAutoIPStack = _connLastAutoIPStack
 ;
 
 -(id)init {
@@ -39,6 +41,21 @@ connectionStatus = _connectionStatus
         
         _controllerIsAuthenticated = NO;
         _connectionStatus = CONN_STATUS_NONE;
+        
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+        NSInteger ipSetting = [[appDelegate.getSettings valueForKey:@"tor_ipv4v6"] integerValue];
+        if (ipSetting == OB_IPV4V6_AUTO) {
+            NSInteger ipv6_status = [Ipv6Tester ipv6_status];
+            if (ipv6_status == TOR_IPV6_CONN_ONLY) {
+                _connLastAutoIPStack = CONN_LAST_AUTO_IPV4V6_IPV6;
+            } else if (ipv6_status == TOR_IPV6_CONN_DUAL) {
+                _connLastAutoIPStack = CONN_LAST_AUTO_IPV4V6_DUAL;
+            } else {
+                _connLastAutoIPStack = CONN_LAST_AUTO_IPV4V6_IPV4;
+            }
+        } else {
+            _connLastAutoIPStack = CONN_LAST_AUTO_IPV4V6_MANUAL;
+        }
         
         // listen to changes in connection state
         // (tor has auto detection when external IP changes, but if we went
@@ -64,7 +81,7 @@ connectionStatus = _connectionStatus
         [_torStatusTimeoutTimer invalidate];
     }
     if (_torThread != nil) {
-        [_torThread cancel];
+        [_torThread.tor cancel];
         _torThread = nil;
     }
     
@@ -128,14 +145,33 @@ connectionStatus = _connectionStatus
         
         AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         [appDelegate.logViewController logInfo:@"[tor] Reachability changed (now online)"];
+        
+        // TODO: we only do this to catch a changed IPv4/IPv6 stack state.
+        //       we can probably handle this more elegantly than rewriting torrc.
+        NSInteger ipSetting = [[appDelegate.getSettings valueForKey:@"tor_ipv4v6"] integerValue];
+        if (ipSetting == OB_IPV4V6_AUTO) {
+            NSInteger ipv6_status = [Ipv6Tester ipv6_status];
+            if ( ((ipv6_status == TOR_IPV6_CONN_ONLY) && (_connLastAutoIPStack != CONN_LAST_AUTO_IPV4V6_IPV6)) ||
+                ((ipv6_status == TOR_IPV6_CONN_DUAL) && (_connLastAutoIPStack != CONN_LAST_AUTO_IPV4V6_DUAL)) ||
+                ((ipv6_status == TOR_IPV6_CONN_FALSE) && (_connLastAutoIPStack != CONN_LAST_AUTO_IPV4V6_IPV4)) ) {
+                // The IP stack changed; update our conn settings.
+                [appDelegate updateTorrc];
+                // Stash new state so we know if we change next time around..
+                if (ipv6_status == TOR_IPV6_CONN_ONLY) {
+                    _connLastAutoIPStack = CONN_LAST_AUTO_IPV4V6_IPV6;
+                } else if (ipv6_status == TOR_IPV6_CONN_DUAL) {
+                    _connLastAutoIPStack = CONN_LAST_AUTO_IPV4V6_DUAL;
+                } else {
+                    _connLastAutoIPStack = CONN_LAST_AUTO_IPV4V6_IPV4;
+                }
+            }
+        }
         [self hupTor];
     }
 }
 
-
 - (void)appDidEnterBackground {
     [self disableTorCheckLoop];
-    nbrFailedAttempts = 0;
 }
 
 - (void)appDidBecomeActive {
@@ -236,32 +272,29 @@ connectionStatus = _connectionStatus
     [appDelegate.logViewController logInfo:@"[tor] Received reload signal (hup). Reloading config and resetting internal state."];
 }
 
-
 - (void)netsocketConnected:(ULINetSocket*)inNetSocket {
     /* Authenticate on first control port connect */
 #ifdef DEBUG
     NSLog(@"[tor] Control Port Connected" );
 #endif
-    NSData *torCookie = [_torThread readTorCookie];
-    
-    NSString *authMsg = [NSString stringWithFormat:@"authenticate %@\n",
-                         [torCookie hexadecimalString]];
+    //NSData *torCookie = [_torThread readTorCookie];
+    //NSString *authMsg = [NSString stringWithFormat:@"authenticate %@\n",
+    //                     [torCookie hexadecimalString]];
+    NSString *authMsg = [NSString stringWithFormat:@"authenticate \"onionbrowser\"\n"];
     [_mSocket writeString:authMsg encoding:NSUTF8StringEncoding];
     
     _controllerIsAuthenticated = NO;
 }
-
 
 - (void)netsocketDisconnected:(ULINetSocket*)inNetSocket {
 #ifdef DEBUG
     NSLog(@"[tor] Control Port Disconnected" );
 #endif
     
-    // Attempt to reconnect the netsocket
     if (nbrFailedAttempts <= MAX_FAILED_ATTEMPTS) {
+        // Attempt to reconnect the netsocket
         [self disableTorCheckLoop];
-        // [self activateTorCheckLoop];
-        [self performSelector:@selector(activateTorCheckLoop) withObject:nil afterDelay:0.5];
+        [self activateTorCheckLoop];
         nbrFailedAttempts += didFirstConnect; // If didn't first connect, will remain at 0
     }
 }
@@ -311,8 +344,7 @@ connectionStatus = _connectionStatus
             } else {
                 // Otherwise, crash because we don't know the app's current state
                 // (since it hasn't totally initialized yet).
-#warning crash removed
-                // exit(0);
+                exit(0);
             }
         }
     } else if ([msgIn rangeOfString:@"-status/bootstrap-phase="].location != NSNotFound) {

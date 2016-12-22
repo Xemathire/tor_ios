@@ -54,47 +54,50 @@
 		334CF9651CD380E700C3E346 /* CustomTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 334CF9401CD380E700C3E346 /* CustomTextField.m */; };
 		334CF9661CD380E700C3E346 /* LICENSE - Safari scrolling in Resources */ = {isa = PBXBuildFile; fileRef = 334CF9411CD380E700C3E346 /* LICENSE - Safari scrolling */; };
 		334CF9671CD380E700C3E346 /* UIScreen+isTall.m in Sources */ = {isa = PBXBuildFile; fileRef = 334CF9441CD380E700C3E346 /* UIScreen+isTall.m */; };
-		334CF9681CD380E700C3E346 /* geoip in Resources */ = {isa = PBXBuildFile; fileRef = 334CF9461CD380E700C3E346 /* geoip */; };
 		334CF9691CD380E700C3E346 /* tor_main.c in Sources */ = {isa = PBXBuildFile; fileRef = 334CF9471CD380E700C3E346 /* tor_main.c */; };
 		334CF96A1CD380E700C3E346 /* TorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 334CF9491CD380E700C3E346 /* TorController.m */; };
 		334CF96B1CD380E700C3E346 /* torrc in Resources */ = {isa = PBXBuildFile; fileRef = 334CF94A1CD380E700C3E346 /* torrc */; };
 		334CF96C1CD380E700C3E346 /* TorWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 334CF94C1CD380E700C3E346 /* TorWrapper.m */; };
 		334CF96D1CD380E700C3E346 /* ULINetSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 334CF94E1CD380E700C3E346 /* ULINetSocket.m */; };
-		334CF97E1CD3812100C3E346 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF96E1CD3812100C3E346 /* libcrypto.a */; };
-		334CF97F1CD3812100C3E346 /* libcurve25519_donna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF96F1CD3812100C3E346 /* libcurve25519_donna.a */; };
-		334CF9801CD3812100C3E346 /* libed25519_donna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF9701CD3812100C3E346 /* libed25519_donna.a */; };
-		334CF9811CD3812100C3E346 /* libed25519_ref10.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF9711CD3812100C3E346 /* libed25519_ref10.a */; };
-		334CF9821CD3812100C3E346 /* libevent_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF9721CD3812100C3E346 /* libevent_core.a */; };
-		334CF9831CD3812100C3E346 /* libevent_extra.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF9731CD3812100C3E346 /* libevent_extra.a */; };
-		334CF9841CD3812100C3E346 /* libevent_openssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF9741CD3812100C3E346 /* libevent_openssl.a */; };
-		334CF9851CD3812100C3E346 /* libevent_pthreads.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF9751CD3812100C3E346 /* libevent_pthreads.a */; };
-		334CF9861CD3812100C3E346 /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF9761CD3812100C3E346 /* libevent.a */; };
-		334CF9871CD3812100C3E346 /* libkeccak-tiny.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF9771CD3812100C3E346 /* libkeccak-tiny.a */; };
-		334CF9881CD3812100C3E346 /* libor-crypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF9781CD3812100C3E346 /* libor-crypto.a */; };
-		334CF9891CD3812100C3E346 /* libor-event.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF9791CD3812100C3E346 /* libor-event.a */; };
-		334CF98A1CD3812100C3E346 /* libor-trunnel.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF97A1CD3812100C3E346 /* libor-trunnel.a */; };
-		334CF98B1CD3812100C3E346 /* libor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF97B1CD3812100C3E346 /* libor.a */; };
-		334CF98C1CD3812100C3E346 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF97C1CD3812100C3E346 /* libssl.a */; };
-		334CF98D1CD3812100C3E346 /* libtor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 334CF97D1CD3812100C3E346 /* libtor.a */; };
 		336012301CE789E600DDC290 /* iRate.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3360122D1CE789E600DDC290 /* iRate.bundle */; };
 		336012311CE789E600DDC290 /* iRate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3360122F1CE789E600DDC290 /* iRate.m */; };
+		336181FA1E09963400642D0F /* geoip in Resources */ = {isa = PBXBuildFile; fileRef = 336181F81E09963400642D0F /* geoip */; };
+		336181FB1E09963400642D0F /* geoip6 in Resources */ = {isa = PBXBuildFile; fileRef = 336181F91E09963400642D0F /* geoip6 */; };
+		336182071E09975200642D0F /* Iobfs4proxy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 336182061E09975200642D0F /* Iobfs4proxy.framework */; };
+		336182091E09982900642D0F /* Tor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 336182081E09982900642D0F /* Tor.framework */; };
+		3361820A1E09982900642D0F /* Tor.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 336182081E09982900642D0F /* Tor.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		336E59D81CE877F400F52A46 /* LICENCE - iRate.md in Resources */ = {isa = PBXBuildFile; fileRef = 336012321CE789FA00DDC290 /* LICENCE - iRate.md */; };
 		3396C3691CCF739200C7CCE2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3396C3681CCF739200C7CCE2 /* Assets.xcassets */; };
 		3396C3761CCF752F00C7CCE2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3396C3751CCF752F00C7CCE2 /* QuartzCore.framework */; };
 		33AFDFDD1CDB326A00B6DFBB /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 33AFDFDC1CDB326A00B6DFBB /* Entitlements.plist */; };
 		33AFDFEA1CDB703200B6DFBB /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = 33AFDFE91CDB703200B6DFBB /* JSTools.js */; };
+		33BD084A1E05609F006B2957 /* Ipv6Tester.m in Sources */ = {isa = PBXBuildFile; fileRef = 33BD08491E05609F006B2957 /* Ipv6Tester.m */; };
+		33BD084D1E0581D0006B2957 /* BridgesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 33BD084C1E0581D0006B2957 /* BridgesTableViewController.m */; };
 		33C5DB971CD2240500102324 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3396C3601CCF739200C7CCE2 /* AppDelegate.m */; };
 		33C5DB981CD2240B00102324 /* TabsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3396C3631CCF739200C7CCE2 /* TabsViewController.m */; };
 		33C5DB991CD2240F00102324 /* WebViewTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 3396C3971CCF76F300C7CCE2 /* WebViewTab.m */; };
 		33C5DB9A1CD2241200102324 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3396C35D1CCF739200C7CCE2 /* main.m */; };
 		33D24EA11DD5FFFA0091A7DC /* ObfsWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 33D24EA01DD5FFFA0091A7DC /* ObfsWrapper.m */; };
-		33D24EA51DD600420091A7DC /* Iobfs4proxy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33D24EA41DD600420091A7DC /* Iobfs4proxy.framework */; };
 		33D3DA8F1CDCA402009FCC6B /* searchEngineURLs.plist in Resources */ = {isa = PBXBuildFile; fileRef = 33D3DA8E1CDCA402009FCC6B /* searchEngineURLs.plist */; };
 		33D3DA921CDCA832009FCC6B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 33D3DA941CDCA832009FCC6B /* Localizable.strings */; };
 		33DD8F641DD623F000D85048 /* TLDs.json in Resources */ = {isa = PBXBuildFile; fileRef = 33DD8F631DD623F000D85048 /* TLDs.json */; };
 		33E38F9D1D294CA20003314B /* LogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 33E38F9C1D294CA20003314B /* LogViewController.m */; };
 		33FF98911CDA5CFE0086AED5 /* credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 33FF98901CDA5CFE0086AED5 /* credits.html */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3361820B1E09982900642D0F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3361820A1E09982900642D0F /* Tor.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		333E27021CDB859A00D33B2F /* JFMinimalNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JFMinimalNotification.h; sourceTree = "<group>"; };
@@ -180,7 +183,6 @@
 		334CF9421CD380E700C3E346 /* Safari Scrolling-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Safari Scrolling-Prefix.pch"; sourceTree = "<group>"; };
 		334CF9431CD380E700C3E346 /* UIScreen+isTall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScreen+isTall.h"; sourceTree = "<group>"; };
 		334CF9441CD380E700C3E346 /* UIScreen+isTall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScreen+isTall.m"; sourceTree = "<group>"; };
-		334CF9461CD380E700C3E346 /* geoip */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = geoip; sourceTree = "<group>"; };
 		334CF9471CD380E700C3E346 /* tor_main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tor_main.c; sourceTree = "<group>"; };
 		334CF9481CD380E700C3E346 /* TorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TorController.h; sourceTree = "<group>"; };
 		334CF9491CD380E700C3E346 /* TorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TorController.m; sourceTree = "<group>"; };
@@ -189,26 +191,15 @@
 		334CF94C1CD380E700C3E346 /* TorWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TorWrapper.m; sourceTree = "<group>"; };
 		334CF94D1CD380E700C3E346 /* ULINetSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ULINetSocket.h; sourceTree = "<group>"; };
 		334CF94E1CD380E700C3E346 /* ULINetSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ULINetSocket.m; sourceTree = "<group>"; };
-		334CF96E1CD3812100C3E346 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = dependencies/lib/libcrypto.a; sourceTree = "<group>"; };
-		334CF96F1CD3812100C3E346 /* libcurve25519_donna.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurve25519_donna.a; path = dependencies/lib/libcurve25519_donna.a; sourceTree = "<group>"; };
-		334CF9701CD3812100C3E346 /* libed25519_donna.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libed25519_donna.a; path = dependencies/lib/libed25519_donna.a; sourceTree = "<group>"; };
-		334CF9711CD3812100C3E346 /* libed25519_ref10.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libed25519_ref10.a; path = dependencies/lib/libed25519_ref10.a; sourceTree = "<group>"; };
-		334CF9721CD3812100C3E346 /* libevent_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_core.a; path = dependencies/lib/libevent_core.a; sourceTree = "<group>"; };
-		334CF9731CD3812100C3E346 /* libevent_extra.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_extra.a; path = dependencies/lib/libevent_extra.a; sourceTree = "<group>"; };
-		334CF9741CD3812100C3E346 /* libevent_openssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_openssl.a; path = dependencies/lib/libevent_openssl.a; sourceTree = "<group>"; };
-		334CF9751CD3812100C3E346 /* libevent_pthreads.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent_pthreads.a; path = dependencies/lib/libevent_pthreads.a; sourceTree = "<group>"; };
-		334CF9761CD3812100C3E346 /* libevent.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libevent.a; path = dependencies/lib/libevent.a; sourceTree = "<group>"; };
-		334CF9771CD3812100C3E346 /* libkeccak-tiny.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libkeccak-tiny.a"; path = "dependencies/lib/libkeccak-tiny.a"; sourceTree = "<group>"; };
-		334CF9781CD3812100C3E346 /* libor-crypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libor-crypto.a"; path = "dependencies/lib/libor-crypto.a"; sourceTree = "<group>"; };
-		334CF9791CD3812100C3E346 /* libor-event.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libor-event.a"; path = "dependencies/lib/libor-event.a"; sourceTree = "<group>"; };
-		334CF97A1CD3812100C3E346 /* libor-trunnel.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libor-trunnel.a"; path = "dependencies/lib/libor-trunnel.a"; sourceTree = "<group>"; };
-		334CF97B1CD3812100C3E346 /* libor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libor.a; path = dependencies/lib/libor.a; sourceTree = "<group>"; };
-		334CF97C1CD3812100C3E346 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = dependencies/lib/libssl.a; sourceTree = "<group>"; };
-		334CF97D1CD3812100C3E346 /* libtor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtor.a; path = dependencies/lib/libtor.a; sourceTree = "<group>"; };
 		3360122D1CE789E600DDC290 /* iRate.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = iRate.bundle; sourceTree = "<group>"; };
 		3360122E1CE789E600DDC290 /* iRate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iRate.h; sourceTree = "<group>"; };
 		3360122F1CE789E600DDC290 /* iRate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iRate.m; sourceTree = "<group>"; };
 		336012321CE789FA00DDC290 /* LICENCE - iRate.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "LICENCE - iRate.md"; sourceTree = "<group>"; };
+		336181F81E09963400642D0F /* geoip */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = geoip; sourceTree = "<group>"; };
+		336181F91E09963400642D0F /* geoip6 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = geoip6; sourceTree = "<group>"; };
+		336182061E09975200642D0F /* Iobfs4proxy.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Iobfs4proxy.framework; sourceTree = "<group>"; };
+		336182081E09982900642D0F /* Tor.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Tor.framework; sourceTree = "<group>"; };
+		339570161E05ED3700CCD8DB /* orconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = orconfig.h; sourceTree = "<group>"; };
 		3396C3591CCF739200C7CCE2 /* Tob.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tob.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3396C35D1CCF739200C7CCE2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		3396C35F1CCF739200C7CCE2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -222,9 +213,12 @@
 		3396C3971CCF76F300C7CCE2 /* WebViewTab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewTab.m; sourceTree = "<group>"; };
 		33AFDFDC1CDB326A00B6DFBB /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		33AFDFE91CDB703200B6DFBB /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
+		33BD08481E05609F006B2957 /* Ipv6Tester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Ipv6Tester.h; path = ../Ipv6Tester.h; sourceTree = "<group>"; };
+		33BD08491E05609F006B2957 /* Ipv6Tester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Ipv6Tester.m; path = ../Ipv6Tester.m; sourceTree = "<group>"; };
+		33BD084B1E0581D0006B2957 /* BridgesTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BridgesTableViewController.h; sourceTree = "<group>"; };
+		33BD084C1E0581D0006B2957 /* BridgesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BridgesTableViewController.m; sourceTree = "<group>"; };
 		33D24E9F1DD5FFFA0091A7DC /* ObfsWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObfsWrapper.h; sourceTree = "<group>"; };
 		33D24EA01DD5FFFA0091A7DC /* ObfsWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObfsWrapper.m; sourceTree = "<group>"; };
-		33D24EA41DD600420091A7DC /* Iobfs4proxy.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Iobfs4proxy.framework; sourceTree = "<group>"; };
 		33D3DA8E1CDCA402009FCC6B /* searchEngineURLs.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = searchEngineURLs.plist; sourceTree = "<group>"; };
 		33D3DA931CDCA832009FCC6B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		33D3DA951CDCA84D009FCC6B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -239,28 +233,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				336182071E09975200642D0F /* Iobfs4proxy.framework in Frameworks */,
 				334CF8E41CD37F9C00C3E346 /* CFNetwork.framework in Frameworks */,
 				334CF8DA1CD37F6C00C3E346 /* CoreData.framework in Frameworks */,
 				334CF8E21CD37F9500C3E346 /* CoreGraphics.framework in Frameworks */,
 				334CF8E01CD37F8D00C3E346 /* Foundation.framework in Frameworks */,
-				33D24EA51DD600420091A7DC /* Iobfs4proxy.framework in Frameworks */,
-				334CF97E1CD3812100C3E346 /* libcrypto.a in Frameworks */,
-				334CF97F1CD3812100C3E346 /* libcurve25519_donna.a in Frameworks */,
-				334CF9801CD3812100C3E346 /* libed25519_donna.a in Frameworks */,
-				334CF9811CD3812100C3E346 /* libed25519_ref10.a in Frameworks */,
-				334CF9821CD3812100C3E346 /* libevent_core.a in Frameworks */,
-				334CF9831CD3812100C3E346 /* libevent_extra.a in Frameworks */,
-				334CF9841CD3812100C3E346 /* libevent_openssl.a in Frameworks */,
-				334CF9851CD3812100C3E346 /* libevent_pthreads.a in Frameworks */,
-				334CF9861CD3812100C3E346 /* libevent.a in Frameworks */,
-				334CF9871CD3812100C3E346 /* libkeccak-tiny.a in Frameworks */,
-				334CF9881CD3812100C3E346 /* libor-crypto.a in Frameworks */,
-				334CF9891CD3812100C3E346 /* libor-event.a in Frameworks */,
-				334CF98A1CD3812100C3E346 /* libor-trunnel.a in Frameworks */,
-				334CF98B1CD3812100C3E346 /* libor.a in Frameworks */,
-				334CF98C1CD3812100C3E346 /* libssl.a in Frameworks */,
-				334CF98D1CD3812100C3E346 /* libtor.a in Frameworks */,
 				334CF8E61CD37FA800C3E346 /* libxml2.tbd in Frameworks */,
+				336182091E09982900642D0F /* Tor.framework in Frameworks */,
 				334CF8E81CD37FB100C3E346 /* libz.tbd in Frameworks */,
 				334CF8D81CD37F5F00C3E346 /* MobileCoreServices.framework in Frameworks */,
 				3396C3761CCF752F00C7CCE2 /* QuartzCore.framework in Frameworks */,
@@ -309,6 +288,8 @@
 				334CF8C21CD37D5000C3E346 /* Bridge.m */,
 				334CF8C31CD37D5000C3E346 /* BridgeViewController.h */,
 				334CF8C41CD37D5000C3E346 /* BridgeViewController.m */,
+				33BD084B1E0581D0006B2957 /* BridgesTableViewController.h */,
+				33BD084C1E0581D0006B2957 /* BridgesTableViewController.m */,
 				334CF8C51CD37D5000C3E346 /* UIPlaceHolderTextView.h */,
 				334CF8C61CD37D5000C3E346 /* UIPlaceHolderTextView.m */,
 			);
@@ -346,7 +327,6 @@
 				334CF93C1CD380E700C3E346 /* Reachability.h */,
 				334CF93D1CD380E700C3E346 /* Reachability.m */,
 				334CF93E1CD380E700C3E346 /* Safari scrolling */,
-				334CF9451CD380E700C3E346 /* Tor */,
 				334CF94D1CD380E700C3E346 /* ULINetSocket.h */,
 				334CF94E1CD380E700C3E346 /* ULINetSocket.m */,
 			);
@@ -427,17 +407,22 @@
 		334CF9451CD380E700C3E346 /* Tor */ = {
 			isa = PBXGroup;
 			children = (
-				334CF9461CD380E700C3E346 /* geoip */,
+				33BD08481E05609F006B2957 /* Ipv6Tester.h */,
+				33BD08491E05609F006B2957 /* Ipv6Tester.m */,
 				33D24E9F1DD5FFFA0091A7DC /* ObfsWrapper.h */,
 				33D24EA01DD5FFFA0091A7DC /* ObfsWrapper.m */,
-				334CF9471CD380E700C3E346 /* tor_main.c */,
-				334CF9481CD380E700C3E346 /* TorController.h */,
-				334CF9491CD380E700C3E346 /* TorController.m */,
-				334CF94A1CD380E700C3E346 /* torrc */,
 				334CF94B1CD380E700C3E346 /* TorWrapper.h */,
 				334CF94C1CD380E700C3E346 /* TorWrapper.m */,
+				334CF9481CD380E700C3E346 /* TorController.h */,
+				334CF9491CD380E700C3E346 /* TorController.m */,
+				334CF9471CD380E700C3E346 /* tor_main.c */,
+				334CF94A1CD380E700C3E346 /* torrc */,
+				336181F81E09963400642D0F /* geoip */,
+				336181F91E09963400642D0F /* geoip6 */,
+				339570161E05ED3700CCD8DB /* orconfig.h */,
 			);
-			path = Tor;
+			name = Tor;
+			path = ThirdParty/Tor;
 			sourceTree = "<group>";
 		};
 		3360122C1CE789E600DDC290 /* iRate */ = {
@@ -455,6 +440,7 @@
 			isa = PBXGroup;
 			children = (
 				334CF90D1CD380E600C3E346 /* ThirdParty */,
+				334CF9451CD380E700C3E346 /* Tor */,
 				3396C35B1CCF739200C7CCE2 /* Tob */,
 				33FF988F1CDA576D0086AED5 /* Resources */,
 				3396C3771CCF753E00C7CCE2 /* Frameworks */,
@@ -503,23 +489,8 @@
 		3396C3771CCF753E00C7CCE2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				33D24EA41DD600420091A7DC /* Iobfs4proxy.framework */,
-				334CF96E1CD3812100C3E346 /* libcrypto.a */,
-				334CF96F1CD3812100C3E346 /* libcurve25519_donna.a */,
-				334CF9701CD3812100C3E346 /* libed25519_donna.a */,
-				334CF9711CD3812100C3E346 /* libed25519_ref10.a */,
-				334CF9721CD3812100C3E346 /* libevent_core.a */,
-				334CF9731CD3812100C3E346 /* libevent_extra.a */,
-				334CF9741CD3812100C3E346 /* libevent_openssl.a */,
-				334CF9751CD3812100C3E346 /* libevent_pthreads.a */,
-				334CF9761CD3812100C3E346 /* libevent.a */,
-				334CF9771CD3812100C3E346 /* libkeccak-tiny.a */,
-				334CF9781CD3812100C3E346 /* libor-crypto.a */,
-				334CF9791CD3812100C3E346 /* libor-event.a */,
-				334CF97A1CD3812100C3E346 /* libor-trunnel.a */,
-				334CF97B1CD3812100C3E346 /* libor.a */,
-				334CF97C1CD3812100C3E346 /* libssl.a */,
-				334CF97D1CD3812100C3E346 /* libtor.a */,
+				336182081E09982900642D0F /* Tor.framework */,
+				336182061E09975200642D0F /* Iobfs4proxy.framework */,
 				334CF8E71CD37FB100C3E346 /* libz.tbd */,
 				334CF8E51CD37FA800C3E346 /* libxml2.tbd */,
 				334CF8E31CD37F9C00C3E346 /* CFNetwork.framework */,
@@ -558,6 +529,7 @@
 				3396C3551CCF739200C7CCE2 /* Sources */,
 				3396C3561CCF739200C7CCE2 /* Frameworks */,
 				3396C3571CCF739200C7CCE2 /* Resources */,
+				3361820B1E09982900642D0F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -611,13 +583,14 @@
 				33D3DA8F1CDCA402009FCC6B /* searchEngineURLs.plist in Resources */,
 				33D3DA921CDCA832009FCC6B /* Localizable.strings in Resources */,
 				33AFDFEA1CDB703200B6DFBB /* JSTools.js in Resources */,
-				334CF9681CD380E700C3E346 /* geoip in Resources */,
 				33DD8F641DD623F000D85048 /* TLDs.json in Resources */,
+				336181FB1E09963400642D0F /* geoip6 in Resources */,
 				334CF96B1CD380E700C3E346 /* torrc in Resources */,
 				336012301CE789E600DDC290 /* iRate.bundle in Resources */,
 				334CF8D51CD37E0C00C3E346 /* Launch Screen.xib in Resources */,
 				334CF95F1CD380E700C3E346 /* LICENSE - QRCodeReaderViewController in Resources */,
 				334CF9661CD380E700C3E346 /* LICENSE - Safari scrolling in Resources */,
+				336181FA1E09963400642D0F /* geoip in Resources */,
 				334CF9501CD380E700C3E346 /* LICENSE - MOScrollView in Resources */,
 				334CF9521CD380E700C3E346 /* LICENSE - MOTabView in Resources */,
 				333E270F1CDB859A00D33B2F /* LICENSE - JFMinimalNotification in Resources */,
@@ -640,6 +613,7 @@
 				33C5DB971CD2240500102324 /* AppDelegate.m in Sources */,
 				333E27111CDB859A00D33B2F /* UIColor+JFMinimalNotificationColors.m in Sources */,
 				334CF8D11CD37D7000C3E346 /* Bookmark.m in Sources */,
+				33BD084A1E05609F006B2957 /* Ipv6Tester.m in Sources */,
 				334CF8D21CD37D7000C3E346 /* BookmarkEditViewController.m in Sources */,
 				334CF9631CD380E700C3E346 /* QRCodeReaderViewController.m in Sources */,
 				334CF95C1CD380E700C3E346 /* NSData+CocoaDevUsersAdditions.m in Sources */,
@@ -671,6 +645,7 @@
 				33D24EA11DD5FFFA0091A7DC /* ObfsWrapper.m in Sources */,
 				33E38F9D1D294CA20003314B /* LogViewController.m in Sources */,
 				334CF94F1CD380E700C3E346 /* CKHTTPConnection.m in Sources */,
+				33BD084D1E0581D0006B2957 /* BridgesTableViewController.m in Sources */,
 				334CF9581CD380E700C3E346 /* MOTitleTextField.m in Sources */,
 				333E270E1CDB859A00D33B2F /* JFMinimalNotificationArt.m in Sources */,
 				334CF96C1CD380E700C3E346 /* TorWrapper.m in Sources */,
@@ -735,7 +710,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_NO_PIE = YES;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -778,7 +754,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_NO_PIE = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -798,19 +775,12 @@
 					"$(PROJECT_DIR)",
 				);
 				GCC_PREFIX_HEADER = "Tob/Tob-Prefix.pch";
-				HEADER_SEARCH_PATHS = (
-					./dependencies/include/common,
-					"${SDK_DIR}/usr/include/libxml2",
-					../dependencies/include/or,
-					./dependencies/include,
-				);
+				HEADER_SEARCH_PATHS = "${SDK_DIR}/usr/include/libxml2";
 				INFOPLIST_FILE = Tob/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				LD_NO_PIE = YES;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/dependencies/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.JustKodding.TheOnionBrowser;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -828,19 +798,12 @@
 					"$(PROJECT_DIR)",
 				);
 				GCC_PREFIX_HEADER = "Tob/Tob-Prefix.pch";
-				HEADER_SEARCH_PATHS = (
-					./dependencies/include/common,
-					"${SDK_DIR}/usr/include/libxml2",
-					../dependencies/include/or,
-					./dependencies/include,
-				);
+				HEADER_SEARCH_PATHS = "${SDK_DIR}/usr/include/libxml2";
 				INFOPLIST_FILE = Tob/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				LD_NO_PIE = YES;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/dependencies/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.JustKodding.TheOnionBrowser;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

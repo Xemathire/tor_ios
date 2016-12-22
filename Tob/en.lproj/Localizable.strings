@@ -16,6 +16,7 @@
 "Open" = "Open";
 "Continue" = "Continue";
 "Clear" = "Clear";
+"Auto" = "Auto";
 
 /* Long press menu strings */
 "Open" = "Open";
@@ -88,12 +89,16 @@
 "Block Ajax" = "Block Ajax";
 "Block Ajax/Media/WebSockets" = "Block Ajax/Media/WebSockets";
 "Block all active content" = "Block all active content";
-"Disable javascript" = "Disable JavaScript";
+"Disable javascript" = "Block JavaScript";
 "TLS/SSL" = "TLS/SSL";
 "SSL v3" = "SSL v3";
 "TLS 1.0+" = "TLS 1.0+";
 "TLS 1.2" = "TLS 1.2";
-"Add Tor bridge" = "Add Tor bridge";
+"IPv4/IPv6" = "IPv4/IPv6";
+"IPv4" = "IPv4";
+"IPv6" = "IPv6";
+"Tor bridges" = "Tor bridges";
+"%ld bridge configured" = "%ld bridge configured";
 "%ld bridges configured" = "%ld bridges configured";
 "Rate on the App Store" = "Rate on the App Store";
 "License" = "License";
@@ -109,6 +114,16 @@
 "The user-agent is a string used to identificate the user's browser. Normalized user-agents show your browser without any specific information related to your device (%@, iOS %@).\n\nDefault: Normalized %@." = "The user-agent is a string used to identificate the user's browser. Normalized user-agents show your browser without any specific information related to your device (%@, iOS %@).\n\nDefault: Normalized %@.";
 "Active content is a type of interactive or dynamic website content that includes programs like Internet polls, JavaScript applications, animated images, video and audio…\nActive content contains programs that trigger automatic actions on a Web page without the user's knowledge or consent.\n\nDefault: Block Ajax/Media/WebSockets." = "Active content is a type of interactive or dynamic website content that includes programs like Internet polls, JavaScript applications, animated images, video and audio…\nActive content contains programs that trigger automatic actions on a Web page without the user's knowledge or consent.\n\nDefault: Block Ajax/Media/WebSockets.";
 "Minimum version of SSL/TLS required for HTTPS connections.\nNewer TLS protocols are more secure, but might not be supported by all sites.\n\nDefault : TLS 1.0+" = "Minimum version of SSL/TLS required for HTTPS connections.\nNewer TLS protocols are more secure, but might not be supported by all sites.\n\nDefault : TLS 1.0+";
+"Automatic IPv4/IPv6" = "Automatic IPv4/IPv6";
+"Always use IPv4" = "Always use IPv4";
+"Always use IPv6" = "Always use IPv6";
+"This is an advanced setting and should only be modified if you know what you are doing and if you have unusual network needs." = "This is an advanced setting and should only be modified if you know what you are doing and if you have unusual network needs.";
+"\n\nCurrent autodetect state: " = "\n\nCurrent autodetect state: ";
+"IPv6-only detected" = "IPv6-only detected";
+"Dual-stack IPv4+IPv6 detected" = "Dual-stack IPv4+IPv6 detected";
+"IPv4-only detected" = "IPv4-only detected";
+"Could not detect IP stack state. Using IPv4-only." = "Could not detect IP stack state. Using IPv4-only.";
+"\n\nDefault: Automatic IPv4/IPv6." = "\n\nDefault: Automatic IPv4/IPv6.";
 
 /* Tabs view controller */
 "Search or enter an address" = "Search or enter an address";
@@ -143,8 +158,18 @@
 "Search: DuckDuckGo (Plain HTTPS)" = "Search: DuckDuckGo (Plain HTTPS)";
 "IP Address Check" = "IP Address Check";
 
+/* Tor log strings */
+"Tor log" = "Tor log";
+
 /* Bridges strings */
 "Bridges" = "Bridges";
+"Bridges saved" = "Bridges saved";
+"Disable bridges" = "Disable bridges";
+"Provided bridges: obfs4" = "Provided bridges: obfs4";
+"Provided bridges: meek-amazon" = "Provided bridges: meek-amazon";
+"Provided bridges: meek-azure" = "Provided bridges: meek-azure";
+"Custom bridges" = "Custom bridges";
+"Bridges are Tor relays that help circumvent censorship. You can try bridges if Tor is blocked by your ISP; each type of bridge uses a different method to avoid censorship: if one type does not work, try using a different one.\n\nYou may use the provided bridges below or obtain bridges at bridges.torproject.org." = "Bridges are Tor relays that help circumvent censorship. You can try bridges if Tor is blocked by your ISP; each type of bridge uses a different method to avoid censorship: if one type does not work, try using a different one.\n\nYou may use the provided bridges below or obtain bridges at bridges.torproject.org.";
 "Presets" = "Presets";
 "Reset bridges" = "Reset bridges";
 "This will replace all your current bridges with the selected preset." = "This will replace all your current bridges with the selected preset.";
