@@ -545,7 +545,7 @@ void HandleSignal(int signal) {
                 [fm removeItemAtPath:cookiesDir error:nil];
             }
             
-            NSString *cachesDir = [NSString stringWithFormat:@"%@/Caches/com.miketigas.OnionBrowser", dataDir];
+            NSString *cachesDir = [NSString stringWithFormat:@"%@/Caches/com.JustKodding.TheOnionBrowser", dataDir];
             if ([fm fileExistsAtPath:cachesDir isDirectory:nil]){
                 [fm removeItemAtPath:cachesDir error:nil];
             }
@@ -768,8 +768,8 @@ void HandleSignal(int signal) {
                                                                 return YES;
                                                             }];
         
-        // NOTE: doNotEncryptAttribute is only up in here because for some versions of Onion
-        //       Browser we were encrypting even OnionBrowser.app, which possibly caused
+        // NOTE: doNotEncryptAttribute is only up in here because for some versions of Tob
+        //       we were encrypting even Tob.app, which possibly caused
         //       the app to become invisible. so we'll manually set anything inside executable
         //       app to be unencrypted (because it will never store user data, it's just
         //       *our* bundle.)
@@ -785,7 +785,7 @@ void HandleSignal(int signal) {
         NSString *appDir = [[[[NSBundle mainBundle] bundleURL] absoluteString] stringByReplacingOccurrencesOfString:@"/private/var/" withString:@"/var/"];
         NSString *tmpDirStr = [[[NSURL URLWithString:[NSString stringWithFormat:@"file://%@", NSTemporaryDirectory()]] absoluteString] stringByReplacingOccurrencesOfString:@"/private/var/" withString:@"/var/"];
 #ifdef DEBUG
-        NSLog(@"%@", appDir);
+        // NSLog(@"%@", appDir);
 #endif
         
         for (NSURL *fileURL in enumerator) {
@@ -796,12 +796,12 @@ void HandleSignal(int signal) {
             if (![isDirectory boolValue]) {
                 // Directories can't be set to "encrypt"
                 if ([filePath hasPrefix:appDir]) {
-                    // Don't encrypt the OnionBrowser.app directory, because otherwise
+                    // Don't encrypt the Tob.app directory, because otherwise
                     // the system will sometimes lose visibility of the app. (We're re-setting
                     // the "NSFileProtectionNone" attribute because prev versions of Onion Browser
                     // may have screwed this up.)
 #ifdef DEBUG
-                    NSLog(@"NO: %@", filePath);
+                    // NSLog(@"NO: %@", filePath);
 #endif
                     [fileManager setAttributes:doNotEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
                 } else if (
@@ -817,14 +817,14 @@ void HandleSignal(int signal) {
                     // Tor related files should be encrypted, but allowed to stay open
                     // if app was open & device locks.
 #ifdef DEBUG
-                    NSLog(@"TOR ENCRYPT: %@", filePath);
+                    // NSLog(@"TOR ENCRYPT: %@", filePath);
 #endif
                     [fileManager setAttributes:torEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
                 } else {
                     // Full encrypt. This is a file (not a directory) that was generated on the user's device
                     // (not part of our .app bundle).
 #ifdef DEBUG
-                    NSLog(@"FULL ENCRYPT: %@", filePath);
+                    // NSLog(@"FULL ENCRYPT: %@", filePath);
 #endif
                     [fileManager setAttributes:fullEncryptAttribute ofItemAtPath:[fileURL path] error:nil];
                 }

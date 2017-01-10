@@ -9,13 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "Bookmark.h"
 
-@interface BookmarkEditViewController : UITableViewController <UITextFieldDelegate> {
-    Bookmark *bookmark;
-}
+@interface BookmarkEditViewController : UITableViewController <UITextFieldDelegate>
 
 -(id)initWithBookmark:(Bookmark*)bookmarkToEdit;
+-(id)initWithBookmark:(Bookmark*)bookmarkToEdit isEditing:(BOOL)isEditing;
+
 @property (nonatomic, retain) Bookmark *bookmark;
+@property (nonatomic) BOOL userIsEditing;
 
-
--(void)saveAndGoBack;
 @end

@@ -329,7 +329,7 @@
             [bookmark setTitle:[[appDelegate.tabsViewController subtitles] objectAtIndex:appDelegate.tabsViewController.tabView.currentIndex]];
             [bookmark setUrl:[[appDelegate.tabsViewController titles] objectAtIndex:appDelegate.tabsViewController.tabView.currentIndex]];
             
-            BookmarkEditViewController *editController = [[BookmarkEditViewController alloc] initWithBookmark:bookmark];
+            BookmarkEditViewController *editController = [[BookmarkEditViewController alloc] initWithBookmark:bookmark isEditing:NO];
             [self presentViewController:editController animated:YES completion:nil];
         } else if (indexPath.row == 1) {
             // Edit bookmarks

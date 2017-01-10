@@ -15,7 +15,7 @@
 @end
 
 @implementation BookmarkEditViewController
-@synthesize bookmark;
+@synthesize bookmark, userIsEditing;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -27,9 +27,14 @@
 }
 
 - (id)initWithBookmark:(Bookmark *)bookmarkToEdit {
+    return [self initWithBookmark:bookmarkToEdit isEditing:NO];
+}
+
+-(id)initWithBookmark:(Bookmark*)bookmarkToEdit isEditing:(BOOL)isEditing {
     self = [super initWithStyle:UITableViewStyleGrouped];
     if (self) {
         self.bookmark = bookmarkToEdit;
+        self.userIsEditing = isEditing;
     }
     return self;
 }
@@ -90,7 +95,7 @@
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
-    
+        
     if ((indexPath.section == 0)||(indexPath.section == 1)) {
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         cell.textLabel.textColor = [UIColor blackColor];
@@ -228,7 +233,10 @@
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSError *error = nil;
 
-    [appDelegate.managedObjectContext deleteObject:bookmark];
+    if (!userIsEditing) {
+        // Delete the bookmark if it was a new one being added
+        [appDelegate.managedObjectContext deleteObject:bookmark];
+    }
     
     error = nil;
     if (![appDelegate.managedObjectContext save:&error]) {

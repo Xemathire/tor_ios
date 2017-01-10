@@ -47,7 +47,7 @@
                                                                target:self action:@selector(startEditing)];
     editDoneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
                                                                    target:self action:@selector(stopEditing)];
-    backButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", nil) style:UIBarButtonItemStyleDone target:self action:@selector(goBack)];
+    backButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil) style:UIBarButtonItemStyleDone target:self action:@selector(goBack)];
     self.navigationItem.leftBarButtonItem = editButton;
     self.navigationItem.rightBarButtonItem = backButton;
     
@@ -245,7 +245,7 @@
             [tableView deselectRowAtIndexPath:indexPath animated:YES];
         } else {
             Bookmark *bookmark = (Bookmark *)[bookmarksArray objectAtIndex:indexPath.row];
-            BookmarkEditViewController *editController = [[BookmarkEditViewController alloc] initWithBookmark:bookmark];
+            BookmarkEditViewController *editController = [[BookmarkEditViewController alloc] initWithBookmark:bookmark isEditing:YES];
             [self presentViewController:editController animated:YES completion:nil];
         }
     } else {
@@ -291,7 +291,7 @@
     [bookmarksArray addObject:bookmark];
     [self saveBookmarkOrder];
     
-    BookmarkEditViewController *editController = [[BookmarkEditViewController alloc] initWithBookmark:bookmark];
+    BookmarkEditViewController *editController = [[BookmarkEditViewController alloc] initWithBookmark:bookmark isEditing:NO];
     [self presentViewController:editController animated:YES completion:nil];
     /*
      NSIndexPath *indexPath = [NSIndexPath indexPathForRow:order inSection:0];
