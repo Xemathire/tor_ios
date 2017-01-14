@@ -68,6 +68,7 @@
 "Search engine" = "Moteur de recherche";
 "Reopen tabs" = "Rouvrir les onglets";
 "Night mode" = "Mode nuit";
+"Hide screen in background" = "Masquer l'écran en arrière-plan "; // Add a space so that the text is seperated from the switch in the table view cell
 "Bookmark current URL" = "Ajouter un signet";
 "Edit bookmarks" = "Modifer les signets";
 "Cookies" = "Cookies";
@@ -111,6 +112,9 @@
 "SSL v3 (INSECURE)" = "SSL v3 (peu sûr)";
 "TLS 1.2 only" = "TLS 1.2 uniquement";
 "Cookies allow the server to deliver a page tailored to a particular user, or the page itself can contain some script which is aware of the data in the cookie and so is able to carry information from one visit to the website (or related site) to the next.\nThird party cookies are stored by another website than the one you are visiting. Disabling those usually doesn't have any adverse effect on your browsing experience.\n\nDefault: block third-party." = "Les cookies permettent au serveur d'afficher une page adaptée à chaque utilisateur, ou la page peut contenir un script lisant les informations stockées et pouvant les transmettre d'un site à un autre.\nLes cookies tiers sont stockés par un autre site que celui que vous visitez. Les désactiver n'a souvent aucun effet néfaste pour l'utilisateur.\n\nValeur par défaut : Bloquer les cookies tiers.";
+"Cookies and cache are automatically cleared when exiting the app." = "Les cookies et le cache sont automatiquement effacés lorsque l'application est fermée.";
+"Clear cookies" = "Effacer les cookies";
+"Cleared cookies" = "Cookies effacés";
 "The user-agent is a string used to identificate the user's browser. Normalized user-agents show your browser without any specific information related to your device (%@, iOS %@).\n\nDefault: Normalized %@." = "L'agent d'utilisateur est une chaîne de caractères utilisée pour identifier votre navigateur. Les valeurs normalisées cachent les informations spécifiques à votre appareil (%@, iOS %@).\n\nValeur par défaut : %@ normalisé.";
 "Active content is a type of interactive or dynamic website content that includes programs like Internet polls, JavaScript applications, animated images, video and audio…\nActive content contains programs that trigger automatic actions on a Web page without the user's knowledge or consent.\n\nDefault: Block Ajax/Media/WebSockets." = "Le contenu actif est un type de contenu interactif, comme un sondage internet, les applications JavaScript, les images animées, les vidéos et l'audio…\nLe contenu actif contient des programmes qui s'executent automatiquement sans que l'utilisateur le sache.\n\nValeur par défaut : Bloquer Ajax/Media/WebSockets.";
 "Minimum version of SSL/TLS required for HTTPS connections.\nNewer TLS protocols are more secure, but might not be supported by all sites.\n\nDefault : TLS 1.0+" = "Version minimale du protocole de sécurité SSL/TLS pour les connections HTTPS.\nLes nouvelles versions sont plus sécurisées, mais ne sont pas pris en charges par tous les sites.\n\nValeur par défault : TLS 1.0+.";

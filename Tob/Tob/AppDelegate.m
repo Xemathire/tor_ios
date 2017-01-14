@@ -29,6 +29,7 @@ startUrl,
 tor = _tor,
 obfsproxy = _obfsproxy,
 window = _window,
+windowOverlay,
 tabsViewController,
 logViewController,
 managedObjectContext = __managedObjectContext,
@@ -303,7 +304,72 @@ void HandleSignal(int signal) {
 
 #pragma mark - App lifecycle
 
+- (void)hideAppScreen {
+    if (windowOverlay == nil) {
+        NSString *imgurl;
+        
+        struct utsname systemInfo;
+        uname(&systemInfo);
+        NSString *device = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+        
+        if ([device isEqualToString:@"iPhone7,2"] || [device isEqualToString:@"iPhone8,1"]) {
+            // iPhone 6 (1334x750 3x)
+            imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-667h@2x.png" ofType:nil];
+        } else if ([device isEqualToString:@"iPhone7,1"] || [device isEqualToString:@"iPhone8,2"]) {
+            // iPhone 6 Plus (2208x1242 3x)
+            if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+                imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-Portrait-736h@3x.png" ofType:nil];
+            } else {
+                imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-Landscape-736h@3x.png" ofType:nil];
+            }
+        } else if ([device hasPrefix:@"iPhone5"] || [device hasPrefix:@"iPhone6"] || [device hasPrefix:@"iPod5"] || [device hasPrefix:@"iPod7"]) {
+            // iPhone 5/5S/5C (1136x640 2x)
+            imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-568h@2x.png" ofType:nil];
+        } else if ([device hasPrefix:@"iPhone3"] || [device hasPrefix:@"iPhone4"] || [device hasPrefix:@"iPod4"]) {
+            // iPhone 4/4S (960x640 2x)
+            imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage@2x.png" ofType:nil];
+        } else if ([device hasPrefix:@"iPad1"] || [device hasPrefix:@"iPad2"]) {
+            // OLD IPADS: non-retina
+            if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+                imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Portrait~ipad.png" ofType:nil];
+            } else {
+                imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Landscape~ipad.png" ofType:nil];
+            }
+        } else if ([device hasPrefix:@"iPad"]) {
+            // ALL OTHER (NEWER) IPADS
+            // iPad 4thGen, iPad Air 5thGen, iPad Mini 2ndGen (2048x1536 2x)
+            if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+                imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Portrait@2x~ipad.png" ofType:nil];
+            } else {
+                imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-700-Landscape@2x~ipad.png" ofType:nil];
+            }
+        } else {
+            // Fall back to our highest-res, since it's likely this device is new
+            imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-667h@2x.png" ofType:nil];
+        }
+        
+        NSLog(@"imgurl: %@", imgurl);
+        windowOverlay = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imgurl]];
+        NSLog(@"windowOverlay: %@", windowOverlay);
+    }
+    
+    [_window addSubview:windowOverlay];
+    [_window bringSubviewToFront:windowOverlay];
+}
+
+- (void)showAppScreen {
+    _window.hidden = NO;
+
+    if (windowOverlay != nil) {
+        [windowOverlay removeFromSuperview];
+    }
+}
+
 - (void)applicationWillResignActive:(UIApplication *)application {
+    NSMutableDictionary *settings = self.getSettings;
+    if ([[settings valueForKey:@"hide-screen"] boolValue])
+        [self hideAppScreen];
+    
     [_tor disableTorCheckLoop];
 }
 
@@ -326,7 +392,7 @@ void HandleSignal(int signal) {
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    _window.hidden = NO;
+    [self showAppScreen];
     
     // Don't want to call "activateTorCheckLoop" directly since we
     // want to HUP tor first.
@@ -334,10 +400,15 @@ void HandleSignal(int signal) {
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
+    NSMutableDictionary *settings = self.getSettings;
+    if ([[settings valueForKey:@"hide-screen"] boolValue])
+        [self hideAppScreen];
+    
+    _window.hidden = YES;
+    
     // Wipe all cookies & caches on the way out.
     [tabsViewController saveAppState];
     [self wipeAppData];
-    _window.hidden = YES;
 }
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
@@ -520,16 +591,20 @@ void HandleSignal(int signal) {
     [fileManager setAttributes:f_options ofItemAtPath:destTorrc error:nil];
 }
 
-- (void)wipeAppData {
-    [[self tabsViewController] stopLoading];
-    
-    // This is probably incredibly redundant since we just delete all the files, below
+- (void)clearCookies {
     NSHTTPCookie *cookie;
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     for (cookie in [storage cookies]) {
         [storage deleteCookie:cookie];
     }
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
+}
+
+- (void)wipeAppData {
+    [[self tabsViewController] stopLoading];
+    
+    // This is probably incredibly redundant since we just delete all the files, below
+    [self clearCookies];
     
     
     // Delete all Caches, Cookies, Preferences in app's "Library" data dir. (Connection settings
@@ -666,8 +741,12 @@ void HandleSignal(int signal) {
             [d setObject:[NSNumber numberWithBool:false] forKey:@"night-mode"];
         update = YES;
     }
+    if ([d objectForKey:@"hide-screen"] == nil) {
+        [d setObject:[NSNumber numberWithBool:false] forKey:@"hide-screen"];
+        update = YES;
+    }
     if ([d objectForKey:@"bridges"] == nil) {
-        // previous versions of onion browser didn't set this option, instead scanning the stored Bridge config.
+        // Previous versions of Tob didn't set this option, instead scanning the stored Bridge config.
         NSFetchRequest *request = [[NSFetchRequest alloc] init];
         NSEntityDescription *entity = [NSEntityDescription entityForName:@"Bridge" inManagedObjectContext:self.managedObjectContext];
         [request setEntity:entity];

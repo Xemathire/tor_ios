@@ -58,7 +58,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (section == 0)
-        return 6; // Homepage, search engine, reopen closed tabs, night mode, bookmarks * 2.
+        return 7; // Bookmarks * 2, homepage, search engine, reopen closed tabs, night mode, hide screen in background.
     else if (section == 1)
         return 3; // Cookies, UA spoofing, DNT
     else if (section == 2)
@@ -87,7 +87,7 @@
     
     if ((indexPath.section == 0 && (indexPath.row == 2 || indexPath.row == 3)) || (indexPath.section == 1 && (indexPath.row == 0 || indexPath.row == 1)) || (indexPath.section == 2 && (indexPath.row == 0 || indexPath.row == 2 || indexPath.row == 3)))
         CellIdentifier = @"Detail cell";
-    else if ((indexPath.section == 0 && (indexPath.row == 4 || indexPath.row == 5)) || (indexPath.section == 1 && indexPath.row == 2) || (indexPath.section == 2 && indexPath.row == 1))
+    else if ((indexPath.section == 0 && (indexPath.row == 4 || indexPath.row == 5 || indexPath.row == 6)) || (indexPath.section == 1 && indexPath.row == 2) || (indexPath.section == 2 && indexPath.row == 1))
         CellIdentifier = @"Switch cell";
     else if (indexPath.section == 2 && indexPath.row == 4)
         CellIdentifier = @"Subtitle cell";
@@ -105,6 +105,8 @@
     
     cell.userInteractionEnabled = YES;
     cell.textLabel.textColor = [UIColor blackColor];
+    cell.textLabel.adjustsFontSizeToFitWidth = YES;
+    cell.textLabel.minimumScaleFactor = 0.8;
     
     if (indexPath.section == 0) {
         // User Interface
@@ -154,6 +156,18 @@
             cell.accessoryView = switchView;
             [switchView setOn:nightMode animated:NO];
             [switchView addTarget:self action:@selector(nightSwitchChanged:) forControlEvents:UIControlEventValueChanged];
+        } else if (indexPath.row == 6) {
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+            NSMutableDictionary *settings = appDelegate.getSettings;
+            BOOL hideScreen = [[settings valueForKey:@"hide-screen"] boolValue];
+            
+            cell.textLabel.text = NSLocalizedString(@"Hide screen in background", nil);
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+            UISwitch *switchView = [[UISwitch alloc] initWithFrame:CGRectZero];
+            cell.accessoryView = switchView;
+            [switchView setOn:hideScreen animated:NO];
+            [switchView addTarget:self action:@selector(hideScreenSwitchChanged:) forControlEvents:UIControlEventValueChanged];
         }
     } else if (indexPath.section == 1) {
         // Privacy
@@ -454,6 +468,15 @@
     [appDelegate saveSettings:settings];
 }
 
+- (void)hideScreenSwitchChanged:(id)sender {
+    UISwitch *switchControl = sender;
+    
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    NSMutableDictionary *settings = appDelegate.getSettings;
+    [settings setObject:[NSNumber numberWithBool:switchControl.on] forKey:@"hide-screen"];
+    [appDelegate saveSettings:settings];
+}
+
 - (void)jsSwitchChanged:(id)sender {
     UISwitch *switchControl = sender;
     
@@ -619,11 +642,14 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 3;
+    if (section == 0)
+        return 3;
+    else
+        return 1;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -631,7 +657,10 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
-    return NSLocalizedString(@"Cookies allow the server to deliver a page tailored to a particular user, or the page itself can contain some script which is aware of the data in the cookie and so is able to carry information from one visit to the website (or related site) to the next.\nThird party cookies are stored by another website than the one you are visiting. Disabling those usually doesn't have any adverse effect on your browsing experience.\n\nDefault: block third-party.", nil);
+    if (section == 0)
+        return NSLocalizedString(@"Cookies allow the server to deliver a page tailored to a particular user, or the page itself can contain some script which is aware of the data in the cookie and so is able to carry information from one visit to the website (or related site) to the next.\nThird party cookies are stored by another website than the one you are visiting. Disabling those usually doesn't have any adverse effect on your browsing experience.\n\nDefault: block third-party.", nil);
+    else
+        return NSLocalizedString(@"Cookies and cache are automatically cleared when exiting the app.", nil);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -642,28 +671,39 @@
         cell = [[UITableViewCell alloc] initWithFrame:CGRectZero];
     }
     
-    NSHTTPCookieAcceptPolicy currentCookieStatus = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookieAcceptPolicy];
-    NSUInteger cookieStatusSection = 0;
-    if (currentCookieStatus == NSHTTPCookieAcceptPolicyAlways)
-        cookieStatusSection = 0;
-    else if (currentCookieStatus == NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain)
-        cookieStatusSection = 1;
-    else
-        cookieStatusSection = 2;
-    
-    _currentRow = (int)cookieStatusSection;
-    
-    if (indexPath.row == cookieStatusSection)
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
-    else
+    if (indexPath.section == 0) {
+        cell.textLabel.textColor = [UIColor blackColor];
+        cell.textLabel.textAlignment = NSTextAlignmentLeft;
+        
+        NSHTTPCookieAcceptPolicy currentCookieStatus = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookieAcceptPolicy];
+        NSUInteger cookieStatusSection = 0;
+        if (currentCookieStatus == NSHTTPCookieAcceptPolicyAlways)
+            cookieStatusSection = 0;
+        else if (currentCookieStatus == NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain)
+            cookieStatusSection = 1;
+        else
+            cookieStatusSection = 2;
+        
+        _currentRow = (int)cookieStatusSection;
+        
+        if (indexPath.row == cookieStatusSection)
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        else
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        
+        if (indexPath.row == 0)
+            cell.textLabel.text = NSLocalizedString(@"Allow all", nil);
+        else if (indexPath.row == 1)
+            cell.textLabel.text = NSLocalizedString(@"Block third-party", nil);
+        else
+            cell.textLabel.text = NSLocalizedString(@"Block all", nil);
+    } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
-    
-    if (indexPath.row == 0)
-        cell.textLabel.text = NSLocalizedString(@"Allow all", nil);
-    else if (indexPath.row == 1)
-        cell.textLabel.text = NSLocalizedString(@"Block third-party", nil);
-    else
-        cell.textLabel.text = NSLocalizedString(@"Block all", nil);
+        cell.textLabel.textColor = self.view.tintColor;
+        cell.textLabel.textAlignment = NSTextAlignmentCenter;
+        
+        cell.textLabel.text = NSLocalizedString(@"Clear cookies", nil);
+    }
     
     return cell;
 }
@@ -673,24 +713,34 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    NSMutableDictionary *settings = appDelegate.getSettings;
     
-    [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentRow inSection:indexPath.section]].accessoryType = UITableViewCellAccessoryNone;
-    [tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
-    _currentRow = (int)indexPath.row;
-    
-    if (indexPath.row == 0) {
-        [settings setObject:[NSNumber numberWithInteger:COOKIES_ALLOW_ALL] forKey:@"cookies"];
-        [appDelegate saveSettings:settings];
-        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookieAcceptPolicy:NSHTTPCookieAcceptPolicyAlways];
-    } else if (indexPath.row == 1) {
-        [settings setObject:[NSNumber numberWithInteger:COOKIES_BLOCK_THIRDPARTY] forKey:@"cookies"];
-        [appDelegate saveSettings:settings];
-        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookieAcceptPolicy:NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain];
-    } else if (indexPath.row == 2) {
-        [settings setObject:[NSNumber numberWithInteger:COOKIES_BLOCK_ALL] forKey:@"cookies"];
-        [appDelegate saveSettings:settings];
-        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookieAcceptPolicy:NSHTTPCookieAcceptPolicyNever];
+    if (indexPath.section == 0) {
+        NSMutableDictionary *settings = appDelegate.getSettings;
+        
+        [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentRow inSection:indexPath.section]].accessoryType = UITableViewCellAccessoryNone;
+        [tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
+        _currentRow = (int)indexPath.row;
+        
+        if (indexPath.row == 0) {
+            [settings setObject:[NSNumber numberWithInteger:COOKIES_ALLOW_ALL] forKey:@"cookies"];
+            [appDelegate saveSettings:settings];
+            [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookieAcceptPolicy:NSHTTPCookieAcceptPolicyAlways];
+        } else if (indexPath.row == 1) {
+            [settings setObject:[NSNumber numberWithInteger:COOKIES_BLOCK_THIRDPARTY] forKey:@"cookies"];
+            [appDelegate saveSettings:settings];
+            [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookieAcceptPolicy:NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain];
+        } else if (indexPath.row == 2) {
+            [settings setObject:[NSNumber numberWithInteger:COOKIES_BLOCK_ALL] forKey:@"cookies"];
+            [appDelegate saveSettings:settings];
+            [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookieAcceptPolicy:NSHTTPCookieAcceptPolicyNever];
+        }
+    } else {
+        [appDelegate clearCookies];
+        
+        JFMinimalNotification *minimalNotification = [JFMinimalNotification notificationWithStyle:JFMinimalNotificationStyleDefault title:NSLocalizedString(@"Cleared cookies", nil) subTitle:nil dismissalDelay:2.0];
+        minimalNotification.layer.zPosition = MAXFLOAT;
+        [self.parentViewController.view addSubview:minimalNotification];
+        [minimalNotification show];
     }
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];

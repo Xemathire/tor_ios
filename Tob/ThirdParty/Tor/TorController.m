@@ -19,6 +19,7 @@
 
 #define STATUS_CHECK_TIMEOUT 3.0f
 #define TOR_STATUS_WAIT 1.0f
+#define CONTROL_PORT_RECONNECT_WAIT 1.0f
 #define MAX_FAILED_ATTEMPTS 10
 
 @synthesize
@@ -294,6 +295,7 @@ connLastAutoIPStack = _connLastAutoIPStack
     if (nbrFailedAttempts <= MAX_FAILED_ATTEMPTS) {
         // Attempt to reconnect the netsocket
         [self disableTorCheckLoop];
+        [self performSelector:@selector(activateTorCheckLoop) withObject:nil afterDelay:CONTROL_PORT_RECONNECT_WAIT];
         [self activateTorCheckLoop];
         nbrFailedAttempts += didFirstConnect; // If didn't first connect, will remain at 0
     }

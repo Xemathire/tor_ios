@@ -55,6 +55,8 @@
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
+@property (strong, nonatomic) UIImageView *windowOverlay;
+
 @property(strong, nonatomic) TabsViewController *tabsViewController;
 @property(strong, nonatomic) LogViewController *logViewController;
 @property (strong, nonatomic) TorController *tor;
@@ -84,6 +86,7 @@
 - (void)updateTorrc;
 - (NSURL *)applicationLibraryDirectory;
 - (NSURL *)applicationDocumentsDirectory;
+- (void)clearCookies;
 - (void)wipeAppData;
 - (NSUInteger) deviceType;
 - (Boolean) isRunningTests;

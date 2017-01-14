@@ -68,6 +68,7 @@
 "Search engine" = "Search engine";
 "Reopen tabs" = "Reopen tabs";
 "Night mode" = "Night mode";
+"Hide screen in background" = "Hide screen in background";
 "Bookmark current URL" = "Bookmark current URL";
 "Edit bookmarks" = "Edit bookmarks";
 "Cookies" = "Cookies";
@@ -111,6 +112,9 @@
 "SSL v3 (INSECURE)" = "SSL v3 (INSECURE)";
 "TLS 1.2 only" = "TLS 1.2 only";
 "Cookies allow the server to deliver a page tailored to a particular user, or the page itself can contain some script which is aware of the data in the cookie and so is able to carry information from one visit to the website (or related site) to the next.\nThird party cookies are stored by another website than the one you are visiting. Disabling those usually doesn't have any adverse effect on your browsing experience.\n\nDefault: block third-party." = "Cookies allow the server to deliver a page tailored to a particular user, or the page itself can contain some script which is aware of the data in the cookie and so is able to carry information from one visit to the website (or related site) to the next.\nThird party cookies are stored by another website than the one you are visiting. Disabling those usually doesn't have any adverse effect on your browsing experience.\n\nDefault: block third-party.";
+"Cookies and cache are automatically cleared when exiting the app." = "Cookies and cache are automatically cleared when exiting the app.";
+"Clear cookies" = "Clear cookies";
+"Cleared cookies" = "Cleared cookies";
 "The user-agent is a string used to identificate the user's browser. Normalized user-agents show your browser without any specific information related to your device (%@, iOS %@).\n\nDefault: Normalized %@." = "The user-agent is a string used to identificate the user's browser. Normalized user-agents show your browser without any specific information related to your device (%@, iOS %@).\n\nDefault: Normalized %@.";
 "Active content is a type of interactive or dynamic website content that includes programs like Internet polls, JavaScript applications, animated images, video and audio…\nActive content contains programs that trigger automatic actions on a Web page without the user's knowledge or consent.\n\nDefault: Block Ajax/Media/WebSockets." = "Active content is a type of interactive or dynamic website content that includes programs like Internet polls, JavaScript applications, animated images, video and audio…\nActive content contains programs that trigger automatic actions on a Web page without the user's knowledge or consent.\n\nDefault: Block Ajax/Media/WebSockets.";
 "Minimum version of SSL/TLS required for HTTPS connections.\nNewer TLS protocols are more secure, but might not be supported by all sites.\n\nDefault : TLS 1.0+" = "Minimum version of SSL/TLS required for HTTPS connections.\nNewer TLS protocols are more secure, but might not be supported by all sites.\n\nDefault : TLS 1.0+";

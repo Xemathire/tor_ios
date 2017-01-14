@@ -39,7 +39,7 @@ static char SSLWarningKey;
 
         [(UIScrollView *)[self.subviews objectAtIndex:0] setScrollsToTop:NO];
         
-        self.url = [[NSURL alloc] init];
+        self.url = [[NSURL alloc] initWithString:@""];
         _frameLoadInterruptedCount = 0;
         
         _needsForceRefresh = NO;

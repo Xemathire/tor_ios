@@ -133,7 +133,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     // Add a custom cancel button to the navigation bar
     _cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
     _cancelButton.frame = CGRectMake(SCREEN_WIDTH - 60, UNIBAR_DEFAULT_Y, 55, UNIBAR_DEFAULT_HEIGHT);
-    [_cancelButton addTarget:self action:@selector(cancel) forControlEvents:UIControlEventTouchUpInside];
+    [_cancelButton addTarget:self action:@selector(cancelEdition) forControlEvents:UIControlEventTouchUpInside];
     [_cancelButton setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
     _cancelButton.alpha = 0.0;
     [self.tabView.navigationBar addSubview:_cancelButton];
@@ -1278,7 +1278,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 
 #pragma mark - uniBar
 
-- (void)cancel {
+- (void)cancelEdition {
     _addressTextField.selectedTextRange = nil;
     [self unibarStopEditing];
 }
@@ -1300,6 +1300,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
             self.selectedToolbar.frame = CGRectMake(0, SCREEN_HEIGHT - 44, SCREEN_WIDTH, 44);
             _cancelButton.alpha = 0.0;
             
+            [self showTLSStatus];
         } completion:^(BOOL finished) {
             _addressTextField.refreshButton.hidden = NO;
             _addressTextField.rightViewMode = UITextFieldViewModeAlways;
@@ -1528,27 +1529,24 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         _progressView.alpha = 0.0f;
     }
     
-    [self showTLSStatus];
-    
     if ([(WebViewTab *)_webViewObject needsForceRefresh]) {
         NSURL *url = [NSURL URLWithString:[self.titles objectAtIndex:index]];
         
         NSString *urlProto = [[url scheme] lowercaseString];
         if ([urlProto isEqualToString:@"https"]) {
             [self.tlsStatuses replaceObjectAtIndex:index withObject:[NSNumber numberWithInt:TLSSTATUS_SECURE]];
-            [self showTLSStatus];
         } else if (urlProto && ![urlProto isEqualToString:@""]) {
             [self.tlsStatuses replaceObjectAtIndex:index withObject:[NSNumber numberWithInt:TLSSTATUS_INSECURE]];
-            [self showTLSStatus];
         } else {
             [self.tlsStatuses replaceObjectAtIndex:index withObject:[NSNumber numberWithInt:TLSSTATUS_HIDDEN]];
-            [self showTLSStatus];
         }
         
         NSURLRequest *request = [NSURLRequest requestWithURL:url];
         [_webViewObject loadRequest:request];
         [(WebViewTab *)_webViewObject setNeedsForceRefresh:NO];
     }
+    
+    [self showTLSStatus];
 }
 
 - (void)tabView:(MOTabView *)tabView willDeselectViewAtIndex:(NSUInteger)index {
