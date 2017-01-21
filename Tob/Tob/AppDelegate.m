@@ -45,10 +45,6 @@ didLaunchObfsProxy
     [iRate sharedInstance].onlyPromptIfLatestVersion = NO;
     [iRate sharedInstance].eventsUntilPrompt = 10;
     [iRate sharedInstance].daysUntilPrompt = 5;
-    
-    // Set these values because of the different bundle ID for this version
-    // [iRate sharedInstance].appStoreID = 1063151782;
-    // [iRate sharedInstance].applicationBundleID = @"com.JustKodding.TheOnionBrowser";
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -348,11 +344,12 @@ void HandleSignal(int signal) {
             imgurl = [[NSBundle mainBundle] pathForResource:@"LaunchImage-800-667h@2x.png" ofType:nil];
         }
         
-        NSLog(@"imgurl: %@", imgurl);
         windowOverlay = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imgurl]];
-        NSLog(@"windowOverlay: %@", windowOverlay);
+        [windowOverlay setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+        [windowOverlay setContentMode:UIViewContentModeScaleAspectFill];
     }
     
+    [windowOverlay setFrame:_window.frame];
     [_window addSubview:windowOverlay];
     [_window bringSubviewToFront:windowOverlay];
 }
@@ -592,12 +589,16 @@ void HandleSignal(int signal) {
 }
 
 - (void)clearCookies {
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+
     NSHTTPCookie *cookie;
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     for (cookie in [storage cookies]) {
         [storage deleteCookie:cookie];
     }
-    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    
+    NSURLCache *sharedCache = [[NSURLCache alloc] initWithMemoryCapacity:[[NSURLCache sharedURLCache] memoryCapacity] diskCapacity:[[NSURLCache sharedURLCache] diskCapacity] diskPath:nil];
+    [NSURLCache setSharedURLCache:sharedCache];
 }
 
 - (void)wipeAppData {
@@ -605,7 +606,6 @@ void HandleSignal(int signal) {
     
     // This is probably incredibly redundant since we just delete all the files, below
     [self clearCookies];
-    
     
     // Delete all Caches, Cookies, Preferences in app's "Library" data dir. (Connection settings
     // & etc end up in "Documents", not "Library".)

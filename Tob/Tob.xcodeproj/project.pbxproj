@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3303E5091E33B7E10019949A /* LICENSE - MBProgressHUD in Resources */ = {isa = PBXBuildFile; fileRef = 3303E5061E33B7E10019949A /* LICENSE - MBProgressHUD */; };
+		3303E50A1E33B7E10019949A /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 3303E5081E33B7E10019949A /* MBProgressHUD.m */; };
 		333E270D1CDB859A00D33B2F /* JFMinimalNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 333E27031CDB859A00D33B2F /* JFMinimalNotification.m */; };
 		333E270E1CDB859A00D33B2F /* JFMinimalNotificationArt.m in Sources */ = {isa = PBXBuildFile; fileRef = 333E27051CDB859A00D33B2F /* JFMinimalNotificationArt.m */; };
 		333E270F1CDB859A00D33B2F /* LICENSE - JFMinimalNotification in Resources */ = {isa = PBXBuildFile; fileRef = 333E27061CDB859A00D33B2F /* LICENSE - JFMinimalNotification */; };
@@ -100,6 +102,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3303E5061E33B7E10019949A /* LICENSE - MBProgressHUD */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "LICENSE - MBProgressHUD"; sourceTree = "<group>"; };
+		3303E5071E33B7E10019949A /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		3303E5081E33B7E10019949A /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
 		333E27021CDB859A00D33B2F /* JFMinimalNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JFMinimalNotification.h; sourceTree = "<group>"; };
 		333E27031CDB859A00D33B2F /* JFMinimalNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JFMinimalNotification.m; sourceTree = "<group>"; };
 		333E27041CDB859A00D33B2F /* JFMinimalNotificationArt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JFMinimalNotificationArt.h; sourceTree = "<group>"; };
@@ -251,6 +256,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3303E5051E33B7E10019949A /* MBProgressHUD */ = {
+			isa = PBXGroup;
+			children = (
+				3303E5061E33B7E10019949A /* LICENSE - MBProgressHUD */,
+				3303E5071E33B7E10019949A /* MBProgressHUD.h */,
+				3303E5081E33B7E10019949A /* MBProgressHUD.m */,
+			);
+			path = MBProgressHUD;
+			sourceTree = "<group>";
+		};
 		333E27011CDB859A00D33B2F /* JFMinimalNotification */ = {
 			isa = PBXGroup;
 			children = (
@@ -315,6 +330,7 @@
 				334CF90E1CD380E600C3E346 /* ConnectionKit */,
 				3360122C1CE789E600DDC290 /* iRate */,
 				333E27011CDB859A00D33B2F /* JFMinimalNotification */,
+				3303E5051E33B7E10019949A /* MBProgressHUD */,
 				334CF9111CD380E600C3E346 /* MOScrollView */,
 				334CF9161CD380E600C3E346 /* MOTabView */,
 				334CF92B1CD380E600C3E346 /* NSData+CocoaDevUsersAdditions.h */,
@@ -589,6 +605,7 @@
 				334CF96B1CD380E700C3E346 /* torrc in Resources */,
 				336012301CE789E600DDC290 /* iRate.bundle in Resources */,
 				334CF8D51CD37E0C00C3E346 /* Launch Screen.xib in Resources */,
+				3303E5091E33B7E10019949A /* LICENSE - MBProgressHUD in Resources */,
 				334CF95F1CD380E700C3E346 /* LICENSE - QRCodeReaderViewController in Resources */,
 				334CF9661CD380E700C3E346 /* LICENSE - Safari scrolling in Resources */,
 				336181FA1E09963400642D0F /* geoip in Resources */,
@@ -650,6 +667,7 @@
 				334CF9551CD380E700C3E346 /* MOTabContentView.m in Sources */,
 				336012311CE789E600DDC290 /* iRate.m in Sources */,
 				333E270D1CDB859A00D33B2F /* JFMinimalNotification.m in Sources */,
+				3303E50A1E33B7E10019949A /* MBProgressHUD.m in Sources */,
 				334CF8C81CD37D5000C3E346 /* BridgeViewController.m in Sources */,
 				334CF96A1CD380E700C3E346 /* TorController.m in Sources */,
 				334CF9601CD380E700C3E346 /* QRCameraSwitchButton.m in Sources */,

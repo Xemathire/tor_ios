@@ -142,6 +142,8 @@
 "IP: %@" = "IP: %@";
 "IP: Loading…" = "IP: Loading…";
 "New identity" = "New identity";
+"Clearing cache…" = "Clearing cache…";
+"Requesting new identity…" = "Requesting new identity…";
 "Add bridge" = "Add bridge";
 "IP: Error, trying again…" = "IP: Error, trying again…";
 "Bridge Configuration" = "Bridge Configuration";

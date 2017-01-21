@@ -21,7 +21,6 @@
 		Boolean haveNonLocalIpv4 = NO;
 		Boolean haveNonLocalIpv6 = NO;
 
-
 		NSDictionary *ipv4addrs = [Ipv6Tester addressesForProtocol:4];
 		for(NSString *iface in ipv4addrs) {
 			NSString *addr = (NSString *)[ipv4addrs objectForKey:iface];

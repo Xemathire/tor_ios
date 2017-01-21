@@ -142,6 +142,8 @@
 "IP: %@" = "IP : %@";
 "IP: Loading…" = "IP : Chargement…";
 "New identity" = "Nouvelle identité";
+"Clearing cache…" = "Suppression du cache…";
+"Requesting new identity…" = "Demande d'une nouvelle identité…";
 "Add bridge" = "Ajouter un bridge";
 "IP: Error, trying again…" = "IP : Erreur, nouvel essai en cours…";
 "Bridge Configuration" = "Configuration des \"bridge\"";

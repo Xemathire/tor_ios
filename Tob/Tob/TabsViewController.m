@@ -17,6 +17,7 @@
 #import "NSStringPunycodeAdditions.h"
 #import "iRate.h"
 #import "LogViewController.h"
+#import "MBProgressHUD.h"
 #import <objc/runtime.h>
 
 #define UNIBAR_DEFAULT_X 12
@@ -1169,7 +1170,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
         int currentIndentityNumber = _newIdentityNumber;
         
         NSURL *URL = [[NSURL alloc] initWithString:@"https://api.duckduckgo.com/?q=my+ip&l=1&no_redirect=1&format=json"];
-        NSData *data = [NSData dataWithContentsOfURL:URL];
+        NSData *data = [NSData dataWithContentsOfURL:URL options:NSDataReadingUncached error:nil];
         
         if (data) {
             NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
@@ -1233,21 +1234,46 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
 }
 
 - (void)newIdentity {
-    [self hideTorPanel];
-    
     _newIdentityNumber ++;
     _IPAddress = nil;
+    _IPAddressLabel.text = NSLocalizedString(@"IP: Loading…", nil);
     
+    [UIView animateWithDuration:0.3 animations:^{
+        _torPanelView.alpha = 0;
+    } completion:^(BOOL finished) {
+        [_torPanelView removeFromSuperview];
+        _torPanelView = nil;
+    }];
+
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [appDelegate wipeAppData];
-    [appDelegate.tor requestNewTorIdentity];
     
-    for (int i = 0; i < [[self contentViews] count]; i++) {
-        if (i != self.tabView.currentIndex)
-            [[[self contentViews] objectAtIndex:i] setNeedsForceRefresh:YES];
-        else
-            [[[self contentViews] objectAtIndex:i] reload];
-    }
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:appDelegate.window animated:YES];
+    hud.mode = MBProgressHUDModeIndeterminate;
+    hud.label.text = NSLocalizedString(@"Clearing cache…", nil);
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [appDelegate.tor requestNewTorIdentity];
+        hud.label.text = NSLocalizedString(@"Requesting new identity…", nil);
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            for (int i = 0; i < [[self contentViews] count]; i++) {
+                if (i != self.tabView.currentIndex)
+                    [[[self contentViews] objectAtIndex:i] setNeedsForceRefresh:YES];
+                else
+                    [[[self contentViews] objectAtIndex:i] reload];
+            }
+            
+            [hud hideAnimated:YES];
+            
+            [UIView animateWithDuration:0.3 animations:^{
+                _torDarkBackgroundView.alpha = 0;
+            } completion:^(BOOL finished) {
+                [_torDarkBackgroundView removeFromSuperview];
+                _torDarkBackgroundView = nil;
+            }];
+        });
+    });
 }
 
 -(void)openSettingsView {

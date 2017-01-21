@@ -15,5 +15,6 @@
 @interface Ipv6Tester : NSObject
 
 + (NSInteger) ipv6_status;
++ (NSDictionary *)addressesForProtocol:(int)ipVersion;
 
 @end
