@@ -420,27 +420,23 @@ void HandleSignal(int signal) {
     BOOL appIsTob = [bundleIdentifier isEqualToString:@"com.JustKodding.Tob"];
     BOOL srcIsTob = (appIsTob && [sourceApplication isEqualToString:bundleIdentifier]);
     
-    if (appIsTob && [urlStr hasPrefix:@"tob:/"]) {
+    if ([urlStr hasPrefix:@"tob:/"]) {
         // HTTP
-        urlStr = [urlStr stringByReplacingCharactersInRange:NSMakeRange(0, 14) withString:@"http:/"];
-#ifdef DEBUG
-        NSLog(@" -> %@", urlStr);
-#endif
+        urlStr = [urlStr stringByReplacingCharactersInRange:NSMakeRange(0, 5) withString:@"http:/"];
         newUrl = [NSURL URLWithString:urlStr];
-    } else if (appIsTob && [urlStr hasPrefix:@"tobs:/"]) {
+    } else if ([urlStr hasPrefix:@"tobs:/"]) {
         // HTTPS
-        urlStr = [urlStr stringByReplacingCharactersInRange:NSMakeRange(0, 15) withString:@"https:/"];
-#ifdef DEBUG
-        NSLog(@" -> %@", urlStr);
-#endif
+        urlStr = [urlStr stringByReplacingCharactersInRange:NSMakeRange(0, 6) withString:@"https:/"];
         newUrl = [NSURL URLWithString:urlStr];
     } else {
         return YES;
     }
+    
     if (newUrl == nil) {
         return YES;
     }
     
+    /*
     if ([_tor didFirstConnect]) {
         if (srcIsTob) {
             [tabsViewController loadURL:newUrl];
@@ -448,11 +444,19 @@ void HandleSignal(int signal) {
             [tabsViewController askToLoadURL:newUrl];
         }
     } else {
-#ifdef DEBUG
-        NSLog(@" -> have not yet connected to tor, deferring load");
-#endif
+        [self.logViewController logInfo:[NSString stringWithFormat:@"startURL: %@", [newUrl absoluteString]]];
         startUrl = newUrl;
     }
+     */
+    
+    if (srcIsTob) {
+        if ([_tor didFirstConnect]) {
+            [tabsViewController addNewTabForURL:newUrl];
+        }
+    } else {
+        [tabsViewController askToLoadURL:newUrl];
+    }
+    
     return YES;
 }
 

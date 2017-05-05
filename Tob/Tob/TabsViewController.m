@@ -191,7 +191,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     [self.selectedToolbar setFrame:CGRectMake(0, SCREEN_HEIGHT - 44, SCREEN_WIDTH, 44)];
     _tabsBarButtonItem = self.selectedToolbar.items[1];
     
-    // Select the restore/opened tab
+    // Select the restored/opened tab
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     if ([appDelegate startUrl]) {
@@ -517,6 +517,8 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
             }
         }
         
+        [appDelegate.logViewController logInfo:[NSString stringWithFormat:@"subtitles: %@", [[appDelegate startUrl] host]]];
+        
         if ([appDelegate startUrl]) {
             [_subtitles addObject:[[appDelegate startUrl] host]];
         }
@@ -541,6 +543,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
             }
         }
         
+        [appDelegate.logViewController logInfo:[NSString stringWithFormat:@"titles: %@", [[appDelegate startUrl] absoluteString]]];
         if ([appDelegate startUrl]) {
             [_titles addObject:[[appDelegate startUrl] absoluteString]];
         }
@@ -915,10 +918,10 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     UIAlertView* alertView = [[UIAlertView alloc]
                               initWithTitle:NSLocalizedString(@"Open This URL?", nil)
                               message:msg
-                              delegate:nil
+                              delegate:self
                               cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
                               otherButtonTitles:NSLocalizedString(@"Open This Link", nil), nil];
-    alertView.delegate = self;
+    
     alertView.tag = ALERTVIEW_INCOMING_URL;
     [alertView show];
     objc_setAssociatedObject(alertView, &AlertViewIncomingUrl, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -1007,6 +1010,7 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     appDelegate.restoredIndex = 0;
     appDelegate.restoredData = nil;
+    appDelegate.startUrl = nil;
 }
 
 - (void)renderTorStatus:(NSString *)statusLine {
@@ -1332,6 +1336,33 @@ static const CGFloat kRestoreAnimationDuration = 0.0f;
             _addressTextField.rightViewMode = UITextFieldViewModeAlways;
             _addressTextFieldEditing = YES;
         }];
+    }
+}
+
+
+#pragma mark - UIAlertViewDelegate
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    if ((alertView.tag == ALERTVIEW_TORFAIL) && (buttonIndex == 1)) {
+        // Tor failed, user says we can quit app.
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+        [appDelegate wipeAppData];
+        exit(0);
+    }
+    
+    
+    if ((alertView.tag == ALERTVIEW_EXTERN_PROTO)) {
+        if (buttonIndex == 1) {
+            // Warned user about opening URL in external app and they said it's OK.
+            NSURL *navigationURL = objc_getAssociatedObject(alertView, &AlertViewExternProtoUrl);
+            [[UIApplication sharedApplication] openURL:navigationURL];
+        }
+    } else if ((alertView.tag == ALERTVIEW_INCOMING_URL)) {
+        if (buttonIndex == 1) {
+            // Warned user about opening this incoming URL and they said it's OK.
+            NSURL *navigationURL = objc_getAssociatedObject(alertView, &AlertViewIncomingUrl);
+            [self addNewTabForURL:navigationURL];
+        }
     }
 }
 
