@@ -503,7 +503,7 @@
 @end
 
 @implementation SearchEngineTableViewController {
-    int _currentRow;
+    NSIndexPath *_currentIndexPath;
 }
 
 - (void)viewDidLoad
@@ -521,14 +521,29 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 4;
+    if (section == 0)
+        return 2;
+    else
+        return 3;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    if (section == 0)
+        return NSLocalizedString(@"Recommended search engines", nil);
+    else if (section == 0)
+        return NSLocalizedString(@"Other search engines", nil);
+    
+    return nil;
+}
+    
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
+    if (section == 1)
+    return NSLocalizedString(@"These search engines are known for trying to spy on their users and are therefore not recommended.", nil);
+    
     return nil;
 }
 
@@ -544,38 +559,50 @@
     NSMutableDictionary *settings = appDelegate.getSettings;
     NSString *searchEngine = [settings valueForKey:@"search-engine"];
     
-    if (indexPath.row == 0) {
-        cell.textLabel.text = @"DuckDuckGo";
-        
-        if ([searchEngine isEqualToString:cell.textLabel.text]) {
-            cell.accessoryType = UITableViewCellAccessoryCheckmark;
-            _currentRow = (int)indexPath.row;
-        } else
-            cell.accessoryType = UITableViewCellAccessoryNone;
-    } else if (indexPath.row == 1) {
-        cell.textLabel.text = @"Bing";
-        
-        if ([searchEngine isEqualToString:cell.textLabel.text]) {
-            cell.accessoryType = UITableViewCellAccessoryCheckmark;
-            _currentRow = (int)indexPath.row;
-        } else
-            cell.accessoryType = UITableViewCellAccessoryNone;
-    } else if (indexPath.row == 2) {
-        cell.textLabel.text = @"Yahoo";
-        
-        if ([searchEngine isEqualToString:cell.textLabel.text]) {
-            cell.accessoryType = UITableViewCellAccessoryCheckmark;
-            _currentRow = (int)indexPath.row;
-        } else
-            cell.accessoryType = UITableViewCellAccessoryNone;
-    } else if (indexPath.row == 3) {
-        cell.textLabel.text = @"Google";
-        
-        if ([searchEngine isEqualToString:cell.textLabel.text]) {
-            cell.accessoryType = UITableViewCellAccessoryCheckmark;
-            _currentRow = (int)indexPath.row;
-        } else
-            cell.accessoryType = UITableViewCellAccessoryNone;
+    if (indexPath.section == 0) {
+        if (indexPath.row == 0) {
+            cell.textLabel.text = @"DuckDuckGo";
+            
+            if ([searchEngine isEqualToString:cell.textLabel.text]) {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+                _currentIndexPath = indexPath;
+            } else
+                cell.accessoryType = UITableViewCellAccessoryNone;
+        } else if (indexPath.row == 1) {
+            cell.textLabel.text = @"Startpage";
+            
+            if ([searchEngine isEqualToString:cell.textLabel.text]) {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+                _currentIndexPath = indexPath;
+            } else
+                cell.accessoryType = UITableViewCellAccessoryNone;
+        }
+    } else {
+        if (indexPath.row == 0) {
+            cell.textLabel.text = @"Bing";
+            
+            if ([searchEngine isEqualToString:cell.textLabel.text]) {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+                _currentIndexPath = indexPath;
+            } else
+                cell.accessoryType = UITableViewCellAccessoryNone;
+        } else if (indexPath.row == 1) {
+            cell.textLabel.text = @"Yahoo";
+            
+            if ([searchEngine isEqualToString:cell.textLabel.text]) {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+                _currentIndexPath = indexPath;
+            } else
+                cell.accessoryType = UITableViewCellAccessoryNone;
+        } else if (indexPath.row == 2) {
+            cell.textLabel.text = @"Google";
+            
+            if ([searchEngine isEqualToString:cell.textLabel.text]) {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+                _currentIndexPath = indexPath;
+            } else
+                cell.accessoryType = UITableViewCellAccessoryNone;
+        }
     }
     
     return cell;
@@ -588,26 +615,33 @@
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     NSMutableDictionary *settings = appDelegate.getSettings;
     
-    [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentRow inSection:indexPath.section]].accessoryType = UITableViewCellAccessoryNone;
+    [tableView cellForRowAtIndexPath:_currentIndexPath].accessoryType = UITableViewCellAccessoryNone;
     [tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
-    _currentRow = (int)indexPath.row;
+    _currentIndexPath = indexPath;
     
-    if (indexPath.row == 0) {
-        [settings setObject:@"DuckDuckGo" forKey:@"search-engine"];
-        [appDelegate saveSettings:settings];
-    } else if (indexPath.row == 1) {
-        [settings setObject:@"Bing" forKey:@"search-engine"];
-        [appDelegate saveSettings:settings];
-    } else if (indexPath.row == 2) {
-        [settings setObject:@"Yahoo" forKey:@"search-engine"];
-        [appDelegate saveSettings:settings];
-    } else if (indexPath.row == 3) {
-        [settings setObject:@"Google" forKey:@"search-engine"];
-        [appDelegate saveSettings:settings];
-        
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Search engine", nil) message:NSLocalizedString(@"Google is known to display captchas before each search to Tor users.\nSome users have experienced captcha loops. If this occurs, either change search engine or request a new identity in the Tor panel.", nil) preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleCancel handler:nil]];
-        [self presentViewController:alert animated:YES completion:NULL];
+    if (indexPath.section == 0) {
+        if (indexPath.row == 0) {
+            [settings setObject:@"DuckDuckGo" forKey:@"search-engine"];
+            [appDelegate saveSettings:settings];
+        } else if (indexPath.row == 1) {
+            [settings setObject:@"Startpage" forKey:@"search-engine"];
+            [appDelegate saveSettings:settings];
+        }
+    } else {
+        if (indexPath.row == 0) {
+            [settings setObject:@"Bing" forKey:@"search-engine"];
+            [appDelegate saveSettings:settings];
+        } else if (indexPath.row == 1) {
+            [settings setObject:@"Yahoo" forKey:@"search-engine"];
+            [appDelegate saveSettings:settings];
+        } else if (indexPath.row == 2) {
+            [settings setObject:@"Google" forKey:@"search-engine"];
+            [appDelegate saveSettings:settings];
+            
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Search engine", nil) message:NSLocalizedString(@"Google is known to display captchas before each search to Tor users.\nSome users have experienced captcha loops. If this occurs, either change search engine or request a new identity in the Tor panel.", nil) preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleCancel handler:nil]];
+            [self presentViewController:alert animated:YES completion:NULL];
+        }
     }
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];

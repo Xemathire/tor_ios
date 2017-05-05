@@ -9,6 +9,13 @@
 		<key>search_no_js</key>
 		<string>https://duckduckgo.com/html/?q=%@</string>
 	</dict>
+	<key>Startpage</key>
+	<dict>
+		<key>search</key>
+		<string>https://www.startpage.com/do/search?query=%@</string>
+		<key>search_no_js</key>
+		<string>https://www.startpage.com/do/search?nosteeraway=1&amp;query=%@</string>
+	</dict>
 	<key>Bing</key>
 	<dict>
 		<key>search</key>

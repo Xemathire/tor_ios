@@ -66,6 +66,9 @@
 "Security" = "Security";
 "Miscellaneous" = "Miscellaneous";
 "Search engine" = "Search engine";
+"Recommended search engines" = "Recommended search engines";
+"Other search engines" = "Other search engines";
+"These search engines are known for trying to spy on their users and are therefore not recommended." = "These search engines are known for trying to spy on their users and are therefore not recommended.";
 "Reopen tabs" = "Reopen tabs";
 "Night mode" = "Night mode";
 "Hide screen in background" = "Hide screen in background";

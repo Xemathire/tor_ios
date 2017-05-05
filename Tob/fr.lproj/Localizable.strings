@@ -67,6 +67,9 @@
 "Miscellaneous" = "Divers";
 "Search engine" = "Moteur de recherche";
 "Reopen tabs" = "Rouvrir les onglets";
+"Recommended search engines" = "Moteurs de recherche recommandés";
+"Other search engines" = "Autres moteurs de recherche";
+"These search engines are known for trying to spy on their users and are therefore not recommended." = "Ces moteurs de recherches tentent d'espionner leurs utilisateurs, il est donc déconseillé de les utiliser.";
 "Night mode" = "Mode nuit";
 "Hide screen in background" = "Masquer l'écran en arrière-plan "; // Add a space so that the text is seperated from the switch in the table view cell
 "Bookmark current URL" = "Ajouter un signet";

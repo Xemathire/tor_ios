@@ -99,6 +99,16 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		33E9AE031E71FD60005AE65B /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -547,6 +557,7 @@
 				3396C3571CCF739200C7CCE2 /* Resources */,
 				3361820B1E09982900642D0F /* Embed Frameworks */,
 				339F01F11E2A709900221097 /* Carthage */,
+				33E9AE031E71FD60005AE65B /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
@@ -579,6 +590,7 @@
 			knownRegions = (
 				en,
 				fr,
+				Base,
 			);
 			mainGroup = 3396C3501CCF739200C7CCE2;
 			productRefGroup = 3396C35A1CCF739200C7CCE2 /* Products */;
